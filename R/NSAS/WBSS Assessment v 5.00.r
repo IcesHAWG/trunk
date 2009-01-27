@@ -59,7 +59,7 @@ FnPrint(ver.datetime)
 ### Define parameters for use in the generic assessment code here
 ### ======================================================================================================
 n.retro.yrs         <-  3               #Number of years for which to run the retrospective
-filename            <-  file.path("..","Output","WBSS","WBSS Assessment") #Output base filename, including directory
+filename            <-  file.path("..","..","Output","WBSS","WBSS Assessment") #Output base filename, including directory
 table.fmt.str       <-  "TABLE 3.6.%i WBSS HERRING."   #The table number formatting string for the ica.out file
 
 ### ======================================================================================================
@@ -70,7 +70,7 @@ win.metafile(paste(filename,"figures - %02d.wmf"),height=180/25.4,width=130/25.4
 ### ======================================================================================================
 ### Parameters specific to this code
 ### ======================================================================================================
-source.path         <-  file.path("..","Source Data","WBSS")                     #Data source, not code or package source!!!
+source.path         <-  file.path("..","..","Source Data","WBSS")                     #Data source, not code or package source!!!
 
 ### ======================================================================================================
 ### Prepare control object for assessment
@@ -141,7 +141,7 @@ idxs  <- idxs[c("HERAS 3-6 wr","GerAS 1-3 wr","N20")]
 ### Uses the common HAWG FLICA Assessment module to perform the actual assessment
 ### ======================================================================================================
 FnPrint("PERFORMING ASSESSMENT...\n")
-source(file.path(".","Common","HAWG Common assessment module.r"))
+source(file.path("..","Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 
 
