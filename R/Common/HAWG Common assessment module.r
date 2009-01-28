@@ -63,10 +63,15 @@ FnPrint("GENERATING SUMMARY PLOTS ...\n")
 summary.data <- FLQuants(SSB=ssb(stck),"Mean F"=fbar(stck),Recruits=rec(stck))
 summary.plot <-xyplot(data~year|qname,data=as.data.frame(summary.data),
                   prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
+                  main=list("Stock Summary Plot",cex=0.9),
                   col="black",
                   ylab="",
                   layout=c(1,3),
                   type="l",
+                  panel=function(...) {
+                    panel.grid(h=-1,v=-1)
+                    panel.xyplot(...)
+                  },
                   scales=list(alternating=1,abbreviate=TRUE,y=list(relation="free",rot=0)))
 print(summary.plot)
 
@@ -75,7 +80,8 @@ diagnostics(ica.obj)
  
 #Bubble plots of the index residuals
 bubble.plot <- bubbles(factor(as.character(age))~year|qname,data=ica.obj@index.res,
-                  layout=c(1,3),
+                  layout=c(1,length(ica.obj@index.res)),
+                  main=list("Index Residuals Bubble Plot",cex=0.9),
                   prepanel=function(...){
                             arg <- list(...)
                             ylims  <- levels(arg$y)
@@ -89,7 +95,8 @@ print(bubble.plot)
 
 #Shade plot of index residuals
 shade.plot <- levelplot(data~year*factor(as.character(age))|qname,data=as.data.frame(ica.obj@index.res),
-                  layout=c(1,3),
+                  main=list("Index Residuals Shade Plot",cex=0.9),
+                  layout=c(1,length(ica.obj@index.res)),
                   at=seq(-2,2,length.out=101),
                   col.regions=colorRampPalette(c("Green","White","Blue"))(100),
                   prepanel=function(...){
@@ -120,6 +127,7 @@ retro.dat   <- rbind(cbind(value="SSB",as.data.frame(retro.ssbs)),
                       cbind(value="Recruits",as.data.frame(retro.recs)),
                       cbind(value="Mean F",as.data.frame(retro.fbar)))
 retro.plot<-xyplot(data~year|value,data=retro.dat,
+                main=list("Retrospective Summary Plot",cex=0.9),
                 groups=qname,
                 prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                 layout=c(1,3),
@@ -128,12 +136,17 @@ retro.plot<-xyplot(data~year|value,data=retro.dat,
                 as.table=TRUE,
                 lwd=c(rep(1,length(retro.stck)-1),3),
                 col="black",
+                panel=function(...) {
+                    panel.grid(h=-1,v=-1)
+                    panel.xyplot(...)
+                },
                 scales=list(alternating=1,y=list(relation="free",rot=0)))
 plot(retro.plot)
  
 #Retrospective cohort plot
 flc.dat      <- as.data.frame(lapply(retro.stck,function(x) FLCohort(x@stock.n)))
 cohort.retro <- xyplot(data~age|factor(cohort),data=flc.dat,
+                    main=list("Cohort Retrospective plot",cex=0.9),
                     as.table=TRUE,
                     groups=cname,
                     type="l",
@@ -146,6 +159,7 @@ print(cohort.retro)
 
 #Retrospective plot by ages
 age.retro <- xyplot(data~year|factor(paste("Age",age)),data=lapply(retro.stck,stock.n),
+                    main=list("Age-group Retrospective plot",cex=0.9),
                     as.table=TRUE,
                     groups=qname,
                     prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
