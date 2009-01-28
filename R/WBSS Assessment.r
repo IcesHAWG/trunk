@@ -1,7 +1,7 @@
 ######################################################################################################
 # WBSS FLICA Assessment
 #
-# Version 5.00 27/01/2009 18:03:13
+# Version 5.01 28/01/2009 11:39:37
 #
 # Author: Mark Payne
 # DIFRES, Charlottenlund, DK
@@ -50,8 +50,8 @@ FnPrint     <-  function(string) {
 ### ======================================================================================================
 ### Display Info
 ### ======================================================================================================
-ver <- "\nWBSS FLICA Assessment v 5.00\n";
-ver.datetime   <- "27/01/2009 18:03:13\n\n";
+ver <- "\nWBSS FLICA Assessment v 5.01\n";
+ver.datetime   <- "28/01/2009 11:39:37\n\n";
 FnPrint(ver)
 FnPrint(ver.datetime)
 
@@ -70,7 +70,7 @@ win.metafile(paste(filename,"figures - %02d.wmf"),height=180/25.4,width=130/25.4
 ### ======================================================================================================
 ### Parameters specific to this code
 ### ======================================================================================================
-source.path         <-  file.path("..","Source Data","WBSS")                     #Data source, not code or package source!!!
+data.source     <-  file.path("..","Source Data","WBSS")                     #Data source, not code or package source!!!
 
 ### ======================================================================================================
 ### Prepare control object for assessment
@@ -91,7 +91,7 @@ ctrl   <-  FLICA.control(sep.nyr=5,
 ### Prepare stock object for assessment
 ### ======================================================================================================
 FnPrint("PREPARING STOCK OBJECT...\n")
-stck                        <- readFLStock(file.path(source.path, "index.dat"),name="WBSS Herring")
+stck                        <- readFLStock(file.path(data.source, "index.dat"),name="WBSS Herring")
 #Assume no discards
 stck@catch.n                <- stck@landings.n
 stck@catch                  <- stck@landings
@@ -107,7 +107,7 @@ stck                        <- setPlusGroup(stck,stck@range["max"])
 ### ======================================================================================================
 FnPrint("PREPARING INDEX OBJECT...\n")
 #Load and modify all index data
-idxs   <- readFLIndices(file.path(source.path, "tun.txt"))
+idxs   <- readFLIndices(file.path(data.source, "tun.txt"))
 idxs   <- lapply(idxs,function(idx) {
           							idx@type 				       <- 	"number"
           							idx@index.var[] 		   <-	1
@@ -140,8 +140,9 @@ idxs  <- idxs[c("HERAS 3-6 wr","GerAS 1-3 wr","N20")]
 ### Perform the assessment
 ### Uses the common HAWG FLICA Assessment module to perform the actual assessment
 ### ======================================================================================================
-FnPrint("PERFORMING ASSESSMENT...\n")
+FnPrint("CALLING COMMON MODULE...\n")
 source(file.path(".","Common","HAWG Common assessment module.r"))
+FnPrint("COMMON MODULE COMPLETE.\n")
 ### ======================================================================================================
 
 
@@ -166,10 +167,12 @@ writeFLStock(stck.stf,output.file=paste(filename,"with STF"))
 ### Convert objects to better names and Save workspace
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
+#Rename key objects for clarity
 herIIIa      <- stck
 herIIIa.stf  <- stck.stf
 herIIIa.tun  <- idxs
 herIIIa.ctrl <- ctrl
+rm(list=c("stck","stck.stf","idxs","ctrl"))
 #Save assessment objects
 save(herIIIa,herIIIa.stf,herIIIa.tun,herIIIa.ctrl,file=paste(filename,"Assessment.RData"))
 save.image(file=paste(filename,"Assessment Workspace.RData"))
