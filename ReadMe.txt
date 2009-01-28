@@ -32,7 +32,9 @@ before it is sourced:
 Variable Name		Purpose
 n.retro.yrs         Number of years for which to run the retrospective
 filename            Output base filename, including directory
-table.fmt.str       #The table number formatting string for the ica.out file
+table.fmt.str       The table number formatting string for the ica.out file
+
+All variables have default values, set at the start of the common module
 
 Output Figures
 ==============

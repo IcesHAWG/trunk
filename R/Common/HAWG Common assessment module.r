@@ -1,7 +1,7 @@
 ######################################################################################################
 # HAWG Herring Generic Stock Assessment Script
 #
-# Version 1.00 21/01/2009 10:41:35
+# Version 1.1 28/01/2009 11:52:50
 #
 # Author: Mark Payne
 # DIFRES, Charlottenlund, DK
@@ -17,7 +17,8 @@
 #   - FLSTF, version 1.99-1
 #
 # Changes:
-# V 1.00 - Assessment split up into a format suitable for use with stockassessment.org
+# V 1.10 - Added error checking and default options
+# V 1.00 - Creation of common assessment module
 #
 # To be done:
 #
@@ -32,6 +33,16 @@ FnPrint     <-  function(string) {
 	cat(string)
 	flush.console()
 }
+
+### ======================================================================================================
+### Set defaults and check that the required objects are properly defined
+### ======================================================================================================
+if(!exists("n.retro.yrs")) n.retro.yrs  <-  3               #Number of years for which to run the retrospective
+if(!exists("filename"))    filename     <-  file.path("..","Output","Assessment results") #Output base filename, including directory
+if(!exists("table.fmt.str")) table.fmt.str  <-  "TABLE %i."   #The table number formatting string for the ica.out file
+if(!exists("stck")) stop("An FLStock object called 'stck' is missing and needs to be defined for use in the assessment.")
+if(!exists("idxs")) stop("An FLIndices object called 'idxs' is missing and needs to be defined for use in the assessment.")
+if(!exists("ctrl")) stop("An FLICA.control object called 'ctrl' is missing and needs to be defined for use in the assessment.")
 
 ### ======================================================================================================
 ### Perform the assessment
