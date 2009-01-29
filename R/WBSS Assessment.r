@@ -1,7 +1,8 @@
 ######################################################################################################
 # WBSS FLICA Assessment
 #
-# Version 5.10 29/01/2009 13:04:11
+# $Rev$
+# $Date$
 #
 # Author: Mark Payne
 # DIFRES, Charlottenlund, DK
@@ -46,8 +47,8 @@ FnPrint     <-  function(string) {
 ### ======================================================================================================
 ### Display Info
 ### ======================================================================================================
-ver <- "\nWBSS FLICA Assessment v 5.01\n";
-ver.datetime   <- "28/01/2009 11:39:37\n\n";
+ver <- "\nWBSS FLICA Assessment $Rev$\n";
+ver.datetime   <- "$Date$\n\n";
 FnPrint(ver)
 FnPrint(ver.datetime)
 
