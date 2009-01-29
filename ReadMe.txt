@@ -2,39 +2,43 @@ Directory Structure
 ===================
 ./Output  		Output data (graphs, tables) produced by the stock assessment. Not stored in repository
 ./pkgs    		FLR packages used
-./R       		R scripts
+./R       		R scripts for each specific stock
+./R/Common 		Source folder for common code module and associated scripts
 ./Source Data 	Input data (in Lowestoft VPA format) used by the stock assessments
-
 
 Useage concept:
 ==============
-"HAWG Common assessment module.r" provides a common and standardised set of code
-for doing a "standard" HAWG stock assessment. The user should first load in their
-data and setup the following objects for their specific stock:
+The file "./R/Common/HAWG Common assessment module.r" provides a common and standardised set of code
+for generating the outputs for a "standard" HAWG stock assessment. To take advantage of this code, 
+the user should first source the module into their code eg
+source(file.path(".","Common","HAWG Common assessment module.r"))
 
-Name	Class
-stck	FLStock
-idxs	FLIndices
-ctrl	FLICA.ctrl
-
-"HAWG Common assessment module.r" should then be sourced - this will perform the 
-assessment, and produce all the necessary graphs and output tables. The user is then
-free to continue after this point, and perform extra analysises, including short
-term forecasts and the like. 
+This script has two roles: it checks that the user has the correct version of the
+required packages installed, and it then provides the user with access to the common
+functions, detailed below. The user can then proceed with their stock assessment in
+the normal manner, and, when appropriate, call these functions to produce the 
+standard set of graphs of tables. The user is then free to continue after this point, 
+and perform extra analysises, including short term forecasts and the like. 
 
 For an example of this in action, see "WBSS Assessment.r"
 
-Variables:
-==========
-"HAWG Common assessment module.r requires the following system variables to be defined
-before it is sourced:
+Functions
+=========
+do.summary.plots(stck,ica.obj)
+	Generates the standard set of summary plots and diagnostic figures
+	Argument	Class			Description
+	stck		FLStock			Contains the information about the stock eg m, catch numbers etc
+	ica.obj		FLICA			Output of an FLICA stock assessment
 
-Variable Name		Purpose
-n.retro.yrs         Number of years for which to run the retrospective
-filename            Output base filename, including directory
-table.fmt.str       The table number formatting string for the ica.out file
-
-All variables have default values, set at the start of the common module
+do.retrospective.plots(stck,idxs,ctrl,n.retro.yrs) 
+	Performs a retrospective analysis and plots the results, showing retrospective results of
+	SSB, Fbar and Recruits, the perception of individual cohorts, and the retrospective 
+	perception of individual age groups
+	Argument	Class			Description
+	stck		FLStock			Contains the information about the stock eg m, catch numbers etc
+	idxs		FLIndices		Contains the tuning indices
+	ctrl		FLICA.control	Contains the FLICA assessment setting parameters
+	n.retro.yrs	integer			Number of years for which to perform the retrospective analysis
 
 Output Figures
 ==============
