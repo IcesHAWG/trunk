@@ -98,7 +98,9 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     cat("GENERATING RETROSPECTIVE ANALYSES...\n");flush.console()
 
     #Generate a retrospective analysis
-    retro.stck <- retro(stck,idxs,ctrl,retro=n.retro.yrs,return.FLStocks=TRUE)
+    retro.icas <- retro(stck,idxs,ctrl,retro=n.retro.yrs,return.FLStocks=FALSE)
+    retro.stck <- do.call(FLStocks,lapply(retro.icas,function(ica) {ica + trim(stck, year=dims(ica@stock.n)$minyear:dims(ica@stock.n)$maxyear)}))
+    most.recent <- max(as.numeric(names(retro.stck)))
 
     #Standard retrospective plot
     cat("RETROSPECTIVE PLOT...\n");flush.console()
@@ -127,7 +129,8 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     plot(retro.plot)
 
     #Calculate the biases by year
-    most.recent.results <- subset(retro.dat,qname==max(as.numeric(retro.dat$qname)),select=-qname)
+    cat("RETROSPECTIVE BIASES BY YEAR...\n");flush.console()
+    most.recent.results <- subset(retro.dat,qname==most.recent,select=-qname)
     colnames(most.recent.results)[8] <- "most.recent"
     bias.dat           <-  merge(retro.dat,most.recent.results)
     bias.dat$bias      <-  bias.dat$data/bias.dat$most.recent -1
@@ -152,6 +155,7 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     plot(bias.plot)
 
     #Calculate the biases by offset from terminal year
+    cat("RETROSPECTIVE BIASES BY OFFSET...\n");flush.console()
     bias.offset.plot<-xyplot(bias~TY.offset|value,data=bias.dat,
                     main=list(paste(stck@name,"Retrospective Bias Plot by Offset"),cex=0.9),
                     groups=qname,
@@ -170,6 +174,19 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
                     },
                     scales=list(alternating=1,y=list(relation="free",rot=0)))
     plot(bias.offset.plot)
+
+    #Retrospective selectivity
+    cat("RETROSPECTIVE SELECTIVITY...\n");flush.console()
+    sels <- sapply(rev(retro.icas),function(ica) drop(yearMeans(ica@sel)@.Data))
+    most.recent.sel <- subset(retro.icas[[as.character(most.recent)]]@param,Param=="Sel")   #For the selectivity from the most recent assessment
+    par(mfrow=c(1,1),oma=c(0,0,0,0),mar=c(5,4,4,2),mgp=c(3,1,0))
+    plot(0,0,pch=NA,xlab="Age",ylab="Catch Selectivity",xlim=range(pretty(as.numeric(rownames(sels)))),
+        ylim=range(pretty(c(0,most.recent.sel$Upper.95.pct.CL))),main=paste(stck@name,"Retrospective selectivity pattern"))
+    polygon(c(most.recent.sel$Age,rev(most.recent.sel$Age)),c(most.recent.sel$Lower.95.pct.CL,rev(most.recent.sel$Upper.95.pct.CL)),col="grey")
+    grid()
+    matlines(as.numeric(rownames(sels)),sels,type="b",lwd=c(3,rep(1,n.retro.yrs)),pch=as.character(as.numeric(colnames(sels))%%10))
+    legend("bottomright",legend=colnames(sels),lwd=c(3,rep(1,n.retro.yrs)),pch=as.character(as.numeric(colnames(sels))%%10),
+        col=1:(n.retro.yrs+1),lty=1:(n.retro.yrs+1),bg="white")
 
     #Return retrospective object
     return(retro.stck)
