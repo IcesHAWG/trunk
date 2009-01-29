@@ -47,8 +47,8 @@ FnPrint     <-  function(string) {
 ### ======================================================================================================
 ### Display Info
 ### ======================================================================================================
-ver <- "\nWBSS FLICA Assessment $Rev$\n";
-ver.datetime   <- "$Date$\n\n";
+ver <- gsub("$","","\nWBSS FLICA Assessment $Rev$\n",fixed=TRUE)
+ver.datetime   <- gsub("$","","$Date$\n\n",fixed=TRUE)
 FnPrint(ver)
 FnPrint(ver.datetime)
 
@@ -56,9 +56,7 @@ FnPrint(ver.datetime)
 ### Incorporate Common modules
 ### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
 ### ======================================================================================================
-FnPrint("CALLING COMMON MODULE...\n")
 source(file.path(".","Common","HAWG Common assessment module.r"))
-FnPrint("COMMON MODULE COMPLETE.\n")
 ### ======================================================================================================
 
 ### ======================================================================================================
