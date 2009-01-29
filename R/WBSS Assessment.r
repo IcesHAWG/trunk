@@ -61,7 +61,7 @@ FnPrint(ver.datetime)
 ### ======================================================================================================
 data.source         <-  file.path("..","Source Data","WBSS")                     #Data source, not code or package source!!!
 filename            <-  file.path("..","Output","WBSS","WBSS Assessment") #Output base filename, including directory
-nretroyrs           <-  3               #Number of years for which to run the retrospective
+nretroyrs           <-  8               #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Incorporate Common modules

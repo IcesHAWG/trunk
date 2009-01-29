@@ -125,9 +125,55 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
                     scales=list(alternating=1,y=list(relation="free",rot=0)))
     plot(retro.plot)
 
+    #Calculate the biases by year
+    most.recent.results <- subset(retro.dat,qname==max(as.numeric(retro.dat$qname)),select=-qname)
+    colnames(most.recent.results)[8] <- "most.recent"
+    bias.dat           <-  merge(retro.dat,most.recent.results)
+    bias.dat$bias      <-  bias.dat$data/bias.dat$most.recent -1
+    bias.dat$TY.offset <-  bias.dat$year-as.numeric(bias.dat$qname)
+    bias.plot<-xyplot(bias~year|value,data=bias.dat,
+                    main=list(paste(stck@name,"Retrospective Bias Plot by Year"),cex=0.9),
+                    groups=qname,
+                    prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
+                    layout=c(1,3),
+                    ylab="Bias",
+                    xlab="Year",
+                    type="l",
+                    as.table=TRUE,
+                    lwd=1,
+                    col="black",
+                    panel=function(...) {
+                        panel.grid(h=-1,v=-1)
+                        panel.abline(h=0,lwd=3)
+                        panel.xyplot(...)
+                    },
+                    scales=list(alternating=1,y=list(relation="free",rot=0)))
+    plot(bias.plot)
+
+    #Calculate the biases by offset from terminal year
+    bias.offset.plot<-xyplot(bias~TY.offset|value,data=bias.dat,
+                    main=list(paste(stck@name,"Retrospective Bias Plot by Offset"),cex=0.9),
+                    groups=qname,
+                    prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
+                    layout=c(1,3),
+                    ylab="Bias",
+                    xlab="Offset from Terminal Year of Assessment",
+                    type="l",
+                    as.table=TRUE,
+                    lwd=1,
+                    col="black",
+                    panel=function(...) {
+                        panel.grid(h=-1,v=-1)
+                        panel.abline(h=0,lwd=3)
+                        panel.xyplot(...)
+                    },
+                    scales=list(alternating=1,y=list(relation="free",rot=0)))
+    plot(bias.offset.plot)
+
     #Return retrospective object
     return(retro.stck)
 }
+
 
 ### ======================================================================================================
 ### Check FLR Package version numbers
