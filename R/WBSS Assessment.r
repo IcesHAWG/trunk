@@ -34,12 +34,7 @@
 # Start with house cleaning
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
-#Load libraries
-#library(FLCore)
-#library(FLAssess)
-#library(FLICA)
-#library(FLSTF)
-#
+
 ### ======================================================================================================
 ### Convenience Functions
 ### ======================================================================================================
@@ -57,13 +52,6 @@ FnPrint(ver)
 FnPrint(ver.datetime)
 
 ### ======================================================================================================
-### Define parameters for use in the assessment code here
-### ======================================================================================================
-data.source         <-  file.path("..","Source Data","WBSS")                     #Data source, not code or package source!!!
-filename            <-  file.path("..","Output","WBSS","WBSS Assessment") #Output base filename, including directory
-nretroyrs           <-  8               #Number of years for which to run the retrospective
-
-### ======================================================================================================
 ### Incorporate Common modules
 ### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
 ### ======================================================================================================
@@ -71,6 +59,13 @@ FnPrint("CALLING COMMON MODULE...\n")
 source(file.path(".","Common","HAWG Common assessment module.r"))
 FnPrint("COMMON MODULE COMPLETE.\n")
 ### ======================================================================================================
+
+### ======================================================================================================
+### Define parameters for use in the assessment code here
+### ======================================================================================================
+data.source         <-  file.path("..","Source Data","WBSS")                     #Data source, not code or package source!!!
+filename            <-  file.path("..","Output","WBSS","WBSS Assessment") #Output base filename, including directory
+nretroyrs           <-  8               #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Output setup

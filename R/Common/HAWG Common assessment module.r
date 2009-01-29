@@ -22,6 +22,7 @@
 # V 1.00 - Creation of common assessment module
 #
 # To be done:
+#    Add in retrospective
 #
 # Notes:
 #
@@ -97,7 +98,7 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     cat("GENERATING RETROSPECTIVE ANALYSES...\n");flush.console()
 
     #Generate a retrospective analysis
-    retro.stck <- retro(stck,idxs,ctrl,retro=n.retro.yrs)
+    retro.stck <- retro(stck,idxs,ctrl,retro=n.retro.yrs,return.FLStocks=TRUE)
 
     #Standard retrospective plot
     cat("RETROSPECTIVE PLOT...\n");flush.console()
@@ -174,7 +175,6 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     return(retro.stck)
 }
 
-
 ### ======================================================================================================
 ### Check FLR Package version numbers
 ### ======================================================================================================
@@ -194,3 +194,6 @@ required.version <- "2.8.0"
 if(compareVersion(paste(version$major,version$minor,sep="."),required.version)==-1) {
  stop(paste("ERROR: Current R version is",paste(version$major,version$minor,sep="."),"This code requires at least R",required.version))
 }
+
+#Add in other functions
+source(file.path(".","Common","HAWG Retro func.r"))
