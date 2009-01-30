@@ -47,10 +47,7 @@ FnPrint     <-  function(string) {
 ### ======================================================================================================
 ### Display Info
 ### ======================================================================================================
-ver <- gsub("$","","\nWBSS FLICA Assessment $Rev$\n",fixed=TRUE)
-ver.datetime   <- gsub("$","","$Date$\n\n",fixed=TRUE)
-FnPrint(ver)
-FnPrint(ver.datetime)
+FnPrint("\nWBSS FLICA Assessment\n=====================\n")
 
 ### ======================================================================================================
 ### Incorporate Common modules
