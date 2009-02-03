@@ -201,6 +201,16 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
 }
 
 ### ======================================================================================================
+### Stock Recruitment Plot
+### ======================================================================================================
+do.SRR.plot<- function(stck) {
+    plot(ssb(stck),rec(stck),xlab="Spawning Stock Biomass",ylab="Recruits",type="b",
+        xlim=range(pretty(c(0,ssb(stck)))),ylim=range(pretty(c(0,rec(stck)))))
+    text(ssb(stck),rec(stck),labels=sprintf("%02i",as.numeric(dimnames(ssb(stck))$year)%%100),pos=4)
+    title(main=paste(stck@name,"Stock-Recruitment Relationship"))
+}
+
+### ======================================================================================================
 ### Check FLR Package version numbers
 ### ======================================================================================================
 #Load packages - strict, active enforcement of version numbers.

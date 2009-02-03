@@ -40,6 +40,12 @@ do.retrospective.plots(stck,idxs,ctrl,n.retro.yrs)
 	ctrl		FLICA.control	Contains the FLICA assessment setting parameters
 	n.retro.yrs	integer			Number of years for which to perform the retrospective analysis
 
+do.SRR.plot(stck) 
+	Plots a basic stock-recrutiment relationship by joing the dots for sequential years, and labelling
+	each point with the corresponding year
+	Argument	Class			Description
+	stck		FLStock			Result of an assessment, containing stock.n etc
+	
 Output Figures
 ==============
 The common assessment module does not specify the type of output format - this is left 

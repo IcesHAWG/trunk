@@ -135,6 +135,7 @@ WBSS       <-  WBSS + WBSS.ica
 ### ======================================================================================================
 do.summary.plots(WBSS,WBSS.ica)
 WBSS.retro <- do.retrospective.plots(WBSS,WBSS.tun,WBSS.ctrl,nretroyrs)
+do.SRR.plot(WBSS)
 
 
 
