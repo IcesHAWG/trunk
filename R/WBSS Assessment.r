@@ -127,9 +127,23 @@ WBSS       <-  WBSS + WBSS.ica
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
 ### ======================================================================================================
-do.summary.plots(WBSS,WBSS.ica)
-WBSS.retro <- do.retrospective.plots(WBSS,WBSS.tun,WBSS.ctrl,nretroyrs)
-do.SRR.plot(WBSS)
+#do.summary.plots(WBSS,WBSS.ica)
+#WBSS.retro <- do.retrospective.plots(WBSS,WBSS.tun,WBSS.ctrl,nretroyrs)
+#do.SRR.plot(WBSS)
+
+### ======================================================================================================
+### Other plots
+### ======================================================================================================
+FnPrint("GENERATING CUSTOM PLOTS...\n")
+#Catch and TAC
+TACs <- data.frame(year=1991:2010,TAC=1000*c(155,174,210,191,183,163,100,97,99,101,101,101,101,91,120,102+47.5,69+49.5,51.7+45,0,NA))
+TAC.sfun <- stepfun(TACs$year-0.5,c(NA,TACs$TAC),right=FALSE)
+catch <- as.data.frame(WBSS@catch)
+plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(pretty(TACS$year)),ylim=range(pretty(c(0,TACS$TAC,catch$data))))
+rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
+lines(TAC.sfun,lwd=5,pch=NA)
+title(main=paste(WBSS@name,"Catch and TAC"))
+
 
 
 
