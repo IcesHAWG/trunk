@@ -97,27 +97,21 @@ WBSS@name    <- "WBSS Herring"
 FnPrint("PREPARING INDEX OBJECT...\n")
 #Load and modify all index data
 WBSS.tun   <- readFLIndices(file.path(data.source, "tun.txt"))
+
+#Set names, and parameters etc
+names(WBSS.tun) <-  gsub(":.*$","",names(WBSS.tun))
 WBSS.tun   <- lapply(WBSS.tun,function(idx) {
-          							idx@type 				       <- 	"number"
-          							idx@index.var[] 		   <-	1
-                        idx@range["plusgroup"] <- NA
-          							return(idx)})
+                idx@type 	     <- 	"number"
+          		idx@index.var[]  <-	1
+                idx@range["plusgroup"] <- NA
+          		return(idx)})
 WBSS.tun[[1]]@range["plusgroup"] <- 8
+
+#Define two new indices by truncating current indices etc
 WBSS.tun[[8]]      <-  trim(WBSS.tun[[1]],age=3:6,year=1993:2007) #HERAS 3-6 wr
 WBSS.tun[[9]]      <-  trim(WBSS.tun[[5]],age=1:3,year=1994:2007) #GerAS 1-3 wr
 WBSS.tun[[9]]@index[,"2001"] <- -1     #2001 is excluded from GerAS due to lack of coverage in SD23
-
-#Name them all appropriately
-WBSS.tun[[1]]@name <- "HERAS 0-8+ wr"
-WBSS.tun[[2]]@name <- "Ger AS 0-8 wr (SD 22-24)"
-WBSS.tun[[3]]@name <- "IYFS Katt Q1 1-5 wr"
-WBSS.tun[[4]]@name <- "IYFS Katt Q3 1-5 wr"
-WBSS.tun[[5]]@name <- "Ger AS 0-8 wr (SD 21-24)"
-WBSS.tun[[6]]@name <- "N20"
-WBSS.tun[[7]]@name <- "N30"
-WBSS.tun[[8]]@name <- "HERAS 3-6 wr"
-WBSS.tun[[9]]@name <- "GerAS 1-3 wr";
-names(WBSS.tun) <-  sapply(WBSS.tun,name)
+names(WBSS.tun)[8:9] <- c("HERAS 3-6 wr","GerAS 1-3 wr")
 
 #Only use the relevant data sets
 WBSS.tun  <- WBSS.tun[c("HERAS 3-6 wr","GerAS 1-3 wr","N20")]
