@@ -94,7 +94,9 @@ do.summary.plots <- function(stck,ica.obj) {
     print(shade.plot)
 
     #Generate an "otolith" plot showing the uncertainty distribution
+    oldpar <- par() #Otolith plots tends to mess with par a bit much and not clean up!
     plot.otolith(stck,ica.obj)
+    par(oldpar[-which(names(oldpar)%in%c("cin","cra","csi","cxy","din"))])   #Some parameters cannot be set
     invisible(NULL)
 }
  
@@ -186,7 +188,6 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     cat("RETROSPECTIVE SELECTIVITY...\n");flush.console()
     sels <- sapply(rev(retro.icas),function(ica) drop(yearMeans(ica@sel)@.Data))
     most.recent.sel <- subset(retro.icas[[as.character(most.recent)]]@param,Param=="Sel")   #For the selectivity from the most recent assessment
-    par(mfrow=c(1,1),oma=c(0,0,0,0),mar=c(5,4,4,2),mgp=c(3,1,0))
     plot(0,0,pch=NA,xlab="Age",ylab="Catch Selectivity",xlim=range(pretty(as.numeric(rownames(sels)))),
         ylim=range(pretty(c(0,most.recent.sel$Upper.95.pct.CL))),main=paste(stck@name,"Retrospective selectivity pattern"))
     polygon(c(most.recent.sel$Age,rev(most.recent.sel$Age)),c(most.recent.sel$Lower.95.pct.CL,rev(most.recent.sel$Upper.95.pct.CL)),col="grey")

@@ -30,23 +30,14 @@
 ####################################################################################################
 
 ### ======================================================================================================
-### Initialise system  
+### Initialise system, including convenience functions and title display
 ### ======================================================================================================
-# Start with house cleaning
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
-
-### ======================================================================================================
-### Convenience Functions
-### ======================================================================================================
 FnPrint     <-  function(string) {
 	cat(string)
 	flush.console()
 }
-
-### ======================================================================================================
-### Display Info
-### ======================================================================================================
 FnPrint("\nWBSS FLICA Assessment\n=====================\n")
 
 ### ======================================================================================================
@@ -87,12 +78,12 @@ WBSS.ctrl   <-  FLICA.control(sep.nyr=5,
 ### Prepare stock object for assessment
 ### ======================================================================================================
 FnPrint("PREPARING STOCK OBJECT...\n")
-WBSS                        <- readFLStock(file.path(data.source, "index.dat"))
-#Assume no discards
+WBSS                        <- readFLStock(file.path(data.source, "index.dat"),no.discards=TRUE)
+#Set no discards
 WBSS@catch.n                <- WBSS@landings.n
 WBSS@catch                  <- WBSS@landings
 WBSS@catch.wt               <- WBSS@landings.wt
-units(WBSS)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), "NA", "NA", "NA", "NA", "NA"))
+units(WBSS)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
 #Set fbar
 range(WBSS)[c("minfbar","maxfbar")] <- c(3,6)
 #Set plus group
