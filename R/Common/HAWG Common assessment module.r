@@ -12,10 +12,11 @@
 #
 # Developed with:
 #   - R version 2.8.0
-#   - FLCore 1.99-111
+#   - FLCore 2.0
 #   - FLICA, version 1.4-3
 #   - FLAssess, version 1.99-102
 #   - FLSTF, version 1.99-1
+#   - FLEDA, version 2.0
 #
 # Changes:
 # V 2.00 - Simplified everything down into functions
@@ -224,6 +225,7 @@ check.versions("FLCore","2.0")
 check.versions("FLAssess","1.99-102")
 check.versions("FLICA","1.4-3")
 check.versions("FLSTF","1.99-1")
+check.versions("FLEDA","2.0")
 #Check R version too!
 required.version <- "2.8.0"
 if(compareVersion(paste(version$major,version$minor,sep="."),required.version)==-1) {
