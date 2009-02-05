@@ -29,6 +29,11 @@ and perform extra analysises, including short term forecasts and the like.
 
 For an example of this in action, see "WBSS Assessment.r"
 
+Working Directory:
+=================
+All code is designed to be run with the ./Stock/run directory as the working directory. Changes from this
+will cause code to break - I wish there was a nice way around this, but there isn't really, unfortunately.
+
 Functions
 =========
 do.summary.plots(stck,ica.obj)

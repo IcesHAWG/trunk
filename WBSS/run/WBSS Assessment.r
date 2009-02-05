@@ -44,20 +44,23 @@ FnPrint("\nWBSS FLICA Assessment\n=====================\n")
 ### Incorporate Common modules
 ### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
 ### ======================================================================================================
-source(file.path(".","Common","HAWG Common assessment module.r"))
+source(file.path("..","..","_Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 
 ### ======================================================================================================
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
-data.source         <-  file.path("..","Source Data","WBSS")                     #Data source, not code or package source!!!
-filename            <-  file.path("..","Output","WBSS","WBSS Assessment") #Output base filename, including directory
+data.source         <-  file.path("..","data")                     #Data source, not code or package source!!!
+filename            <-  file.path("..","res","WBSS Assessment") #Output base filename, including directory
 nretroyrs           <-  8               #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Output setup
 ### ======================================================================================================
-win.metafile(paste(filename,"figures - %02d.wmf"),height=180/25.4,width=130/25.4,pointsize=10,restoreConsole=FALSE)
+#win.metafile(paste(filename,"figures - %02d.wmf"),height=180/25.4,width=130/25.4,pointsize=10,restoreConsole=FALSE)
+png(paste(filename,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
+#Set default lattice fontsize, so that things are actually readible!
+trellis.par.set(fontsize=list(text=24,points=20))
 
 ### ======================================================================================================
 ### Prepare control object for assessment
