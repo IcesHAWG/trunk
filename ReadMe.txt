@@ -8,7 +8,10 @@ One directory corresponds to a single stock, which in turn has the following dir
 
 In addition, the "_Common" folder contains all of the shared modules, including the appropriate R packages
 ./_Common 		Source folder for common code module and associated scripts
-./_Common/Pkgs	Source folder for appropriate R scripts
+./_Common/Pkgs	Source folder for appropriate R packages
+The script "UpdatePackages.r" in the ./_Common/Pkgs folder can be used to bring all of the required packages up
+to date systematically.
+
 
 Useage concept:
 ==============
