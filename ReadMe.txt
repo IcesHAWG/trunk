@@ -1,17 +1,21 @@
 Directory Structure
 ===================
-./Output  		Output data (graphs, tables) produced by the stock assessment. Not stored in repository
-./pkgs    		FLR packages used
-./R       		R scripts for each specific stock
-./R/Common 		Source folder for common code module and associated scripts
-./Source Data 	Input data (in Lowestoft VPA format) used by the stock assessments
+One directory corresponds to a single stock, which in turn has the following directory structure
+./Stock/cfg 	Assessment configuration options
+./Stock/data 	Input data (in Lowestoft VPA format) used by the stock assessments
+./Stock/res		Output data (graphs, tables) produced by the stock assessment. Not stored in repository
+./Stock/run		R scripts for each specific stock to run the assessment
+
+In addition, the "_Common" folder contains all of the shared modules, including the appropriate R packages
+./_Common 		Source folder for common code module and associated scripts
+./_Common/Pkgs	Source folder for appropriate R scripts
 
 Useage concept:
 ==============
-The file "./R/Common/HAWG Common assessment module.r" provides a common and standardised set of code
+The file "./_Common/HAWG Common assessment module.r" provides a common and standardised set of code
 for generating the outputs for a "standard" HAWG stock assessment. To take advantage of this code, 
 the user should first source the module into their code eg
-source(file.path(".","Common","HAWG Common assessment module.r"))
+source(file.path("..","..","_Common","HAWG Common assessment module.r"))
 
 This script has two roles: it checks that the user has the correct version of the
 required packages installed, and it then provides the user with access to the common
@@ -50,9 +54,10 @@ Output Figures
 ==============
 The common assessment module does not specify the type of output format - this is left 
 up to the user to decide. If no device is configured, all of the graphs will be displayed
-in the graphics window. If the user wishes to save the graphs, eg to windows metafiles or PDF, they
-should configure the output device before sourcing the common module, and close it afterwards eg
+in the graphics window. If the user wishes to save the graphs, eg to windows metafiles, png or PDF, they
+should configure the output device before sourcing the common module, and close it afterwards. Note that
+use of the stockassessment.org website requires the generation of png files eg
 
-win.metafile(figures - %02d.wmf",height=180/25.4,width=130/25.4,pointsize=10,restoreConsole=FALSE)
-source(file.path(".","Common","HAWG Common assessment module.r"))
+png("figures - %02d.png",units = "px", pointsize = 10, bg = "white")
+<Plotting scripts>
 dev.off()
