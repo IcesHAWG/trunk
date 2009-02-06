@@ -50,15 +50,16 @@ source(file.path("..","..","_Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
-data.source         <-  file.path("..","data")                     #Data source, not code or package source!!!
-filename            <-  file.path("..","res","WBSS Assessment") #Output base filename, including directory
+data.source         <-  file.path("..","data")      #Data source, not code or package source!!!
+output.dir          <-  file.path("..","res")       #Output directory
+output.base         <-  file.path(output.dir,"WBSS Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
 nretroyrs           <-  8               #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Output setup
 ### ======================================================================================================
 #win.metafile(paste(filename,"figures - %02d.wmf"),height=180/25.4,width=130/25.4,pointsize=10,restoreConsole=FALSE)
-png(paste(filename,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
+png(paste(output.base,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
 #Set default lattice fontsize, so that things are actually readible!
 trellis.par.set(fontsize=list(text=24,points=20))
 
@@ -135,7 +136,7 @@ WBSS.retro <- do.retrospective.plots(WBSS,WBSS.tun,WBSS.ctrl,nretroyrs)
 do.SRR.plot(WBSS)
 
 ### ======================================================================================================
-### Other plots
+### Custom plots
 ### ======================================================================================================
 FnPrint("GENERATING CUSTOM PLOTS...\n")
 #Catch and TAC
@@ -148,8 +149,6 @@ lines(TAC.sfun,lwd=5,pch=NA)
 title(main=paste(WBSS@name,"Catch and TAC"))
 
 
-
-
 ### ======================================================================================================
 ### Document Assessment
 ### ======================================================================================================
@@ -157,10 +156,10 @@ FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering
 options("width"=80)
 ica.out.file <- ica.out(WBSS,WBSS.tun,WBSS.ica,format="TABLE 3.6.%i WBSS HERRING.")
-write(ica.out.file,file=paste(filename,"ica.out",sep="."))
+write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(WBSS,output.file=filename)
+writeFLStock(WBSS,output.file=output.base)
 
 
 ### ======================================================================================================
@@ -173,13 +172,13 @@ stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec
 WBSS.stf        <- FLSTF(stock=WBSS,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(WBSS.stf,output.file=paste(filename,"with STF"))
+writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(WBSS,WBSS.stf,WBSS.tun,WBSS.ctrl,file=paste(filename,"Assessment.RData"))
-save.image(file=paste(filename,"Assessment Workspace.RData"))
+save(WBSS,WBSS.stf,WBSS.tun,WBSS.ctrl,file=paste(output.base,"Assessment.RData"))
+save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
