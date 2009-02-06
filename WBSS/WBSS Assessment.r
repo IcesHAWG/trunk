@@ -140,12 +140,13 @@ do.SRR.plot(WBSS)
 ### ======================================================================================================
 FnPrint("GENERATING CUSTOM PLOTS...\n")
 #Catch and TAC
-TACs <- data.frame(year=1991:2010,TAC=1000*c(155,174,210,191,183,163,100,97,99,101,101,101,101,91,120,102+47.5,69+49.5,51.7+45,0,NA))
-TAC.sfun <- stepfun(TACs$year-0.5,c(NA,TACs$TAC),right=FALSE)
-catch <- as.data.frame(WBSS@catch)
+TACs    <- data.frame(year=1991:2008,TAC=1000*c(155,174,210,191,183,163,100,97,99,101,101,101,101,91,120,102+47.5,69+49.5,51.7+45))
+TAC.plot.dat <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(TACs$TAC,each=2))
+catch   <- as.data.frame(WBSS@catch)
 plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(pretty(TACs$year)),ylim=range(pretty(c(0,TACs$TAC,catch$data))))
 rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
-lines(TAC.sfun,lwd=5,pch=NA)
+lines(TAC.plot.dat,lwd=5)
+legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2))
 title(main=paste(WBSS@name,"Catch and TAC"))
 
 
