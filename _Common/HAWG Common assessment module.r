@@ -242,5 +242,5 @@ if(compareVersion(paste(version$major,version$minor,sep="."),required.version)==
 }
 
 #Add in other functions
-source(file.path("..","..","_Common","HAWG Retro func.r"))
+source(file.path("..","_Common","HAWG Retro func.r"))
 

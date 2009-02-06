@@ -44,14 +44,14 @@ FnPrint("\nWBSS FLICA Assessment\n=====================\n")
 ### Incorporate Common modules
 ### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
 ### ======================================================================================================
-source(file.path("..","..","_Common","HAWG Common assessment module.r"))
+source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 
 ### ======================================================================================================
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
-data.source         <-  file.path("..","data")      #Data source, not code or package source!!!
-output.dir          <-  file.path("..","res")       #Output directory
+data.source         <-  file.path(".","data")      #Data source, not code or package source!!!
+output.dir          <-  file.path(".","res")       #Output directory
 output.base         <-  file.path(output.dir,"WBSS Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
 nretroyrs           <-  8               #Number of years for which to run the retrospective
 
