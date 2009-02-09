@@ -53,30 +53,46 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 data.source         <-  file.path(".","data")      #Data source, not code or package source!!!
 output.dir          <-  file.path(".","res")       #Output directory
 output.base         <-  file.path(output.dir,"WBSS Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-nretroyrs           <-  8               #Number of years for which to run the retrospective
+n.retro.years       <-  8                          #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Output setup
 ### ======================================================================================================
-#win.metafile(paste(filename,"figures - %02d.wmf"),height=180/25.4,width=130/25.4,pointsize=10,restoreConsole=FALSE)
 png(paste(output.base,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
 #Set default lattice fontsize, so that things are actually readible!
 trellis.par.set(fontsize=list(text=24,points=20))
 
 ### ======================================================================================================
 ### Prepare control object for assessment
+### We use here two different options - the first is the simpler and more normal:, just setting the control
+### directly in the code. The second is reading in the configuration from a file - this is normally not
+### necessary, but is a handy feature for using the code on stockassessment.org
 ### ======================================================================================================
 FnPrint("PREPARING CONTROL OBJECTS...\n")
-WBSS.ctrl   <-  FLICA.control(sep.nyr=5,
-                              sep.age=4,
-                              sep.sel=1.0,
-                              lambda.yr=1,
-                              lambda.age=c(0.1,1,1,1,1,1,1,1,1),
-                              lambda.sr=0,
-                              sr=FALSE,
-                              sr.age=0,
-                              index.model=c("l","l","l"),
-                              index.cor=1)
+#Set control object straight up (option 1)
+#-----------------------------------------
+#WBSS.ctrl   <-  FLICA.control(sep.nyr=5,
+#                              sep.age=4,
+#                              sep.sel=1.0,
+#                              lambda.yr=1,
+#                              lambda.age=c(0.1,1,1,1,1,1,1,1,1),
+#                              lambda.sr=0,
+#                              sr=FALSE,
+#                              sr.age=0,
+#                              index.model=c("l","l","l"),
+#                              index.cor=1)
+#
+
+#Make control object from configuration file (option 2)
+#--------------------------------------------------------
+#Read in configuration file, and break into vectors as needed
+cfg.in <- read.table(file.path(".","conf","WBSS.cfg"),sep="=",comment.char="#",row.names=1,
+            strip.white=TRUE,colClasses="character")
+cfg    <- strsplit(cfg.in$V2," +|\t+")    #Breaks the input strings into vectors, using white space as a separator
+names(cfg) <- row.names(cfg.in)
+#Now take the arguments from the configuration file that apply here and make the object
+ctrl.list <-  cfg[names(cfg) %in% names(formals(FLICA.control))]
+WBSS.ctrl <- do.call(FLICA.control, ctrl.list)
 
 ### ======================================================================================================
 ### Prepare stock object for assessment
@@ -132,7 +148,7 @@ WBSS       <-  WBSS + WBSS.ica
 ### Use the standard code from the common modules to produce outputs
 ### ======================================================================================================
 do.summary.plots(WBSS,WBSS.ica)
-WBSS.retro <- do.retrospective.plots(WBSS,WBSS.tun,WBSS.ctrl,nretroyrs)
+WBSS.retro <- do.retrospective.plots(WBSS,WBSS.tun,WBSS.ctrl,n.retro.years)
 do.SRR.plot(WBSS)
 
 ### ======================================================================================================
