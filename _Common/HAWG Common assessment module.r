@@ -59,45 +59,40 @@ do.summary.plots <- function(stck,ica.obj) {
     print(summary.plot)
 
     #Now generate the diagnostic plots
- #   diagnostics(ica.obj)
+    diagnostics(ica.obj)
 
     #Setup plotting data
     n.ages   <- sapply(ica.obj@index.res,nrow)    #number of ages in each quant
     n.quants <- length(n.ages)
+    res.dat  <- as.data.frame(ica.obj@index.res)
+    res.dat$age <- factor(as.character(res.dat$age))  #Sorted automatically
+    res.dat$qname <- factor(res.dat$qname,levels=unique(res.dat$qname)) #Not sorted - natural order
 
     #Bubble plots of the index residuals
-    bubble.plot <- bubbles(factor(as.character(age))~year|qname,data=ica.obj@index.res,
+    bubble.plot <- bubbles(age~year|qname,data=res.dat,
                       layout=c(1,n.quants),
                       main=list(paste(stck@name,"Index Residuals Bubble Plot"),cex=0.9),
-                      prepanel=function(...){
-                                arg <- list(...)
-                                ylims  <- levels(arg$y)
-                                yats   <- unique(as.numeric(arg$y))
-                                list(ylim=ylims,yat=yats)
-                      },
+                      prepanel=function(...){ #Only show ages for which we have data
+                         arg <- list(...)
+                         list(yat=unique(as.numeric(arg$y)))},
                       ylab="age",
                       as.table=TRUE,
-                      index.cond=list(order(names(ica.obj@index.res))),
-                      plot.args=list(panel.height=list(x=n.ages,units="null")),
+                      plot.args=list(panel.height=list(x=n.ages,units="null")), #Set relative heights of each panel
                       scale=list(alternating=1,rot=0,y=list(relation="free")))
     print(bubble.plot)
 
     #Shade plot of index residuals
-    shade.plot <- levelplot(data~year*factor(as.character(age))|qname,data=as.data.frame(ica.obj@index.res),
+    shade.plot <- levelplot(data~year*age|qname,data=res.dat,
                       main=list(paste(stck@name,"Index Residuals Shade Plot"),cex=0.9),
                       layout=c(1,n.quants),
                       at=seq(-2,2,length.out=101),
                       col.regions=colorRampPalette(c("Green","White","Blue"))(100),
-                      prepanel=function(...){
-                                arg <- list(...)
-                                ylims  <- levels(arg$y)
-                                yats   <- unique(as.numeric(arg$y[arg$subscripts]))
-                                list(ylim=ylims,yat=yats)
-                      },
+                      prepanel=function(...){ #Only show ages for which we have data
+                         arg <- list(...)
+                         list(yat=unique(as.numeric(arg$y[arg$subscripts])))},
                       pretty=TRUE,
                       ylab="age",
                       as.table=TRUE,
-                      index.cond=list(order(names(ica.obj@index.res))),
                       plot.args=list(panel.height=list(x=n.ages,units="null")),
                       scale=list(alternating=1,rot=0,y=list(relation="free")))
     print(shade.plot)
@@ -217,7 +212,7 @@ do.SRR.plot<- function(stck) {
         xlim=range(pretty(c(0,ssb(stck)))),ylim=range(pretty(c(0,rec(stck)))))
     text(ssb(stck),rec(stck),labels=sprintf("%02i",as.numeric(dimnames(ssb(stck))$year)%%100),pos=4)
     title(main=paste(stck@name,"Stock-Recruitment Relationship"))
-    warning("WARNING: do.SRR.plo() does not yet account for age offsets properly. Please check your results carefully!")
+    warning("WARNING: do.SRR.plot() does not yet account for age offsets properly. Please check your results carefully!")
 }
 
 ### ======================================================================================================
