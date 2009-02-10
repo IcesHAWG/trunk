@@ -64,7 +64,7 @@ IYFS Katt Q1 1-5 wr: IYFS Katt Quart1 Age groups 1-5 (Mean Catch in Number)
          1    361.32    163.34     48.42     18.77     16.84
          1    346.73    185.47     14.71      9.83      0.01
          1    141.97	 43.81     15.51	   12.06      3.50	
-IYFS Katt Q1 1-5 wr: IYFS Katt Quart3 Age groups 1-5 (Mean Catch in Number)
+IYFS Katt Q3 1-5 wr: IYFS Katt Quart3 Age groups 1-5 (Mean Catch in Number)
       1991      2007
          1         1       0.5      0.75
          1         5
