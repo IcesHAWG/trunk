@@ -94,6 +94,30 @@ do.summary.plots <- function(stck,ica.obj) {
     ssq.yr.breakdown <- update(ssq.yr.breakdown,main=list(paste(stck@name,"SSQ Breakdown by Year"),cex=0.9))
     print(ssq.yr.breakdown)
 
+    #New diagnostics! Contribution of each cohort to the SSQ
+    ssq.cohort.dat  <- lapply(ica.obj@weighted.resids,function(x) {
+                            if(dims(x)$age>1) {     #FLCohort breaks down for a single age quant
+                                means <- sqrt(apply(FLCohort(x)^2,c(2:6),mean,na.rm=TRUE))
+                                FLQuant(means,dimnames=c(year="all",dimnames(means)))
+                            } else {
+                                dat.names <- dimnames(x)
+                                new.names <- c(list(cohort=dat.names$year,year="all"),dat.names[3:6])
+                                FLQuant(as.vector(abs(x)),dimnames=new.names)}
+                        })
+    ssq.cohort.breakdown <- xyplot(data~as.numeric(as.character(cohort))|qname,data=ssq.cohort.dat,
+                      ylab="RMS Weighted SSQ",xlab="Cohort",
+                      prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
+                      as.table=TRUE,
+                      horizontal=FALSE,origin=0,box.width=1,col="grey",   #Barchart options
+                      panel=function(...) {
+                        panel.grid(h=-1,v=-1)
+                        panel.barchart(...)
+                        panel.abline(h=0,col="black",lwd=1)
+                      },
+                      scales=list(alternating=1))
+    ssq.cohort.breakdown <- update(ssq.cohort.breakdown,main=list(paste(stck@name,"SSQ Breakdown by Cohort"),cex=0.9))
+    print(ssq.cohort.breakdown)
+
     #Setup plotting data for bubble plots
     n.ages   <- sapply(ica.obj@index.res,nrow)    #number of ages in each quant
     n.quants <- length(n.ages)
