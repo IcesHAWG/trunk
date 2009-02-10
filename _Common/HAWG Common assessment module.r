@@ -63,7 +63,7 @@ do.summary.plots <- function(stck,ica.obj) {
     diagnostics(ica.obj)
 
     #New diagnostics! Contribution of each age class to the SSQ
-    ssq.age.dat  <- lapply(ica.obj@weighted.resids,function(x) sqrt(yearMeans(x^2)))
+    ssq.age.dat  <- lapply(ica.obj@weighted.resids,function(x) sqrt(yearMeans(x^2,na.rm=TRUE)))
     ssq.age.breakdown <- xyplot(data~age|qname,data=ssq.age.dat,
                       ylab="RMS Weighted SSQ",xlab="Age",
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
@@ -79,7 +79,7 @@ do.summary.plots <- function(stck,ica.obj) {
     print(ssq.age.breakdown)
 
     #New diagnostics! Contribution of each year to the SSQ
-    ssq.yr.dat  <- lapply(ica.obj@weighted.resids,function(x) sqrt(quantMeans(x^2)))
+    ssq.yr.dat  <- lapply(ica.obj@weighted.resids,function(x) sqrt(quantMeans(x^2,na.rm=TRUE)))
     ssq.yr.breakdown <- xyplot(data~year|qname,data=ssq.yr.dat,
                       ylab="RMS Weighted SSQ",xlab="Year",
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
@@ -98,7 +98,7 @@ do.summary.plots <- function(stck,ica.obj) {
     ssq.cohort.dat  <- lapply(ica.obj@weighted.resids,function(x) {
                             if(dims(x)$age>1) {     #FLCohort breaks down for a single age quant
                                 means <- sqrt(apply(FLCohort(x)^2,c(2:6),mean,na.rm=TRUE))
-                                FLQuant(means,dimnames=c(year="all",dimnames(means)))
+                                FLQuant(means,dimnames=c(list(year="all"),dimnames(means)))
                             } else {
                                 dat.names <- dimnames(x)
                                 new.names <- c(list(cohort=dat.names$year,year="all"),dat.names[3:6])
