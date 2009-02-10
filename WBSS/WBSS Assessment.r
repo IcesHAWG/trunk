@@ -170,10 +170,12 @@ title(main=paste(WBSS@name,"Catch and TAC"))
 ### Document Assessment
 ### ======================================================================================================
 FnPrint("GENERATING DOCUMENTATION...\n")
-#Document the run with alternative table numbering
+#Document the run with alternative table numbering and a reduced width
+old.opt <- options("width")
 options("width"=80)
 ica.out.file <- ica.out(WBSS,WBSS.tun,WBSS.ica,format="TABLE 3.6.%i WBSS HERRING.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
+options("width"=old.opt$width)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(WBSS,output.file=output.base)
