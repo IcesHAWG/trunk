@@ -149,7 +149,7 @@ do.summary.plots <- function(stck,ica.obj) {
                          list(yat=unique(as.numeric(arg$y)))},
                       ylab="age",
                       as.table=TRUE,
-                      index.cond=list(order(names(ica.obj@index.res))),
+                      index.cond=list(rank(names(ica.obj@index.res))),
                       plot.args=list(panel.height=list(x=n.ages,units="null")),
                       scale=list(alternating=1,rot=0,y=list(relation="free")))
     print(bubble.plot)
