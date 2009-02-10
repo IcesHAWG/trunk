@@ -214,17 +214,28 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
                     scales=list(alternating=1,y=list(relation="free",rot=0)))
     plot(retro.plot)
 
-    #Calculate the biases by year
+    #Lattice log10 y.scale fanciness
+    log10.lbls <- c(seq(0.1,1.3,by=0.1),1.5,1.7,2,3,4,5,7,10)
+    yscale.components.log10 <- function(lim, ...) {
+        ans <- yscale.components.default(lim = lim, ...)
+        tick.at <- log10.lbls
+        ans$left$ticks$at <- log(tick.at, 10)
+        ans$left$labels$at <- log(tick.at, 10)
+        ans$left$labels$labels <- as.character(tick.at)
+        ans
+        }
+
+#Calculate the biases by year
     cat("RETROSPECTIVE BIASES BY YEAR...\n");flush.console()
     most.recent.results <- subset(retro.dat,qname==most.recent,select=-qname)
     colnames(most.recent.results)[8] <- "most.recent"
     bias.dat           <-  merge(retro.dat,most.recent.results)
-    bias.dat$bias      <-  bias.dat$data/bias.dat$most.recent -1
+    bias.dat$bias      <-  bias.dat$data/bias.dat$most.recent
     bias.dat$TY.offset <-  bias.dat$year-as.numeric(bias.dat$qname)
     bias.plot<-xyplot(bias~year|value,data=bias.dat,
                     main=list(paste(stck@name,"Retrospective Bias Plot by Year"),cex=0.9),
                     groups=qname,
-                    prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
+                    yscale.components=yscale.components.log10,
                     layout=c(1,3),
                     ylab="Bias",
                     xlab="Year",
@@ -233,11 +244,12 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
                     lwd=1,
                     col="black",
                     panel=function(...) {
-                        panel.grid(h=-1,v=-1)
+                        panel.grid(h=0,v=-1)
+                        panel.abline(h=log10(log10.lbls),col="lightgrey")
                         panel.abline(h=0,lwd=3)
                         panel.xyplot(...)
                     },
-                    scales=list(alternating=1,y=list(relation="free",rot=0)))
+                    scales=list(alternating=1,y=list(relation="free",rot=0,log=TRUE)))
     plot(bias.plot)
 
     #Calculate the biases by offset from terminal year
@@ -245,7 +257,7 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     bias.offset.plot<-xyplot(bias~TY.offset|value,data=bias.dat,
                     main=list(paste(stck@name,"Retrospective Bias Plot by Offset"),cex=0.9),
                     groups=qname,
-                    prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
+                    yscale.components=yscale.components.log10,
                     layout=c(1,3),
                     ylab="Bias",
                     xlab="Offset from Terminal Year of Assessment",
@@ -254,11 +266,12 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
                     lwd=1,
                     col="black",
                     panel=function(...) {
-                        panel.grid(h=-1,v=-1)
+                        panel.grid(h=0,v=-1)
+                        panel.abline(h=log10(log10.lbls),col="lightgrey")
                         panel.abline(h=0,lwd=3)
                         panel.xyplot(...)
                     },
-                    scales=list(alternating=1,y=list(relation="free",rot=0)))
+                    scales=list(alternating=1,y=list(relation="free",rot=0,log=TRUE)))
     plot(bias.offset.plot)
 
     #Retrospective selectivity
