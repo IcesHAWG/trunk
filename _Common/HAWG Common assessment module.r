@@ -59,9 +59,42 @@ do.summary.plots <- function(stck,ica.obj) {
     print(summary.plot)
 
     #Now generate the diagnostic plots
+    cat("GENERATING DIAGNOSTICS ...\n");flush.console()
     diagnostics(ica.obj)
 
-    #Setup plotting data
+    #New diagnostics! Contribution of each age class to the SSQ
+    ssq.age.dat  <- lapply(ica.obj@weighted.resids,function(x) sqrt(yearMeans(x^2)))
+    ssq.age.breakdown <- xyplot(data~age|qname,data=ssq.age.dat,
+                      ylab="RMS Weighted SSQ",xlab="Age",
+                      prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
+                      as.table=TRUE,
+                      horizontal=FALSE,origin=0,box.width=1,col="grey",   #Barchart options
+                      panel=function(...) {
+                        panel.grid(h=-1,v=-1)
+                        panel.barchart(...)
+                        panel.abline(h=0,col="black",lwd=1)
+                      },
+                      scales=list(alternating=1))
+    ssq.age.breakdown <- update(ssq.age.breakdown,main=list(paste(stck@name,"SSQ Breakdown by Age"),cex=0.9))
+    print(ssq.age.breakdown)
+
+    #New diagnostics! Contribution of each year to the SSQ
+    ssq.yr.dat  <- lapply(ica.obj@weighted.resids,function(x) sqrt(quantMeans(x^2)))
+    ssq.yr.breakdown <- xyplot(data~year|qname,data=ssq.yr.dat,
+                      ylab="RMS Weighted SSQ",xlab="Year",
+                      prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
+                      as.table=TRUE,
+                      horizontal=FALSE,origin=0,box.width=1,col="grey",   #Barchart options
+                      panel=function(...) {
+                        panel.grid(h=-1,v=-1)
+                        panel.barchart(...)
+                        panel.abline(h=0,col="black",lwd=1)
+                      },
+                      scales=list(alternating=1))
+    ssq.yr.breakdown <- update(ssq.yr.breakdown,main=list(paste(stck@name,"SSQ Breakdown by Year"),cex=0.9))
+    print(ssq.yr.breakdown)
+
+    #Setup plotting data for bubble plots
     n.ages   <- sapply(ica.obj@index.res,nrow)    #number of ages in each quant
     n.quants <- length(n.ages)
     res.dat  <- as.data.frame(ica.obj@index.res)
@@ -243,7 +276,7 @@ check.versions <-  function(lib,ver){
 }
 check.versions("FLCore","2.0")
 check.versions("FLAssess","1.99-102")
-check.versions("FLICA","1.4-3")
+check.versions("FLICA","1.4-4")
 check.versions("FLSTF","1.99-1")
 check.versions("FLEDA","2.0")
 #Check R version too!
