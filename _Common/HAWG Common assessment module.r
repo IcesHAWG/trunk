@@ -68,8 +68,23 @@ do.summary.plots <- function(stck,ica.obj) {
     res.dat$age <- factor(as.character(res.dat$age))  #Sorted automatically
     res.dat$qname <- factor(res.dat$qname,levels=unique(res.dat$qname)) #Not sorted - natural order
 
-    #Bubble plots of the index residuals
-    bubble.plot <- bubbles(age~year|qname,data=res.dat,
+    #Bubble plots of the index residuals - this is how the code *should* be
+#    bubble.plot <- bubbles(age~year|qname,data=res.dat,
+#                      layout=c(1,n.quants),
+#                      main=list(paste(stck@name,"Index Residuals Bubble Plot"),cex=0.9),
+#                      prepanel=function(...){ #Only show ages for which we have data
+#                         arg <- list(...)
+#                         list(yat=unique(as.numeric(arg$y)))},
+#                      ylab="age",
+#                      as.table=TRUE,
+#                      plot.args=list(panel.height=list(x=n.ages,units="null")), #Set relative heights of each panel
+#                      scale=list(alternating=1,rot=0,y=list(relation="free")))
+#    print(bubble.plot)
+
+    #Bubble plots of the index residuals - this is a hack to deal with the fact that
+    #there are currently some inconsistencies in the way that the FLR bubbles function is setup
+    #this should be solved, and the previous code used instead, by around about FLCore 2.1 or so
+    bubble.plot <- bubbles(factor(as.character(age))~year|qname,data=ica.obj@index.res,
                       layout=c(1,n.quants),
                       main=list(paste(stck@name,"Index Residuals Bubble Plot"),cex=0.9),
                       prepanel=function(...){ #Only show ages for which we have data
@@ -77,7 +92,8 @@ do.summary.plots <- function(stck,ica.obj) {
                          list(yat=unique(as.numeric(arg$y)))},
                       ylab="age",
                       as.table=TRUE,
-                      plot.args=list(panel.height=list(x=n.ages,units="null")), #Set relative heights of each panel
+                      index.cond=list(order(names(ica.obj@index.res))),
+                      plot.args=list(panel.height=list(x=n.ages,units="null")),
                       scale=list(alternating=1,rot=0,y=list(relation="free")))
     print(bubble.plot)
 
