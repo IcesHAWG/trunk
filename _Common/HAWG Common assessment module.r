@@ -264,14 +264,18 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     #Retrospective selectivity
     cat("RETROSPECTIVE SELECTIVITY...\n");flush.console()
     sels <- sapply(rev(retro.icas),function(ica) drop(yearMeans(ica@sel)@.Data))
-    most.recent.sel <- subset(retro.icas[[as.character(most.recent)]]@param,Param=="Sel")   #For the selectivity from the most recent assessment
+    most.recent.sel <- subset(retro.icas[[as.character(most.recent)]]@param,Param=="Sel",select=c("Age","Lower.95.pct.CL","Upper.95.pct.CL"))   #For the selectivity from the most recent assessment
+    most.recent.sel <- rbind(most.recent.sel,c(ctrl@sep.age,1,1),
+                            c(stck@range["plusgroup"]-1,rep(ctrl@sep.sel,2)),c(stck@range["plusgroup"],rep(ctrl@sep.sel,2)))   #Add CI's for sep.age, last true age, plus.group
+    most.recent.sel <- most.recent.sel[order(most.recent.sel$Age),]
     plot(0,0,pch=NA,xlab="Age",ylab="Catch Selectivity",xlim=range(pretty(as.numeric(rownames(sels)))),
         ylim=range(pretty(c(0,most.recent.sel$Upper.95.pct.CL))),main=paste(stck@name,"Retrospective selectivity pattern"))
     polygon(c(most.recent.sel$Age,rev(most.recent.sel$Age)),c(most.recent.sel$Lower.95.pct.CL,rev(most.recent.sel$Upper.95.pct.CL)),col="grey")
     grid()
-    matlines(as.numeric(rownames(sels)),sels,type="b",lwd=c(3,rep(1,n.retro.yrs)),pch=as.character(as.numeric(colnames(sels))%%10))
+    matlines(as.numeric(rownames(sels)),sels,type="b",lwd=c(3,rep(1,n.retro.yrs)),
+        pch=as.character(as.numeric(colnames(sels))%%10),col=1:6)
     legend("bottomright",legend=colnames(sels),lwd=c(3,rep(1,n.retro.yrs)),pch=as.character(as.numeric(colnames(sels))%%10),
-        col=1:(n.retro.yrs+1),lty=1:(n.retro.yrs+1),bg="white")
+        col=1:6,lty=1:5,bg="white")
 
     #Return retrospective object
     return(retro.stck)
