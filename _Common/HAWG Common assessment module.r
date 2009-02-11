@@ -65,7 +65,7 @@ do.summary.plots <- function(stck,ica.obj) {
     #New diagnostics! Contribution of each age class to the SSQ
     ssq.age.dat  <- lapply(ica.obj@weighted.resids,function(x) sqrt(yearMeans(x^2,na.rm=TRUE)))
     ssq.age.breakdown <- xyplot(data~age|qname,data=ssq.age.dat,
-                      ylab="RMS Weighted SSQ",xlab="Age",
+                      ylab="RMS Contribution to Objective Function",xlab="Age",
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                       as.table=TRUE,
                       horizontal=FALSE,origin=0,box.width=1,col="grey",   #Barchart options
@@ -81,7 +81,7 @@ do.summary.plots <- function(stck,ica.obj) {
     #New diagnostics! Contribution of each year to the SSQ
     ssq.yr.dat  <- lapply(ica.obj@weighted.resids,function(x) sqrt(quantMeans(x^2,na.rm=TRUE)))
     ssq.yr.breakdown <- xyplot(data~year|qname,data=ssq.yr.dat,
-                      ylab="RMS Weighted SSQ",xlab="Year",
+                      ylab="RMS Contribution to Objective Function",xlab="Year",
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                       as.table=TRUE,
                       horizontal=FALSE,origin=0,box.width=1,col="grey",   #Barchart options
@@ -105,7 +105,7 @@ do.summary.plots <- function(stck,ica.obj) {
                                 FLQuant(as.vector(abs(x)),dimnames=new.names)}
                         })
     ssq.cohort.breakdown <- xyplot(data~as.numeric(as.character(cohort))|qname,data=ssq.cohort.dat,
-                      ylab="RMS Weighted SSQ",xlab="Cohort",
+                      ylab="RMS Contribution to Objective Function",xlab="Cohort",
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                       as.table=TRUE,
                       horizontal=FALSE,origin=0,box.width=1,col="grey",   #Barchart options
