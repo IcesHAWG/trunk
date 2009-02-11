@@ -21,7 +21,7 @@ HERAS 0-8+ wr: Acoustic Survey in Div IIIa+IVaE Ages 0-8+ (Number)
          1           NA   2687000000   1342100000    463500000    201300000    102500000     83600000     37200000     21400000
          1           NA   2081100000   2217000000   1780400000    490000000    180400000     27000000      9500000       100000
          1           NA   3918000000   3621000000    933000000    499000000    154000000     34000000     26000000     14000000
-Ger AS 0-8 wr (SD 22-24): Acoustic Survey in Sub div 22-24 Ages 0-8 (Number in thousands)
+GerAS 0-8 wr (SD 22-24): Acoustic Survey in Sub div 22-24 Ages 0-8 (Number in thousands)
       1991      2007
          1         1      0.77      0.83
          0         8
@@ -42,7 +42,7 @@ Ger AS 0-8 wr (SD 22-24): Acoustic Survey in Sub div 22-24 Ages 0-8 (Number in t
          1   2909660    684440    591090   391120   190040   105230    89910   25530   16940
          1   3694040    726380    203340   329740   342500   180640   130200   85190   30400
          1   2473000    491000    276000   149000   136000    88000    25000   23000   11000
-IYFS Katt Q1 1-5 wr: IYFS Katt Quart1 Age groups 1-5 (Mean Catch in Number)
+IBTS Q1 1-5 wr: IYFS Katt Quart1 Age groups 1-5 (Mean Catch in Number)
       1991      2008
          1         1       0.0       0.25
          1         5
@@ -64,7 +64,7 @@ IYFS Katt Q1 1-5 wr: IYFS Katt Quart1 Age groups 1-5 (Mean Catch in Number)
          1    361.32    163.34     48.42     18.77     16.84
          1    346.73    185.47     14.71      9.83      0.01
          1    141.97	 43.81     15.51	   12.06      3.50	
-IYFS Katt Q3 1-5 wr: IYFS Katt Quart3 Age groups 1-5 (Mean Catch in Number)
+IBTS Q3 1-5 wr: IYFS Katt Quart3 Age groups 1-5 (Mean Catch in Number)
       1991      2007
          1         1       0.5      0.75
          1         5
@@ -85,7 +85,7 @@ IYFS Katt Q3 1-5 wr: IYFS Katt Quart3 Age groups 1-5 (Mean Catch in Number)
          1    607.23    255.41     53.66     23.31     12.54
          1    508.58     78.83     63.57     40.05     31.90
          1    582.45    139.45     22.09     17.88     15.00
-Ger AS 0-8 wr (SD 21-24): Acoustic Survey in SD 21-24 Ages 0-8 (Number in thousands)
+GerAS 0-8 wr (SD 21-24): Acoustic Survey in SD 21-24 Ages 0-8 (Number in thousands)
       1991      2007
          1         1      0.77      0.83
          0         8
