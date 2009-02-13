@@ -214,7 +214,7 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
                     scales=list(alternating=1,y=list(relation="free",rot=0)))
     plot(retro.plot)
 
-    #Lattice log10 y.scale fanciness
+    #Lattice log10 y.scale fanciness for use in subsequent functions
     log10.lbls <- c(seq(0.1,1.3,by=0.1),1.5,1.7,2,3,4,5,7,10)
     yscale.components.log10 <- function(lim, ...) {
         ans <- yscale.components.default(lim = lim, ...)
@@ -225,7 +225,7 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
         ans
         }
 
-#Calculate the biases by year
+    #Calculate the biases by year
     cat("RETROSPECTIVE BIASES BY YEAR...\n");flush.console()
     most.recent.results <- subset(retro.dat,qname==most.recent,select=-qname)
     colnames(most.recent.results)[8] <- "most.recent"
@@ -273,6 +273,27 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
                     },
                     scales=list(alternating=1,y=list(relation="free",rot=0,log=TRUE)))
     plot(bias.offset.plot)
+
+    #Retrospective cohort plot
+    cat("RETROSPECTIVE BY COHORT...\n");flush.console()
+    flc.dat.all   <- as.data.frame(lapply(retro.stck,function(x) FLCohort(x@stock.n)))
+    current.cohorts <- dimnames(FLCohort(stck@stock.n[,as.character(dims(stck)$maxyear)]))$cohort
+    flc.dat       <- subset(flc.dat.all,cohort%in%as.numeric(current.cohorts))
+    cohort.retro <- xyplot(data~age|factor(cohort),data=flc.dat,
+                    main=list(paste(stck@name,"Retrospective Plot by Cohort"),cex=0.9),
+                    ylim=10^c(floor(min(log10(flc.dat$data),na.rm=TRUE)),ceiling(max(log10(flc.dat$data),na.rm=TRUE))),
+                    as.table=TRUE,
+                    groups=cname,
+                    type="l",
+                    ylab="Cohort Numbers",
+                    xlab="Age",
+                    col="black",
+                    scales=list(alternating=1,y=list(log=TRUE)),
+                    panel=function(...) {
+                        panel.grid(h=-1,v=-1)
+                        panel.xyplot(...)
+                    })
+    print(cohort.retro)
 
     #Retrospective selectivity
     cat("RETROSPECTIVE SELECTIVITY...\n");flush.console()
