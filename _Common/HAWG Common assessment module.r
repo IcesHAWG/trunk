@@ -341,7 +341,7 @@ check.versions <-  function(lib,ver){
 }
 check.versions("FLCore","2.0")
 check.versions("FLAssess","1.99-102")
-check.versions("FLICA","1.4-4")
+check.versions("FLICA","1.4-5")
 check.versions("FLSTF","1.99-1")
 check.versions("FLEDA","2.0")
 #Check R version too!
