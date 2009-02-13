@@ -278,10 +278,10 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     cat("RETROSPECTIVE BY COHORT...\n");flush.console()
     flc.dat.all   <- as.data.frame(lapply(retro.stck,function(x) FLCohort(x@stock.n)))
     current.cohorts <- dimnames(FLCohort(stck@stock.n[,as.character(dims(stck)$maxyear)]))$cohort
-    flc.dat       <- subset(flc.dat.all,cohort%in%as.numeric(current.cohorts))
+    flc.dat       <- subset(flc.dat.all,cohort%in%as.numeric(current.cohorts) & !is.na(data))  #Drop the NAs and the non-current cohorts
     cohort.retro <- xyplot(data~age|factor(cohort),data=flc.dat,
                     main=list(paste(stck@name,"Retrospective Plot by Cohort"),cex=0.9),
-                    ylim=10^c(floor(min(log10(flc.dat$data),na.rm=TRUE)),ceiling(max(log10(flc.dat$data),na.rm=TRUE))),
+                    ylim=10^c(floor(min(log10(flc.dat$data))),ceiling(max(log10(flc.dat$data)))),
                     as.table=TRUE,
                     groups=cname,
                     type="l",
@@ -292,8 +292,11 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
                     panel=function(...) {
                         panel.grid(h=-1,v=-1)
                         panel.xyplot(...)
+                        dat <- list(...)
+                        panel.xyplot(dat$x[1],dat$y[1],pch=19,cex=0.5,col="black")  #The first estimate of the cohort strength is never plotted
                     })
     print(cohort.retro)
+    browser()
 
     #Retrospective selectivity
     cat("RETROSPECTIVE SELECTIVITY...\n");flush.console()
