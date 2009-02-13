@@ -296,7 +296,6 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
                         panel.xyplot(dat$x[1],dat$y[1],pch=19,cex=0.5,col="black")  #The first estimate of the cohort strength is never plotted
                     })
     print(cohort.retro)
-    browser()
 
     #Retrospective selectivity
     cat("RETROSPECTIVE SELECTIVITY...\n");flush.console()
