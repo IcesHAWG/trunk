@@ -4,11 +4,10 @@
 # $Rev$
 # $Date$
 #
-# Author: Mark Payne
-# DIFRES, Charlottenlund, DK
+# Author: Afra Ega
+# Ireland
 #
-# Performs an assessment of Western Baltic Spring Spawning Herring (cs.herring) in IIIa using the
-# FLICA package.
+# Performs an assessment of Celtic Sea Herring (cs.herring) using the FLICA package.
 #
 # Developed with:
 #   - R version 2.8.0
@@ -29,11 +28,9 @@
 #
 ####################################################################################################
 
-setwd("C:/FLICA 2009/CS Feb 09")
-
-
-
-
+#MPA: It's best not to force a working directory - instead, if you load the file in Tinn-R, and then
+#launch R from Tinn-R, it will set the working directory automatically to the same as the loaded file!
+#setwd("C:/FLICA 2009/CS Feb 09")
 
 ### ======================================================================================================
 ### Initialise system, including convenience functions and title display
@@ -44,13 +41,17 @@ FnPrint     <-  function(string) {
 	cat(string)
 	flush.console()
 }
-FnPrint("\nCeltic Sea Herring FLICA Assessment\n=====================\n")
+FnPrint("\nCeltic Sea Herring FLICA Assessment\n===================================\n")
 
 ### ======================================================================================================
 ### Incorporate Common modules
 ### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
 ### ======================================================================================================
-source(file.path("HAWG Common assessment module.r"))
+#MPA: Use the common assessment module from the "_Common" directory, rather than copying it across. That way,
+#when we update the common module, the updates go directly into your work without you having to even think
+#about it! :-)
+#source(file.path("HAWG Common assessment module.r"))
+source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 
 ### ======================================================================================================
@@ -115,7 +116,7 @@ range(cs.herring)[c("minfbar","maxfbar")] <- c(2,5)
 #Set plus group
 cs.herring                        <- setPlusGroup(cs.herring,cs.herring@range["max"])
 #Set stock object name - this is propagated through into the figure titles
-cs.herring@name    <- "cs.herring Herring"
+cs.herring@name    <- "Celtic Sea Herring"
 
 ### ======================================================================================================
 ### Prepare index object for assessment
@@ -144,11 +145,8 @@ cs.herring.tun  <- cs.herring.tun[c("Celtic Sea Herring Acoustic")]
 FnPrint("PERFORMING ASSESSMENT...\n")
 
 #Now perform the asssessment
-
 cs.herring.ica   <-  FLICA(cs.herring,cs.herring.tun,cs.herring.ctrl)
 cs.herring       <-  cs.herring + cs.herring.ica
-
-
 
 
 ### ======================================================================================================
@@ -163,10 +161,11 @@ do.SRR.plot(cs.herring)
 ### ======================================================================================================
 FnPrint("GENERATING CUSTOM PLOTS...\n")
 #Catch and TAC
+#MPA: These TAC's are the ones for WBSS. You might want to put your own in...
 TACs    <- data.frame(year=1991:2008,TAC=1000*c(155,174,210,191,183,163,100,97,99,101,101,101,101,91,120,102+47.5,69+49.5,51.7+45))
 TAC.plot.dat <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(TACs$TAC,each=2))
 catch   <- as.data.frame(cs.herring@catch)
-plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(pretty(TACs$year)),ylim=range(pretty(c(0,TACs$TAC,catch$data))))
+plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(pretty(c(catch$year,TACs$year))),ylim=range(pretty(c(0,TACs$TAC,catch$data))))
 rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
 lines(TAC.plot.dat,lwd=5)
 legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2))
