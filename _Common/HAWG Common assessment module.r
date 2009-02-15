@@ -190,9 +190,9 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
 
     #Standard retrospective plot
     cat("RETROSPECTIVE PLOT...\n");flush.console()
-    retro.ssbs  <- do.call(FLQuants,lapply(retro.stck,ssb))
-    retro.fbar  <- do.call(FLQuants,lapply(retro.stck,fbar))
-    retro.recs  <- do.call(FLQuants,lapply(retro.stck,rec))
+    retro.ssbs  <- lapply(retro.stck,ssb)
+    retro.fbar  <- lapply(retro.stck,fbar)
+    retro.recs  <- lapply(retro.stck,rec)
     retro.dat   <- rbind(cbind(value="SSB",as.data.frame(retro.ssbs)),
                           cbind(value="Recruits",as.data.frame(retro.recs)),
                           cbind(value="Mean F",as.data.frame(retro.fbar)))
