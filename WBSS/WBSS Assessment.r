@@ -99,10 +99,7 @@ WBSS.ctrl <- do.call(FLICA.control, ctrl.list)
 ### ======================================================================================================
 FnPrint("PREPARING STOCK OBJECT...\n")
 WBSS                        <- readFLStock(file.path(data.source, "index.dat"),no.discards=TRUE)
-#Set no discards
-WBSS@catch.n                <- WBSS@landings.n
-WBSS@catch                  <- WBSS@landings
-WBSS@catch.wt               <- WBSS@landings.wt
+#Set units
 units(WBSS)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
 #Set fbar
 range(WBSS)[c("minfbar","maxfbar")] <- c(3,6)
