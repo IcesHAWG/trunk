@@ -173,6 +173,7 @@ do.summary.plots <- function(stck,ica.obj) {
     #Generate an "otolith" plot showing the uncertainty distribution
     oldpar <- par() #Otolith plots tends to mess with par a bit much and not clean up!
     plot.otolith(stck,ica.obj)
+    title(main=paste(stck@name,"Otolith Plot"),outer=TRUE)
     par(oldpar[-which(names(oldpar)%in%c("cin","cra","csi","cxy","din"))])   #Some parameters cannot be set
     invisible(NULL)
 }
