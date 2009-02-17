@@ -1,8 +1,8 @@
 ######################################################################################################
 # WBSS FLICA Assessment
 #
-# $Rev: 71 $
-# $Date: 2009-02-15 01:30:16 +0100 (Sun, 15 Feb 2009) $
+# $Rev$
+# $Date$
 #
 # Author: Mark Payne
 # DIFRES, Charlottenlund, DK
