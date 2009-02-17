@@ -175,7 +175,7 @@ writeFLStock(WoS,output.file=output.base)
 ### Save workspace and Finish Up
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(WoS,WoS.stf,WoS.tun,WoS.ctrl,file=paste(output.base,"Assessment.RData"))
+save(WoS,WoS.tun,WoS.ctrl,file=paste(output.base,"Assessment.RData"))
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
