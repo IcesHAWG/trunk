@@ -76,25 +76,13 @@ WoS.ctrl   <-  FLICA.control(sep.nyr=8,sep.age=4,sep.sel=1.0,sr=FALSE,
                                 lambda.yr=c(1,1,1,1,1,1,1,1),
                                 lambda.age =c(0.1, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
                                 lambda.sr=0.01, index.model=c("l"), index.cor=T)
-#
 
-#Make control object from configuration file (option 2) 
-# N.B. DON'T USE FOR WoS ASSESSMENT
-#--------------------------------------------------------
-#Read in configuration file, and break into vectors as needed
-# cfg.in <- read.table(file.path(".","conf","WBSS.cfg"),sep="=",comment.char="#",row.names=1,
-#             strip.white=TRUE,colClasses="character")
-# cfg    <- strsplit(cfg.in$V2," +|\t+")    #Breaks the input strings into vectors, using white space as a separator
-# names(cfg) <- row.names(cfg.in)
-# Now take the arguments from the configuration file that apply here and make the object
-# ctrl.list <-  cfg[names(cfg) %in% names(formals(FLICA.control))]
-# WBSS.ctrl <- do.call(FLICA.control, ctrl.list)
 
 ### ======================================================================================================
 ### Prepare stock object for assessment
 ### ======================================================================================================
 FnPrint("PREPARING STOCK OBJECT...\n")
-WoS                        <- readFLStock(file.path(data.source, "index.dat"),no.discards=TRUE)
+WoS                        <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE)
 #Set units
 units(WoS)[1:17]           <- as.list(c(rep(c("Tonnes","Thousands","Kg"),4), rep("NA",5)))
 #Set fbar
@@ -109,7 +97,7 @@ WoS@name    <- "West of Scotland Herring"
 ### ======================================================================================================
 FnPrint("PREPARING INDEX OBJECT...\n")
 #Load and modify all index data
-WoS.tun   <- readFLIndices(file.path(data.source, "tun.txt"))
+WoS.tun   <- readFLIndices(file.path(data.source, "fleet.txt"))
 
 #Set names, and parameters etc
 WoS.tun[[1]]@index.var[] <- 1
