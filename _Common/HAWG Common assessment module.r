@@ -100,13 +100,13 @@ do.summary.plots <- function(stck,ica.obj) {
 
     #New diagnostics! Contribution of each cohort to the SSQ
     ssq.cohort.dat  <- lapply(ica.obj@weighted.resids,function(x) {
-                            if(dims(x)$age>1) {     #FLCohort breaks down for a single age quant
-                                means <- sqrt(apply(FLCohort(x)^2,c(2:6),mean,na.rm=TRUE))
-                                FLQuant(means,dimnames=c(list(year="all"),dimnames(means)))
-                            } else {
+                            if(is.na(dims(x)$min)) {
                                 dat.names <- dimnames(x)
                                 new.names <- c(list(cohort=dat.names$year,year="all"),dat.names[3:6])
-                                FLQuant(as.vector(abs(x)),dimnames=new.names)}
+                                FLQuant(as.vector(abs(x)),dimnames=new.names)
+                            } else {  #FLCohort breaks down for a single age quant
+                                means <- sqrt(apply(FLCohort(x)^2,c(2:6),mean,na.rm=TRUE))
+                                FLQuant(means,dimnames=c(list(year="all"),dimnames(means)))}
                         })
     ssq.cohort.breakdown <- xyplot(data~as.numeric(as.character(cohort))|qname,data=ssq.cohort.dat,
                       ylab="RMS Contribution to Objective Function",xlab="Cohort",
