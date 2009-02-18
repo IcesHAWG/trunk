@@ -43,12 +43,16 @@ do.summary.plots <- function(stck,ica.obj) {
     cat("GENERATING SUMMARY PLOTS ...\n");flush.console()
 
     #Make stock summary plots (ie SSB, Fbar, recs)
-    summary.data <- FLQuants(SSB=ssb(stck),"Mean F"=fbar(stck),Recruits=rec(stck))
-    summary.plot <-xyplot(data~year|qname,data=as.data.frame(summary.data),
+    summary.data <- as.data.frame(FLQuants(SSB=ssb(stck),"Mean F"=fbar(stck),Recruits=rec(stck)))
+    scaling.factors <- tapply(summary.data$data,summary.data$qname,function(x) trunc(log10(max(pretty(c(0,x))))/3)*3)
+    summary.data$data <- summary.data$data/10^scaling.factors[summary.data$qname]
+    ylabels <- apply(cbind(lbl=names(scaling.factors),fctr=scaling.factors),1,function(x) {
+        if(x[2]=="0"){x[1]}else {bquote(expression(paste(.(x[1])," [",10^.(x[2]),"]"))) }})
+    summary.plot <-xyplot(data~year|qname,data=summary.data,
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                       main=list(paste(stck@name,"Stock Summary Plot"),cex=0.9),
                       col="black",
-                      ylab="",
+                      ylab=do.call(c,ylabels),
                       layout=c(1,3),
                       type="l",
                       panel=function(...) {
@@ -197,13 +201,18 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     retro.dat   <- rbind(cbind(value="SSB",as.data.frame(retro.ssbs)),
                           cbind(value="Recruits",as.data.frame(retro.recs)),
                           cbind(value="Mean F",as.data.frame(retro.fbar)))
+    scaling.factors <- tapply(retro.dat$data,retro.dat$value,function(x) trunc(log10(max(pretty(c(0,x))))/3)*3)
+    ylabels <- apply(cbind(lbl=names(scaling.factors),fctr=scaling.factors),1,function(x) {
+        if(x[2]=="0"){x[1]}else {bquote(expression(paste(.(x[1])," [",10^.(x[2]),"]"))) }})
+    retro.dat$data <- retro.dat$data/10^scaling.factors[retro.dat$value]
     retro.dat$value <-  factor(retro.dat$value,levels=unique(retro.dat$value))  #Need to force the factoring to get the correct plotting order
     retro.plot<-xyplot(data~year|value,data=retro.dat,
                     main=list(paste(stck@name,"Retrospective Summary Plot"),cex=0.9),
                     groups=qname,
                     prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                     layout=c(1,3),
-                    ylab="",
+#                    ylab=list(paste(c("Mean F","Recruits","SSB"),ifelse(scaling.factors!=0,paste(" [10^",scaling.factors,"]",sep=""),""),sep="")),
+                    ylab=do.call(c,ylabels),
                     type="l",
                     as.table=TRUE,
                     lwd=c(rep(1,n.retro.yrs),3),
@@ -322,24 +331,32 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
 ### Stock Recruitment Plot
 ### ======================================================================================================
 do.SRR.plot<- function(stck) {
-    plot(ssb(stck),rec(stck),xlab="Spawning Stock Biomass",ylab="Recruits",type="b",
+    ssb.dat <- as.data.frame(ssb(stck))
+    rec.dat <- as.data.frame(FLCohort(rec(stck)))
+    dat <- merge(ssb.dat,rec.dat,by.x="year",by.y="cohort",suffixes=c(".ssb",".rec"))
+    plot(dat$data.ssb,dat$data.rec,xlab="Spawning Stock Biomass",ylab="Recruits",type="b",
         xlim=range(pretty(c(0,ssb(stck)))),ylim=range(pretty(c(0,rec(stck)))))
-    text(ssb(stck),rec(stck),labels=sprintf("%02i",as.numeric(dimnames(ssb(stck))$year)%%100),pos=4)
+    text(dat$data.ssb,dat$data.rec,labels=sprintf("%02i",as.numeric(dat$year)%%100),pos=4)
     title(main=paste(stck@name,"Stock-Recruitment Relationship"))
-    warning("WARNING: do.SRR.plot() does not yet account for age offsets properly. Please check your results carefully!")
+    if(mean(stck@m.spwn)>0.5) warning("WARNING: SRR code does not properly account for autumn spawning stocks. You'll have to make your own plot!")
 }
 
 ### ======================================================================================================
 ### Check FLR Package version numbers
 ### ======================================================================================================
 #Load packages - strict, active enforcement of version numbers.
-check.versions <-  function(lib,ver){
+check.versions <-  function(lib,ver,required.date="missing"){
   available.ver <-  do.call(packageDescription,list(pkg=lib, fields = "Version"))
   if(compareVersion(available.ver,ver)==-1) {stop(paste("ERROR:",lib,"package availabe is version",available.ver,"but requires at least version",ver))}
+  package.date <- as.POSIXct(strptime(strsplit(packageDescription(lib)$Built,";")[[1]][3],format="%Y-%m-%d %H:%M:%S"))
+  if(!missing(required.date)) {
+    if(required.date - package.date > 0)
+        {stop(paste("ERROR:",lib,"package date/time is",package.date,"but at least",required.date,"is required. Try updating the package from /_Common/pkgs."))}
+  }
   do.call(require,list(package=lib))
   invisible(NULL)
 }
-check.versions("FLCore","2.0")
+check.versions("FLCore","2.0",ISOdatetime(2009,02,18,09,24,53))
 check.versions("FLAssess","1.99-102")
 check.versions("FLICA","1.4-5")
 check.versions("FLSTF","1.99-1")
@@ -352,7 +369,6 @@ if(compareVersion(paste(version$major,version$minor,sep="."),required.version)==
 
 #Add in other functions
 source(file.path("..","_Common","HAWG Retro func.r"))
-source(file.path("..","_Common","HAWG QuantMean.r"))
 
 #Set penality function so that we don't get any scientific notation
 options("scipen"=1000)
