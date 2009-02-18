@@ -55,7 +55,7 @@ do.summary.plots <- function(stck,ica.obj) {
                         panel.grid(h=-1,v=-1)
                         panel.xyplot(...)
                       },
-                      scales=list(alternating=1,abbreviate=TRUE,y=list(relation="free",rot=0)))
+                      scales=list(alternating=1,y=list(relation="free",rot=0)))
     print(summary.plot)
 
     #Now generate the diagnostic plots
@@ -354,3 +354,6 @@ if(compareVersion(paste(version$major,version$minor,sep="."),required.version)==
 source(file.path("..","_Common","HAWG Retro func.r"))
 source(file.path("..","_Common","HAWG QuantMean.r"))
 
+#Set penality function so that we don't get any scientific notation
+options("scipen"=1000)
+options("warn.FPU"=FALSE)

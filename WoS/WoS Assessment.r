@@ -4,8 +4,8 @@
 # $Rev$
 # $Date$
 #
-# Author: Mark Payne  (and edited for WoS from WBSS by Emma Hatfield with MUCH help from Mark)
-# DIFRES, Charlottenlund, DK
+# Author: Emma Hatfield
+# FRS, Scotland
 #
 # Performs an assessment of West of Scotland Herring (WoS) in VIaN using the
 # FLICA package.
@@ -103,16 +103,7 @@ WoS.tun   <- readFLIndices(file.path(data.source, "fleet.txt"))
 WoS.tun[[1]]@index.var[] <- 1
 WoS.tun[[1]]@index.var["1",] <- 10
 WoS.tun[[1]]@type <- "number"
-
-#  IGNORE THIS - not relevant to WoS
-#Define two new indices by truncating current indices etc
-#WBSS.tun[[8]]      <-  trim(WBSS.tun[[1]],age=3:6,year=1993:2007) #HERAS 3-6 wr
-# WBSS.tun[[9]]      <-  trim(WBSS.tun[[5]],age=1:3,year=1994:2007) #GerAS 1-3 wr
-# WBSS.tun[[9]]@index[,"2001"] <- -1     #2001 is excluded from GerAS due to lack of coverage in SD23
-# names(WBSS.tun)[8:9] <- c("HERAS 3-6 wr","GerAS 1-3 wr")
-
-#Only use the relevant data sets
-# WBSS.tun  <- WBSS.tun[c("HERAS 3-6 wr","GerAS 1-3 wr","N20")]
+names(WoS.tun) <- "Summer Acoustic Survey"  #MPA: Added so that your graphs are a bit prettier
 
 ### ======================================================================================================
 ### Perform the assessment
