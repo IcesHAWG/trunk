@@ -103,7 +103,7 @@ WoS.tun   <- readFLIndices(file.path(data.source, "fleet.txt"))
 WoS.tun[[1]]@index.var[] <- 1
 WoS.tun[[1]]@index.var["1",] <- 10
 WoS.tun[[1]]@type <- "number"
-names(WoS.tun) <- "Summer Acoustic Survey"  #MPA: Added so that your graphs are a bit prettier
+names(WoS.tun) <- "WoS Summer Acoustic Survey"  #MPA: Added so that your graphs are a bit prettier
 
 ### ======================================================================================================
 ### Perform the assessment
