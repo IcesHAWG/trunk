@@ -1,10 +1,11 @@
 ######################################################################################################
-# cs.herring FLICA Assessment
+# CS.herring FLICA Assessment
+#  February 2009
 #
 # $Rev$
 # $Date$
 #
-# Author: Afra Ega
+# Author: Afra Egan
 # Ireland
 #
 # Performs an assessment of Celtic Sea Herring (cs.herring) using the FLICA package.
@@ -12,7 +13,7 @@
 # Developed with:
 #   - R version 2.8.0
 #   - FLCore 1.99-111
-#   - FLICA, version 1.4-3
+#   - FLICA, version 1.4-5
 #   - FLAssess, version 1.99-102
 #   - FLSTF, version 1.99-1
 #
@@ -27,10 +28,6 @@
 # Notes:
 #
 ####################################################################################################
-
-#MPA: It's best not to force a working directory - instead, if you load the file in Tinn-R, and then
-#launch R from Tinn-R, it will set the working directory automatically to the same as the loaded file!
-#setwd("C:/FLICA 2009/CS Feb 09")
 
 ### ======================================================================================================
 ### Initialise system, including convenience functions and title display
@@ -47,11 +44,9 @@ FnPrint("\nCeltic Sea Herring FLICA Assessment\n================================
 ### Incorporate Common modules
 ### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
 ### ======================================================================================================
-#MPA: Use the common assessment module from the "_Common" directory, rather than copying it across. That way,
-#when we update the common module, the updates go directly into your work without you having to even think
-#about it! :-)
-#source(file.path("HAWG Common assessment module.r"))
+
 source(file.path("..","_Common","HAWG Common assessment module.r"))
+
 ### ======================================================================================================
 
 ### ======================================================================================================
@@ -60,7 +55,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 data.source         <-  file.path("data")      #Data source, not code or package source!!!
 output.dir          <-  file.path("res")       #Output directory
 output.base         <-  file.path(output.dir,"cs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <- 4                          #Number of years for which to run the retrospective
+n.retro.years       <- 7                          #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Output setup
@@ -89,17 +84,6 @@ cs.herring.ctrl   <-  FLICA.control(sep.nyr=6,
                               index.model=c("l"),
                               index.cor=1)
 
-
-#Make control object from configuration file (option 2)
-#--------------------------------------------------------
-#Read in configuration file, and break into vectors as needed
-#cfg.in <- read.table(file.path("cs.herring.cfg"),sep="=",comment.char="#",row.names=1,
-#            strip.white=TRUE,colClasses="character")
-#cfg    <- strsplit(cfg.in$V2," +|\t+")    #Breaks the input strings into vectors, using white space as a separator
-#names(cfg) <- row.names(cfg.in)
-#Now take the arguments from the configuration file that apply here and make the object
-#ctrl.list <-  cfg[names(cfg) %in% names(formals(FLICA.control))]
-#cs.herring.ctrl <- do.call(FLICA.control, ctrl.list)
 
 ### ======================================================================================================
 ### Prepare stock object for assessment
@@ -148,6 +132,15 @@ FnPrint("PERFORMING ASSESSMENT...\n")
 cs.herring.ica   <-  FLICA(cs.herring,cs.herring.tun,cs.herring.ctrl)
 cs.herring       <-  cs.herring + cs.herring.ica
 
+################################################################################
+## Change Recruitment to mean value
+
+Rec=exp(mean(log(cs.herring@stock.n[1,as.character(1958:(cs.herring@range['maxyear']-1)),,,,])))
+
+# put recruitment into last fishing year
+cs.herring@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
+
+################################################################################
 
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
@@ -160,9 +153,11 @@ do.SRR.plot(cs.herring)
 ### Custom plots
 ### ======================================================================================================
 FnPrint("GENERATING CUSTOM PLOTS...\n")
-#Catch and TAC
-#MPA: These TAC's are the ones for WBSS. You might want to put your own in...
-TACs    <- data.frame(year=1991:2008,TAC=1000*c(155,174,210,191,183,163,100,97,99,101,101,101,101,91,120,102+47.5,69+49.5,51.7+45))
+
+#Plot of Catch and TAC
+## TAC years specified
+## Catch all years
+TACs    <- data.frame(year=1974:2008,TAC=1000*c(32,25,10.8,0,0,6,6,6,8,8,13,13,17,18,18,20,17.5,21,21,21,21,21,21,22,22,21,21,20,11,13,13,13,11,9.3,7.9))
 TAC.plot.dat <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(TACs$TAC,each=2))
 catch   <- as.data.frame(cs.herring@catch)
 plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(pretty(c(catch$year,TACs$year))),ylim=range(pretty(c(0,TACs$TAC,catch$data))))
@@ -179,7 +174,7 @@ FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
 old.opt <- options("width")
 options("width"=80)
-ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 3.6.%i cs.herring HERRING.")
+ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4.6.%i cs.herring HERRING.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width)
 
@@ -192,9 +187,9 @@ writeFLStock(cs.herring,output.file=output.base)
 ### ======================================================================================================
 FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
-gm.recs         <- exp(mean(log(rec(trim(cs.herring,year=2002:2006)))))  #cs.herring recruitment is based on a geometric mean of the last few years
+gm.recs         <- exp(mean(log(rec(trim(cs.herring,year=1958:2006)))))  #cs.herring recruitment is based on geometric mean recruitment
 stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec=gm.recs)
-cs.herring.stf        <- FLSTF(stock=cs.herring,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
+cs.herring.stf  <- FLSTF(stock=cs.herring,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(cs.herring.stf,output.file=paste(output.base,"with STF"))
