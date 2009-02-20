@@ -51,13 +51,16 @@ do.summary.plots <- function(stck,ica.obj) {
     summary.plot <-xyplot(data~year|qname,data=summary.data,
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                       main=list(paste(stck@name,"Stock Summary Plot"),cex=0.9),
-                      col="black",
                       ylab=do.call(c,ylabels),
                       layout=c(1,3),
                       type="l",
                       panel=function(...) {
                         panel.grid(h=-1,v=-1)
-                        panel.xyplot(...)
+                        if(panel.number()==2) { #Do recruits as bar plot
+                            panel.barchart(...,horizontal=FALSE,origin=0,box.width=1,col="grey")
+                        } else {
+                            panel.xyplot(...,col="black")
+                        }
                       },
                       scales=list(alternating=1,y=list(relation="free",rot=0)))
     print(summary.plot)
