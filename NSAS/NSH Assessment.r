@@ -34,8 +34,8 @@
 ### ======================================================================================================
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 
-path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2009/assessment/googlecode/NSAS/"
-setwd(path)
+#path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2009/assessment/googlecode/NSAS/"
+#setwd(path)
 
 options(stringsAsFactors=FALSE)
 FnPrint     <-  function(string) {
@@ -135,6 +135,10 @@ NSH.tun[[4]]@index.var[] <- 1.0/FLQuant(c(0.63,0.62,0.17,0.10,0.09,0.08,0.07,0.0
 NSH.tun[[3]]@index.var[] <- 1.0/FLQuant(c(0.47,0.28,0.01,0.01,0.01),dimnames=dimnames(NSH.tun[[3]]@index)) #IBTS
 NSH.tun[[2]]@index.var[] <- 1.0/FLQuant(0.63,dimnames=dimnames(NSH.tun[[2]]@index)) #MIK
 NSH.tun[[1]]@index.var[] <- 1.0/FLQuant(0.60,dimnames=dimnames(NSH.tun[[1]]@index)) #MLAI
+#Set names
+names(NSH.tun) <- lapply(NSH.tun,name)
+
+
 
 ### ======================================================================================================
 ### Perform the assessment
