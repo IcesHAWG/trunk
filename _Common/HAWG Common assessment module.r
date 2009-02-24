@@ -70,9 +70,9 @@ do.summary.plots <- function(stck,ica.obj) {
     diagnostics(ica.obj)
 
     #New diagnostics! Contribution of each age class to the SSQ
-    ssq.age.dat  <- lapply(ica.obj@weighted.resids,function(x) sqrt(yearMeans(x^2,na.rm=TRUE)))
+    ssq.age.dat  <- lapply(ica.obj@weighted.resids,function(x) yearMeans(x^2,na.rm=TRUE))
     ssq.age.breakdown <- xyplot(data~age|qname,data=ssq.age.dat,
-                      ylab="RMS Contribution to Objective Function",xlab="Age",
+                      ylab="Mean Contribution to Objective Function per point",xlab="Age",
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                       as.table=TRUE,
                       horizontal=FALSE,origin=0,box.width=1,col="grey",   #Barchart options
@@ -86,9 +86,9 @@ do.summary.plots <- function(stck,ica.obj) {
     print(ssq.age.breakdown)
 
     #New diagnostics! Contribution of each year to the SSQ
-    ssq.yr.dat  <- lapply(ica.obj@weighted.resids,function(x) sqrt(quantMeans(x^2,na.rm=TRUE)))
+    ssq.yr.dat  <- lapply(ica.obj@weighted.resids,function(x) quantMeans(x^2,na.rm=TRUE))
     ssq.yr.breakdown <- xyplot(data~year|qname,data=ssq.yr.dat,
-                      ylab="RMS Contribution to Objective Function",xlab="Year",
+                      ylab="Mean Contribution to Objective Function per point",xlab="Year",
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                       as.table=TRUE,
                       horizontal=FALSE,origin=0,box.width=1,col="grey",   #Barchart options
@@ -106,13 +106,13 @@ do.summary.plots <- function(stck,ica.obj) {
                             if(is.na(dims(x)$min)) {
                                 dat.names <- dimnames(x)
                                 new.names <- c(list(cohort=dat.names$year,year="all"),dat.names[3:6])
-                                FLQuant(as.vector(abs(x)),dimnames=new.names)
+                                FLQuant(as.vector(x^2),dimnames=new.names)
                             } else {  #FLCohort breaks down for a single age quant
-                                means <- sqrt(apply(FLCohort(x)^2,c(2:6),mean,na.rm=TRUE))
+                                means <- apply(FLCohort(x)^2,c(2:6),mean,na.rm=TRUE)
                                 FLQuant(means,dimnames=c(list(year="all"),dimnames(means)))}
                         })
     ssq.cohort.breakdown <- xyplot(data~as.numeric(as.character(cohort))|qname,data=ssq.cohort.dat,
-                      ylab="RMS Contribution to Objective Function",xlab="Cohort",
+                      ylab="Mean Contribution to Objective Function per point",xlab="Cohort",
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                       as.table=TRUE,
                       horizontal=FALSE,origin=0,box.width=1,col="grey",   #Barchart options
@@ -125,9 +125,26 @@ do.summary.plots <- function(stck,ica.obj) {
     ssq.cohort.breakdown <- update(ssq.cohort.breakdown,main=list(paste(stck@name,"SSQ Breakdown by Cohort"),cex=0.9))
     print(ssq.cohort.breakdown)
 
-    #Setup plotting data for bubble plots
-    n.ages   <- sapply(ica.obj@index.res,nrow)    #number of ages in each quant
+    #Filter any infinite values from the weighted residuals
+    ica.obj@weighted.resids <- lapply(ica.obj@weighted.resids,function(x) FLQuant(ifelse(is.finite(x),1,NA)*x))
+
+   #Bubble plots of the weighted residuals - this is the same hack as below
+    n.ages   <- sapply(ica.obj@weighted.resids,nrow)    #number of ages in each quant
     n.quants <- length(n.ages)
+    wt.bubble.plot <- bubbles(factor(as.character(age))~year|qname,data=ica.obj@weighted.resids,
+                      layout=c(1,n.quants),
+                      main=list(paste(stck@name,"Weighted Residuals Bubble Plot"),cex=0.9),
+                      prepanel=function(...){ #Only show ages for which we have data
+                         arg <- list(...)
+                         list(yat=unique(as.numeric(arg$y)))},
+                      ylab="Age",
+                      as.table=TRUE,
+                      index.cond=list(rank(names(ica.obj@weighted.resids))),
+                      plot.args=list(panel.height=list(x=n.ages,units="null")),
+                      scale=list(alternating=1,rot=0,y=list(relation="free")))
+    print(wt.bubble.plot)
+
+    #Setup plotting data for bubble plots
     res.dat  <- as.data.frame(ica.obj@index.res)
     res.dat$age <- factor(as.character(res.dat$age))  #Sorted automatically
     res.dat$qname <- factor(res.dat$qname,levels=unique(res.dat$qname)) #Not sorted - natural order
@@ -148,9 +165,11 @@ do.summary.plots <- function(stck,ica.obj) {
     #Bubble plots of the index residuals - this is a hack to deal with the fact that
     #there are currently some inconsistencies in the way that the FLR bubbles function is setup
     #this should be solved, and the previous code used instead, by around about FLCore 2.1 or so
+    n.ages   <- sapply(ica.obj@index.res,nrow)    #number of ages in each quant
+    n.quants <- length(n.ages)
     bubble.plot <- bubbles(factor(as.character(age))~year|qname,data=ica.obj@index.res,
                       layout=c(1,n.quants),
-                      main=list(paste(stck@name,"Index Residuals Bubble Plot"),cex=0.9),
+                      main=list(paste(stck@name,"Unweighted Index Residuals Bubble Plot"),cex=0.9),
                       prepanel=function(...){ #Only show ages for which we have data
                          arg <- list(...)
                          list(yat=unique(as.numeric(arg$y)))},
@@ -361,7 +380,7 @@ check.versions <-  function(lib,ver,required.date="missing"){
 }
 check.versions("FLCore","2.0",ISOdatetime(2009,02,18,09,24,53))
 check.versions("FLAssess","1.99-102")
-check.versions("FLICA","1.4-5")
+check.versions("FLICA","1.4-6")
 check.versions("FLSTF","1.99-1")
 check.versions("FLEDA","2.0")
 #Check R version too!
