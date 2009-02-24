@@ -34,13 +34,12 @@
 ### ======================================================================================================
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 
-#path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2009/assessment/googlecode/NSAS/"
-#setwd(path)
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2009/assessment/googlecode/NSAS/"
+setwd(path)
 
 options(stringsAsFactors=FALSE)
 FnPrint     <-  function(string) {
 	cat(string)
-	flush.console()
 }
 FnPrint("\nNSH FLICA Assessment\n=====================\n")
 
@@ -108,11 +107,11 @@ NSH@catch                  <- NSH@landings
 NSH@catch.wt               <- NSH@landings.wt
 units(NSH)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
 #Set fbar
-range(NSH)[c("minfbar","maxfbar")] <- c(3,6)
+range(NSH)[c("minfbar","maxfbar")] <- c(2,6)
 #Set plus group
 NSH                        <- setPlusGroup(NSH,NSH@range["max"])
 #Set stock object name - this is propagated through into the figure titles
-NSH@name    <- "NSH Herring"
+NSH@name                   <- "NSH Herring"
 
 ### ======================================================================================================
 ### Prepare index object for assessment
@@ -137,9 +136,6 @@ NSH.tun[[2]]@index.var[] <- 1.0/FLQuant(0.63,dimnames=dimnames(NSH.tun[[2]]@inde
 NSH.tun[[1]]@index.var[] <- 1.0/FLQuant(0.60,dimnames=dimnames(NSH.tun[[1]]@index)) #MLAI
 #Set names
 names(NSH.tun) <- lapply(NSH.tun,name)
-
-
-
 ### ======================================================================================================
 ### Perform the assessment
 ### ======================================================================================================
@@ -182,13 +178,13 @@ writeFLStock(NSH,output.file=output.base)
 ### ======================================================================================================
 FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
-TAC         <- 180
-REC         <- NSH.ica@param["Recruitment prediction","Value"]
-NSH.stf     <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,catch.constraint=TAC,f.rescale=TRUE,rec=REC)
-NSH.stock09 <- FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE)
-NSH.stock.tot <- window(NSH,1960,2009)
+TAC               <- 180
+REC               <- NSH.ica@param["Recruitment prediction","Value"]
+NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,catch.constraint=TAC,f.rescale=TRUE,rec=REC)
+NSH.stock09       <- FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE)
+NSH.stock.tot     <- window(NSH,1960,2009)
 NSH.stock.tot@stock.n[,"2009"] <- NSH.stock09@stock.n[,"2009"]
-NSH         <- NSH.stock.tot
+NSH               <- NSH.stock.tot
 
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
