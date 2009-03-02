@@ -59,6 +59,7 @@ n.retro.years       <-  8                          #Number of years for which to
 ### Output setup
 ### ======================================================================================================
 png(paste(output.base,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
+#win.metafile(paste(output.base,"figures - %02d.wmf"),height=130/25.4,width=130/25.4,pointsize = 8)
 #Set default lattice fontsize, so that things are actually readible!
 trellis.par.set(fontsize=list(text=24,points=20))
 
@@ -105,8 +106,8 @@ units(WBSS)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), re
 range(WBSS)[c("minfbar","maxfbar")] <- c(3,6)
 #Set plus group
 WBSS                        <- setPlusGroup(WBSS,WBSS@range["max"])
-#Set stock object name - this is propagated through into the figure titles
-WBSS@name    <- "WBSS Herring"
+#Set stock object name from control file - this is propagated through into the figure titles
+WBSS@name    <- paste(cfg$run.name,collapse=" ")
 
 ### ======================================================================================================
 ### Prepare index object for assessment
