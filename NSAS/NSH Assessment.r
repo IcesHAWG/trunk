@@ -88,7 +88,7 @@ FnPrint("PREPARING CONTROL OBJECTS...\n")
 
 
 #Setup FLICA control object
-NSH.ctrl <- FLICA.control(sep.nyr=5, sep.age=4, sep.sel=1.0, sr.age=0, sr=TRUE,
+NSH.ctrl <- FLICA.control(sep.nyr=5, sep.age=4, sep.sel=1.0, sr.age=1, sr=TRUE,
                           lambda.age=c(0.1, 0.1, 3.67, 2.87, 2.23, 1.74, 1.37, 1.04, 0.94, 0.91),
                           lambda.yr=c(1.0, 1.0, 1.0, 1.0, 1.0),
                           lambda.sr=0.1,
