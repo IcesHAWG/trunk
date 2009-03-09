@@ -34,8 +34,8 @@
 ### ======================================================================================================
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 
-#path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2009/assessment/googlecode/NSAS/"
-#setwd(path)
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2009/assessment/googlecode/NSAS/"
+setwd(path)
 
 options(stringsAsFactors=FALSE)
 FnPrint     <-  function(string) {
@@ -155,6 +155,18 @@ do.SRR.plot(NSH)
 ### Custom plots
 ### ======================================================================================================
 FnPrint("GENERATING CUSTOM PLOTS...\n")
+
+catch.coh(window(NSH,1960,2007))       
+stacked.age.plot(window(NSH,1960,2007),"stock.n")
+stacked.age.plot(window(NSH,1960,2007),"catch.n")
+stacked.age.plot(NSH.tun[[4]],"index")
+stacked.age.plot(NSH.tun[[3]],"index")
+mat.immat.ratio(NSH)
+cpue.survey(NSH.tun,"index") 
+wt.at.age(NSH,1980,2007)
+catch.curves(NSH,1990,2007)
+NSH.sr <- ref.pts(NSH,"bevholt",100000)[[1]]
+retro.landings.sel(NSH,NSH.sr,10,rpts)
 
 
 

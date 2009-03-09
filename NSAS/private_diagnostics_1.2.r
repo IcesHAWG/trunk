@@ -251,7 +251,7 @@ catch.curves <- function(stk,start.,end.){
                   }
 
 
-catch.curves(stk,1990,2007)
+catch.curves(NSH,1990,2007)
 ################################################################################
 #FLBRP plots
 ################################################################################
@@ -259,35 +259,37 @@ catch.curves(stk,1990,2007)
 #===============================================================================
 #Look at reference points and plot them
 #===============================================================================
-ref.pts <- function(stk,sr.model.,factor.)
-bevholtfactor   <- factor.
-stk.sr  <- fmle(as.FLSR(transform(stk, stock.n = stk@stock.n/bevholtfactor),model=model.)); stk.sr@params<-stk.sr@params * bevholtfactor
+ref.pts <- function(stk,sr.model.,factor.){
+                bevholtfactor   <- factor.
+                stk.sr  <- fmle(as.FLSR(transform(stk, stock.n = stk@stock.n/bevholtfactor),model=model.)); 
+                if(model.=="bevholt"){ stk.sr@params<-stk.sr@params * bevholtfactor   
+                } else {
+                  stk.sr@params[2]<-stk.sr@params[2] * bevholtfactor; }
+                rpts<-refpts()[4:5,]
+                dimnames(rpts)[[1]][2]<-"crash"
+                stk.brp    <- brp(FLBRP(stk,sr=stk.sr,fbar=seq(0,1,length.out=100),nyrs=3,refpts=rpts))
+                refpts(stk.brp)
+                plot(nsh.brp)
+                return(stk.sr)
+            }
 
-#rpts            <- array(as.numeric(NA),dim=c(4,8,1),dimnames=list(refpt=c("msy","crash","f0.1","fmax"),val=c("harvest","yield","rec","ssb","biomass","revenue","cost","profit"),iter=1))
-rpts<-refpts()[4:5,]
-dimnames(rpts)[[1]][2]<-"crash"
-stk.brp         <- brp(FLBRP(stk,sr=stk.sr,fbar=seq(0,1,length.out=100),nyrs=3,refpts=rpts))
-refpts(stk.brp)
-
-plot(nsh.brp)
-
-ref.pts(NSH,"bevholt",100000)
+NSH.sr <- ref.pts(NSH,"bevholt",100000)[[1]]
 #===============================================================================
 #Look at landings selectivity 
 #===============================================================================
 
-retro.landings.sel <- function(nsh.ica,nsh.sr,mnYrs,rpts){
+retro.landings.sel <- function(stk.ica,stk.sr,mnYrs,rpts){
   for(i in 1:10){
-    range. <- c(range(nsh)[c("minyear","maxyear")])
-    nsh. <- window(nsh.ica,(range.[2]-mnYrs-i+1),(range.[2]-1-i+1))
+    range. <- c(range(stk)[c("minyear","maxyear")])
+    stk. <- window(stk.ica,(range.[2]-mnYrs-i+1),(range.[2]-1-i+1))
     print(c((range.[2]-mnYrs-i+1),(range.[2]-1-i+1)))
-    if(i==1){ plot(c(landings.sel(brp(FLBRP(nsh.,fbar=seq(0,1,length.out=100),mnYrs=10,refpts=rpts))))~c(range(nsh.brp)[c("min")]:range(nsh.brp)[c("max")]),type="l",xlab="Age",ylab="Landings selectivity")
-    } else { lines(c(landings.sel(brp(FLBRP(nsh.,fbar=seq(0,1,length.out=100),mnYrs=10,refpts=rpts))))~c(range(nsh.brp)[c("min")]:range(nsh.brp)[c("max")]),col=i)
+    if(i==1){ plot(c(landings.sel(brp(FLBRP(stk.,fbar=seq(0,1,length.out=100),nyrs=mnYrs,refpts=rpts))))~c(range(stk.brp)[c("min")]:range(stk.brp)[c("max")]),type="l",xlab="Age",ylab="Landings selectivity")
+    } else { lines(c(landings.sel(brp(FLBRP(stk.,fbar=seq(0,1,length.out=100),nyrs=mnYrs,refpts=rpts))))~c(range(stk.brp)[c("min")]:range(stk.brp)[c("max")]),col=i)
       }
   }
 }  
 
-retro.landings.sel(nsh,nsh.sr,10,rpts)
+retro.landings.sel(NSH,NSH.sr,10,rpts)
 
 
 
