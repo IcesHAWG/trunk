@@ -481,7 +481,7 @@ catch.curves <- function(stk,start.,end.){
                   }
 
 #Fitting SR and plotting reference points. Returnes SR too                  
-ref.pts <- function(stk,sr.model.,factor.){
+ref.pts <- function(stk,model.,factor.){
                 bevholtfactor   <- factor.
                 stk.sr  <- fmle(as.FLSR(transform(stk, stock.n = stk@stock.n/bevholtfactor),model=model.)); 
                 if(model.=="bevholt"){ stk.sr@params<-stk.sr@params * bevholtfactor   
@@ -491,20 +491,20 @@ ref.pts <- function(stk,sr.model.,factor.){
                 dimnames(rpts)[[1]][2]<-"crash"
                 stk.brp    <- brp(FLBRP(stk,sr=stk.sr,fbar=seq(0,1,length.out=100),nyrs=3,refpts=rpts))
                 refpts(stk.brp)
-                plot(nsh.brp)
+                plot(stk.brp)
                 return(stk.sr)
             }
 
 #Retrospective plot of the landing selectivity 
-retro.landings.sel <- function(stk.ica,stk.sr,mnYrs,rpts){
-  for(i in 1:10){
+retro.landings.sel <- function(stk,stk.sr,mnYrs,rpts){
+  for(i in 0:(mnYrs-1)){
     range. <- c(range(stk)[c("minyear","maxyear")])
-    stk. <- window(stk.ica,(range.[2]-mnYrs-i+1),(range.[2]-1-i+1))
-    print(c((range.[2]-mnYrs-i+1),(range.[2]-1-i+1)))
-    if(i==1){ plot(c(landings.sel(brp(FLBRP(stk.,fbar=seq(0,1,length.out=100),nyrs=mnYrs,refpts=rpts))))~c(range(stk.brp)[c("min")]:range(stk.brp)[c("max")]),type="l",xlab="Age",ylab="Landings selectivity")
-    } else { lines(c(landings.sel(brp(FLBRP(stk.,fbar=seq(0,1,length.out=100),nyrs=mnYrs,refpts=rpts))))~c(range(stk.brp)[c("min")]:range(stk.brp)[c("max")]),col=i)
+    stk. <- window(stk,(range.[2]-mnYrs-i+1),(range.[2]-1-i+1))
+    if(i==0){ plot(c(landings.sel(brp(FLBRP(stk.,fbar=seq(0,1,length.out=100),nyrs=mnYrs,refpts=rpts))))~c(range(stk.)[c("min")]:range(stk.)[c("max")]),type="l",xlab="Age",ylab="Landings selectivity",ylim=c(0,1.5))
+    } else { lines(c(landings.sel(brp(FLBRP(stk.,fbar=seq(0,1,length.out=100),nyrs=mnYrs,refpts=rpts))))~c(range(stk.)[c("min")]:range(stk.)[c("max")]),col=i+1)
       }
   }
+  legend("bottomright",legend=c(range(stk)["maxyear"]:(range(stk)["maxyear"]-mnYrs)),col=c(1:mnYrs),lty=1,lwd=1,box.lty=0)
 }  
 
 ### ======================================================================================================
