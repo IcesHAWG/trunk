@@ -1,6 +1,6 @@
 Proportion of F before Spawning
 1 7
-1957 2007
+1957 2008
 1 9
 3
 0.67
