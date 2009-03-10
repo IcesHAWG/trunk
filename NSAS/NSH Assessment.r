@@ -35,7 +35,7 @@
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 
 path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2009/assessment/googlecode/NSAS/"
-setwd(path)
+try(setwd(path))
 
 options(stringsAsFactors=FALSE)
 FnPrint     <-  function(string) {
