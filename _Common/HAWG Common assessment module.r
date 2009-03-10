@@ -484,7 +484,6 @@ catch.curves <- function(stk,start.,end.){
 
 #Fitting SR and plotting reference points. Returnes SR too                  
 ref.pts <- function(stk,model.,factor.){
-                browser()
                 bevholtfactor   <- factor.
                 stk.sr  <- fmle(as.FLSR(transform(stk, stock.n = stock.n/bevholtfactor),model=model.)); 
                 if(model.=="bevholt"){ stk.sr@params<-stk.sr@params * bevholtfactor   
