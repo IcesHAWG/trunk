@@ -525,7 +525,7 @@ check.versions <-  function(lib,ver,required.date="missing"){
   do.call(require,list(package=lib))
   invisible(NULL)
 }
-check.versions("FLCore","2.0",ISOdatetime(2009,02,18,09,24,53))
+check.versions("FLCore","3.0",ISOdatetime(2009,02,18,09,24,53))
 check.versions("FLAssess","1.99-102")
 check.versions("FLICA","1.4-6")
 check.versions("FLSTF","1.99-1")
