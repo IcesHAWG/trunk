@@ -168,7 +168,7 @@ wt.at.age(NSH,1980,2007)
 catch.curves(NSH,1990,2007)
 NSH.sr <- ref.pts(NSH,"bevholt",100000)
 retro.landings.sel(NSH,NSH.sr,10,rpts=refpts()[4:5,])
-
+cor.tun(NSH.tun)  
 
 
 ### ======================================================================================================
