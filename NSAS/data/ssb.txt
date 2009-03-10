@@ -1,5 +1,5 @@
-SSB: MLAI1: MLAI < 10 mm
- 1     35     2
+Herring in Sub-area IV, Divisions VIId & IIIa (autumn-spawners)
+ 1     36     2
 'YEAR'     'VPA'     'MLAI'
   1973     1     13.182
   1974     1     7.943
@@ -36,3 +36,4 @@ SSB: MLAI1: MLAI < 10 mm
   2005     1     192.266
   2006     1     117.856
   2007     1     173.003
+  2008     1     150.000

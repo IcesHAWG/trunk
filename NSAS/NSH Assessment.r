@@ -126,7 +126,6 @@ NSH.tun[[2]]@type <- "number"
 NSH.tun[[3]]@type <- "number"
 NSH.tun[[3]]@range["plusgroup"] <- NA
 
-#Define two new indices by truncating current indices etc
 NSH.tun <- rev(NSH.tun)
 if (NSH.tun[[1]]@name != "MLAI") print("Error - MLAI not as the first index")
 ### give 1/weighting factors as variance
@@ -143,32 +142,39 @@ FnPrint("PERFORMING ASSESSMENT...\n")
 #Now perform the asssessment
 NSH.ica         <-  FLICA(NSH,NSH.tun,NSH.ctrl)
 NSH             <-  NSH + NSH.ica
-range(NSH.ica)  <- range(NSH)[1:5]
+range(NSH.ica)  <-  range(NSH)[1:5]
 
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
 ### ======================================================================================================
 do.summary.plots(NSH,NSH.ica)
 NSH.retro <- do.retrospective.plots(NSH,NSH.tun,NSH.ctrl,n.retro.years)
-do.SRR.plot(NSH)
+#do.SRR.plot(NSH)
 
 ### ======================================================================================================
 ### Custom plots
 ### ======================================================================================================
 FnPrint("GENERATING CUSTOM PLOTS...\n")
 
-catch.coh(window(NSH,1960,2007))       
-stacked.age.plot(window(NSH,1960,2007),"stock.n")
+catch.coh(window(NSH,1960,2007)) #Proportion of a cohort in the catch      
+stacked.age.plot(window(NSH,1960,2007),"stock.n") #Proportion of age-group in the stock
 stacked.age.plot(window(NSH,1960,2007),"catch.n")
+stacked.age.plot(window(NSH,1960,2007),"catch.wt") #Proportion of age-group in the catch
 stacked.age.plot(NSH.tun[[4]],"index")
 stacked.age.plot(NSH.tun[[3]],"index")
-mat.immat.ratio(NSH)
-cpue.survey(NSH.tun,"index") 
-wt.at.age(NSH,1980,2007)
+#mat.immat.ratio(NSH)
+#cpue.survey(NSH.tun,"index") 
+#wt.at.age(NSH,1980,2007)
 catch.curves(NSH,1990,2007)
 NSH.sr <- ref.pts(NSH,"bevholt",100000)
 retro.landings.sel(NSH,NSH.sr,10,rpts=refpts()[4:5,])
-cor.tun(NSH.tun)  
+cor.tun(NSH.tun)
+
+source("./private_diagnostics_1.2.r")
+#LNV.fbar(NSH,0.25,0.1,c(2,6))
+#LNV.fbar(NSH,0.1,0.04,c(0,1))
+#LNV.ssb(NSH,1.3e6,0.8e6)
+#LNV.rec(NSH)     
 
 
 ### ======================================================================================================
@@ -191,23 +197,23 @@ writeFLStock(NSH,output.file=output.base)
 ### ======================================================================================================
 FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
-TAC               <- 180
+TAC               <- 201
 REC               <- NSH.ica@param["Recruitment prediction","Value"]
 NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,catch.constraint=TAC,f.rescale=TRUE,rec=REC)
 NSH.stock09       <- FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE)
 NSH.stock.tot     <- window(NSH,1960,2009)
-NSH.stock.tot@stock.n[,"2009"] <- NSH.stock09@stock.n[,"2009"]
-NSH               <- NSH.stock.tot
+NSH.stock.tot     <- NSH.stock09
+
 
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(NSH.stf,output.file=paste(output.base,"with STF"))
+writeFLStock(NSH.stock.tot,output.file=paste(output.base,"with STF"))
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(NSH,NSH.stf,NSH.tun,NSH.ctrl,file=paste(output.base,"Assessment.RData"))
+save(NSH,NSH.stock.tot,NSH.tun,NSH.ctrl,file=paste(output.base,"Assessment.RData"))
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
