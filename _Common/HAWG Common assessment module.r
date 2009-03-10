@@ -391,6 +391,8 @@ catch.coh <- function(stk){
                     old.polygon <- (c(FLCohort(stk@catch.n)[i,ac(((dims(stk)$minyear):(dims(stk)$maxyear-dims(stk)$age+1)))])/rel)+old.polygon 
                  }
                 }
+                
+cor.tun <- function(stk.tun){ for(i in names(stk.tun)) if(dim(stk.tun[[i]]@index)[1]>1) plot(stk.tun[[i]],type="internal",main=name(stk.tun[[i]]))}              
 
 #Any age based slot of an FLStock object can be visualized as stacked lines
 stacked.age.plot <- function(stk,slnm){
@@ -482,8 +484,9 @@ catch.curves <- function(stk,start.,end.){
 
 #Fitting SR and plotting reference points. Returnes SR too                  
 ref.pts <- function(stk,model.,factor.){
+                browser()
                 bevholtfactor   <- factor.
-                stk.sr  <- fmle(as.FLSR(transform(stk, stock.n = stk@stock.n/bevholtfactor),model=model.)); 
+                stk.sr  <- fmle(as.FLSR(transform(stk, stock.n = stock.n/bevholtfactor),model=model.)); 
                 if(model.=="bevholt"){ stk.sr@params<-stk.sr@params * bevholtfactor   
                 } else {
                   stk.sr@params[2]<-stk.sr@params[2] * bevholtfactor; }
