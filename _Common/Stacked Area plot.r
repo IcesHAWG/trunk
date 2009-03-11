@@ -1,11 +1,11 @@
 ######################################################################################################
-# Relative proportions plot
+# Stacked Area plot
 #
 # Version 1.00 11/03/2009 00:31:04
 #
 # Mark Payne (DTU-AQUA)
 #
-# A generic lattice function to make area plots
+# A generic lattice function to make stacked area plots
 #
 # Developed with:
 #   - R version 2.8.0
@@ -19,7 +19,7 @@
 #
 ####################################################################################################
 
-area.plot <- function(form,data,...) {
+stacked.area.plot <- function(x,data,...) {
         #Input arguments
         in.args <-  list(...)
 
@@ -38,20 +38,17 @@ area.plot <- function(form,data,...) {
                     }
         }
 
-        #Rework the formula into the format appropriate for levelplot ie z ~x*y | g1*g2
-        new.form <- paste("data~",all.vars(form)[2],"*",all.vars(form)[1])
-        if(length(all.vars(form))>2) new.form <- paste(new.form,"|",paste(all.vars(form)[-(1:2)],collapse="*"))
-        response.var <- all.vars(form)[1]
 
         #Key default definition
-        n.groups <-  length(unique(data[,response.var]))
-        cols     <-  if(is.null(in.args$col)) {rainbow(n.groups)} else { in.args$col}
-        key.default   <- list(col=rep(cols,length.out=n.groups),
-                              at=(1:(n.groups+1))-0.5,
-                              labels=list(labels=as.character(unique(data[,response.var])),at=1:n.groups))
+        bands    <-  unique(latticeParseFormula(x,data,dim=3)$right.y)
+        n.bands  <-  length(bands)
+        cols     <-  if(is.null(in.args$col)) {rainbow(n.bands)} else { in.args$col}
+        key.default   <- list(col=rep(cols,length.out=n.bands),
+                              at=(1:(n.bands+1))-0.5,
+                              labels=list(labels=as.character(bands),at=1:n.bands))
 
-        #Setup the defaults
-        default.args <- list(as.formula(new.form),
+        #Setup the other defaults
+        default.args <- list(x,
                             data=data,
                             col=cols,
                             prepanel=function(x,y,z,subscripts) {
@@ -73,8 +70,8 @@ area.plot <- function(form,data,...) {
 #Now, to try it out
 data(ple4sex)
 data(ple4)
-print(area.plot(age ~ year| unit, as.data.frame(ple4sex@catch.n),ylab="Catch in numbers"))
-print(area.plot(age ~ year| unit, as.data.frame(pay(ple4sex@catch.n)),ylab="Proportion of Catch at age"))
-print(area.plot(age~year,as.data.frame(pay(ple4@stock.n*ple4@stock.wt)),col=c("black","white"),ylab="Proportion by weight in the stock"))
-print(area.plot(year ~ age| unit, as.data.frame(ple4sex@catch.n),ylab="Total Historic Catches from an age group"))
-print(area.plot(unit ~ year| age, as.data.frame(ple4sex@catch.n),ylab="Catches from an age group by sex"))
+print(stacked.area.plot(data~year*age| unit, as.data.frame(ple4sex@catch.n),ylab="Catch in numbers"))
+print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(ple4sex@catch.n)),ylab="Proportion of Catch at age"))
+print(stacked.area.plot(data~year*age,as.data.frame(pay(ple4@stock.n*ple4@stock.wt)),col=c("black","white"),ylab="Proportion by weight in the stock"))
+print(stacked.area.plot(data ~age*year| unit, as.data.frame(ple4sex@catch.n),ylab="Total Historic Catches from an age group"))
+print(stacked.area.plot(data ~ year*unit| sprintf("Age %02i",age), as.data.frame(ple4sex@catch.n),ylab="Catches from an age group by sex"))
