@@ -142,7 +142,8 @@ FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
 old.opt <- options("width")
 options("width"=80, digits=4)
-WoS.ica@catch.res <-  zapsmall(WoS.ica@catch.res)
+WoS.ica@catch.res[!is.finite(WoS.ica@catch.res)] <- NA
+WoS.ica@catch.res@.Data <- zapsmall(WoS.ica@catch.res@.Data)
 ica.out.file <- ica.out(WoS,WoS.tun,WoS.ica,format="TABLE 5.6.1.%i HERRING in VIa (N).")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width)
