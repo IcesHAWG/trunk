@@ -57,6 +57,61 @@ do.SRR.plot(stck)
 	each point with the corresponding year
 	Argument	Class			Description
 	stck		FLStock			Result of an assessment, containing stock.n etc
+
+catch.coh(stck)
+	Plots the proportion of a cohort in the catch as a stacked line plot
+	Argument	Class			Description
+	stck		FLStock			Contains the information about the stock eg m, catch numbers etc
+
+stacked.age.plot(stck,"slot")
+	Plots the proportion of any slot with age-groups of a stock as a stacked line plot
+	Argument	Class			Description
+	stck		FLStock			Contains the information about the stock eg m, catch numbers etc
+	"slot"		slot			refers to the exact slot you want to use of the stck object
+
+stacked.age.plot(idxs,"index")
+	Plots the propotion of the age-groups in the tuning index as a stacked line plot
+	Argument	Class			Description	
+	idxs		FLIndices		Contains the tuning indices
+	"index"		slot			refers to the exact slot you want to use of the idxs object
+
+#mat.inmat.ration(stck)
+	Plots the ratio between mature and inmature biomass of a stock
+	Argument	Class			Description
+	stck		FLStock			Contains the information about the stock eg m, catch numbers etc
+
+#cpue.survey(idxs,"index")
+	Plots the indices per yearclass versus each other
+	Argument	Class			Description	
+	idxs		FLIndices		Contains the tuning indices
+	"index"		slot			refers to the exact slot you want to use of the idxs object
+
+#wt.at.age(stck,start,end)
+	Plots the weight at age in the catch connecting similar ages over the years
+	Argument	Class			Description
+	stck		FLStock			Contains the information about the stock eg m, catch numbers etc
+	start		integer			Year of start of timeseries
+	end		integer			Year of end of timeseries
+
+catch.curves(stck,start,end)
+	Plots the log catch ratios in 3 different ways
+	Argument	Class			Description
+	stck		FLStock			Contains the information about the stock eg m, catch numbers etc
+	start		integer			Year of start of timeseries
+	end		integer			Year of end of timeseries
+	
+ref.pts(stck,model,factor)
+	Plots the yield-recruit curves including reference points, and fits a SR-model
+	Argument	Class			Description
+	stck		FLStock			Contains the information about the stock eg m, catch numbers etc
+	model		character		SR-model you want to use
+	factor		integer			transformation value to reduce size of stock numbers to be able to fit SR
+
+cor.tun(idxs)
+	Plots the correlation within indices
+	Argument	Class			Description	
+	idxs		FLIndices		Contains the tuning indices
+
 	
 Output Figures
 ==============
