@@ -27,13 +27,12 @@ area.plot <- function(form,data,...) {
         pfun <- function(x,y,z,subscripts,col,...) {
                     #Set NA's to zero
                     z[is.na(z)] <- 0
-                    #Calculate the proportions and convert to a matrix
+                    #Calculate the cumulative totals and convert to a matrix
                     props.l <- tapply(z[subscripts],x[subscripts],cumsum)
                     props   <- do.call(cbind,props.l)
                     #This basically mimics the structure of the quant, just with everything converted to
-                    #cumulative proportions. Now plot it!
-                    x.lbls <- colnames(props)
-                    if(is.numeric(x) )x.lbls <- as.numeric(x.lbls)           #Not sure if "as.numeric" is wise or not... Think it over
+                    #cumulative values. Now plot it!
+                    x.lbls <- as.numeric(colnames(props))
                     for(i in nrow(props):1) {        #For loops aren't sexy, but they allow us to move through the colours as well
                         panel.polygon(c(x.lbls,rev(x.lbls)),c(props[i,],rep(0,length(x.lbls))),col=rep(col,length.out=i)[i],...)
                     }
@@ -55,9 +54,10 @@ area.plot <- function(form,data,...) {
         default.args <- list(as.formula(new.form),
                             data=data,
                             col=cols,
-                            prepanel=function(x,y,z,subscripts) {list(ylim= range(pretty(c(0,tapply(z[subscripts],x[subscripts],sum))))) },
+                            prepanel=function(x,y,z,subscripts) {
+                                list(ylim= range(pretty(c(0,tapply(z[subscripts],x[subscripts],sum))))) },
                             colorkey=key.default,
-                            ylab="",
+                            ylab="",         #The meaning of the y-axis is different from that in the formula, so its easiest just to discard the label
                             scale=list(alternating=1),
                             panel=pfun)
 
@@ -77,4 +77,4 @@ print(area.plot(age ~ year| unit, as.data.frame(ple4sex@catch.n),ylab="Catch in 
 print(area.plot(age ~ year| unit, as.data.frame(pay(ple4sex@catch.n)),ylab="Proportion of Catch at age"))
 print(area.plot(age~year,as.data.frame(pay(ple4@stock.n*ple4@stock.wt)),col=c("black","white"),ylab="Proportion by weight in the stock"))
 print(area.plot(year ~ age| unit, as.data.frame(ple4sex@catch.n),ylab="Total Historic Catches from an age group"))
-
+print(area.plot(unit ~ year| age, as.data.frame(ple4sex@catch.n),ylab="Catches from an age group by sex"))
