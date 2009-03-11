@@ -41,10 +41,12 @@ LNV.fbar <- function(stk,ftarget,flim,range.){
 #LNV.fbar(NSH,0.25,0.1,c(2,6))
 #LNV.fbar(NSH,0.1,0.04,c(0,1))
 
-LNV.rec <- function(stk){
+LNV.rec <- function(stk,stk.ica){
               plot(c(rec(stk)@.Data)~seq(range(stk)[c("minyear")],range(stk)[c("maxyear")],1),
               type="b",pch=19,,cex.lab=cl,cex.axis=ca,main=paste("Recruitment",name(stk)),font=fonts,family=fam,
-              xlab="Years",ylab="Recruitment [thousands]")
+              xlab="Years",ylab="Recruitment [thousands]",xlim=c(range(stk)["minyear"],range(stk)["maxyear"]+1))
+              points(range(stk)["maxyear"]+1,stk.ica@param["Recruitment prediction","Value"],col="blue",pch=19)
+              legend("topright",legend=paste("Recuitment estimate",range(stk)["maxyear"]+1),col="blue",pch=19,box.lty=0,lty=0)
             }
 #LNV.rec(NSH)            
 
@@ -84,43 +86,63 @@ LNV.catch <- function(stk,slnm){
 #LNV.catch(window(NSH,1960,2007),"stock.n")             
 
 #Survey MLAI
-MLAI.hist   <- matrix(c(13.3,7.945,2.73,2.458,6.105,7.369,14.428,9.859,14.537,21.029,26.975,48.816,74.347,38.632,67.99,134.915,131.571,170.589,89.67,41.885,29.848,20.652,22.736,44.734,57.253,74.389,61.909,41.087,130.313,110.964,271.653,321.995,192.708,117.856,173.003,150),nrow=1,dimnames=list(age=c("all"),year=seq(range(NSH.tun[[1]])["minyear"],range(NSH.tun[[1]])["maxyear"],1)))
-plot(as.numeric(dimnames(MLAI.hist)$year),c(MLAI.hist),type="b",pch=19,xlab="Years",ylab="Larval abundance",cex.lab=cl,cex.axis=ca,font=fonts,family=fam,main="Historic MLAI index")
-text(as.numeric(dimnames(MLAI.hist)$year),MLAI.hist,labels=dimnames(MLAI.hist)$year,col="black",cex=0.7,adj=c(0.5,1.5))
-#Survey MIK
-MIK.hist  <- matrix(c(17.1,13.1,52.1,101.1,76.7,133.9,91.8,115,181.3,177.4,270.9,168.9,71.4,25.9,69.9,200.7,190.1,101.7,127,106.5,148.1,53.1,244,137.1,214.8,161.8,54.4,47.3,61.3,83.1,37.2,27.8,96.6),nrow=1,dimnames=list(age=c(0),yearclass=seq(1976,2008,1)))
-MIK.st <- MIK.hist/mean(MIK.hist)
-plot(as.numeric(dimnames(MIK.hist)$year),c(MIK.hist),type="b",pch=19,xlab="Years",ylab="Larval abundance",cex.lab=cl,cex.axis=ca,font=fonts,family=fam,main="Historic MIK index")
-text(as.numeric(dimnames(MIK.hist)$year),MIK.hist,labels=dimnames(MIK.hist)$year,col="black",cex=0.7,adj=c(0.5,1.5))
+MLAI.hist     <- read.csv("./data/historic survey data/MLAI-historic.csv",header=T)
+MIK.hist      <- read.csv("./data/historic survey data/MIK-historic.csv",header=T)
+IBTS.hist     <- read.csv("./data/historic survey data/IBTS-historic.csv",header=T); IBTS.hist[IBTS.hist==-1] <- NA
+ACOUSTIC.hist <- read.csv("./data/historic survey data/ACOUSTIC-historic.csv",header=T); ACOUSTIC.hist[ACOUSTIC.hist==-1] <- NA
 
-#Survey IBTS1-2 vs. MIK
-IBTS.hist                 <- read.csv("M:/My Documents/IMARES/Werkgroepen/HAWG/2008/IBTS-historic.csv",header=T)
-IBTS.hist[IBTS.hist==-1]  <- NA
-IBTS1.st                  <- matrix(IBTS.hist[,2]/mean(IBTS.hist[,2],na.rm=T),nrow=1,dimnames=list(c("1"),c(IBTS.hist[,1]-2)))
-IBTS2.st                  <- matrix(IBTS.hist[,3]/mean(IBTS.hist[,3],na.rm=T),nrow=1,dimnames=list(c("1"),c(IBTS.hist[,1]-3)))
-IBTS2.st[,"1985"]         <- NA
+MLAI.histst     <- cbind(MLAI.hist[,"ageall"]/mean(MLAI.hist[,"ageall"],na.rm=T),MLAI.hist[,"measurement_year"]); colnames(MLAI.histst) <- colnames(MLAI.hist)
+MIK.histst      <- cbind(MIK.hist[,"age0"]/mean(MIK.hist[,"age0"],na.rm=T),MIK.hist[,"measurement_year"]); colnames(MIK.histst) <- colnames(MIK.hist)
+IBTS.histst     <- cbind(sweep(IBTS.hist[,1:5],2,mapply(mean,IBTS.hist[,1:5],na.rm=T),"/"),IBTS.hist[,"measurement_year"]); colnames(IBTS.histst) <- colnames(IBTS.hist); IBTS.histst[IBTS.histst[,"measurement_year"]==1988,2] <- NA
+ACOUSTIC.histst <- cbind(sweep(ACOUSTIC.hist[,1:9],2,mapply(mean,ACOUSTIC.hist[,1:9],na.rm=T),"/"),ACOUSTIC.hist[,"measurement_year"]); colnames(ACOUSTIC.histst) <- colnames(ACOUSTIC.hist)
 
-plot(as.numeric(dimnames(MIK.hist)$year),MIK.st,type="b",pch=19,ylim=c(0,3),ylab="Relative abundance",xlab="Years",main="Relative abundance surveys MIK vs. IBTS 1-2",cex.lab=cl,cex.axis=ca,font=fonts,family=fam,xlim=c(min(as.numeric(dimnames(MIK.st)$year),as.numeric(dimnames(IBTS1.st)[[2]]),as.numeric(dimnames(IBTS2.st)[[2]])),max(as.numeric(dimnames(MIK.st)$year),as.numeric(dimnames(IBTS1.st)[[2]]),as.numeric(dimnames(IBTS2.st)[[2]]))))
-lines(as.numeric(dimnames(IBTS1.st)[[2]]),IBTS1.st,lty=2,pch=1,type="b")
-lines(as.numeric(dimnames(IBTS2.st)[[2]]),IBTS2.st,lty=3,pch=6,type="b")
-legend("topright",legend=c("Standardized MIK index","Standardized IBTS 1wr","Standardized IBTS 2wr"),pch=c(19,1,6),lty=c(1,1,1),box.lty=0)
+plot(MLAI.hist[,"ageall"]~MLAI.hist[,"measurement_year"],type="b",pch=19,xlab="Years",ylab="Larval abundance",cex.lab=cl,cex.axis=ca,font=fonts,family=fam,main="Historic MLAI index")
+text(MLAI.hist[,"ageall"]~MLAI.hist[,"measurement_year"],labels=MLAI.hist[,"measurement_year"],cex=0.7,pos=3)
 
-#Survey IBTS1 vs. MIK
-range. <- c(range(as.numeric(dimnames(MIK.hist)$year)),range(IBTS.hist[,1]-2))
-range. <- c(max(range.[c(1,3)]),min(range.[c(2,4)]))
-plot(MIK.hist[,ac(range.[1]:range.[2])],array(IBTS.hist[,2],dimnames=list(IBTS.hist[,1]-2))[ac(range.[1]:range.[2])],xlab="MIK index",ylab="IBTS 1-wr index",cex.lab=cl,cex.axis=ca,font=fonts,family=fam,pch=19)
-points(rev(MIK.hist[,ac(range.[1]:range.[2])])[1],rev(array(IBTS.hist[,2],dimnames=list(IBTS.hist[,1]-2))[ac(range.[1]:range.[2])])[1],col="red",pch=19)
-text(rev(MIK.hist[,ac(range.[1]:range.[2])])[1],rev(array(IBTS.hist[,2],dimnames=list(IBTS.hist[,1]-2))[ac(range.[1]:range.[2])])[1],labels=names(rev(MIK.hist[,ac(range.[1]:range.[2])])[1]),pos=1,col="red",cex=ltextcex,font=fonts,family=fam)
-lines(c(rev(MIK.hist)[1],rev(MIK.hist)[1]),c(0,range(IBTS.hist[,2])[2]/20),col="darkgreen",lwd=3)
-a<-array(IBTS.hist[,2],dimnames=list(IBTS.hist[,1]-2))[ac(range.[1]:range.[2])]
-b<-MIK.hist[,ac(range.[1]:range.[2])]
-lin.mik_ibts <- lm(a~b)
-lines(x=seq(range(MIK.hist)[1],range(MIK.hist)[2],length.out=2),y=predict.lm(lin.mik_ibts,newdata=data.frame(b=seq(range(MIK.hist)[1],range(MIK.hist)[2],length.out=2))))
-text(max(range(MIK.hist),na.rm=T),max(IBTS.hist[,2],na.rm=T),labels=bquote(R^2 [(.(round(summary(lin.mik_ibts)$r.squared,2)))]),pos=2,cex=ltextcex,font=fonts,family=fam)
-text(rev(MIK.hist)[1],0,labels=rev(dimnames(MIK.hist)$year)[1],adj=c(-0.2,-0.2),col="darkgreen",cex=ltextcex,font=fonts,family=fam)
-legend("bottomright",c("Last years estimate","This years estimate"),col=c("red","darkgreen"),pch=c(19,-1),lty=c(0,1),lwd=3,box.lty=0)
- 
- 
+plot(MIK.hist[,"age0"]~MIK.hist[,"measurement_year"],type="b",pch=19,xlab="Years",ylab="Larval abundance",cex.lab=cl,cex.axis=ca,font=fonts,family=fam,main="Historic MIK index")
+text(MIK.hist[,"age0"]~MIK.hist[,"measurement_year"],labels=MIK.hist[,"measurement_year"],cex=0.7,pos=3)
+
+par(mfrow=c(2,2),mar=c(0,4,2,1),oma=c(3,3,1,1))
+boxplot(log(IBTS.hist[,1:5]),ylab="log(IBTS) index",cex.lab=cl,cex.axis=ca,font=fonts,family=fam,main="Variation in IBTS data per age",xaxt="n"); grid()
+boxplot(log(ACOUSTIC.hist[,1:9]),ylab="log(Acoustic) index",cex.lab=cl,cex.axis=ca,font=fonts,family=fam,main="Variation in Acoustic data per age",xaxt="n");grid()
+boxplot(IBTS.hist[,1:5],ylab="IBTS index",cex.lab=cl,cex.axis=ca,font=fonts,family=fam);grid()
+boxplot(ACOUSTIC.hist[,1:9],ylab="Acoustic index",cex.lab=cl,cex.axis=ca,font=fonts,family=fam);grid()
+
+
+par(mfrow=c(1,1))
+range. <- c(0,max(c(c(MIK.histst[,"age0"]),unlist(IBTS.histst[,c("age1","age2")])),na.rm=T))
+plot(  MIK.histst[,"age0"]~MIK.histst[,"measurement_year"],type="b",pch=19,ylim=range.,main="Relative abundance MIK-0 and IBTS-1,2 indices",ylab="Relative abundance",xlab="Years",cex.lab=cl,cex.axis=ca,font=fonts,family=fam)
+lines(IBTS.histst[,"age1"]~c(IBTS.histst[,"measurement_year"]-1),type="b",pch=1,lty=2)
+lines(IBTS.histst[,"age2"]~c(IBTS.histst[,"measurement_year"]-2),type="b",pch=6,lty=3)
+legend("topright",legend=c("Standardized MIK 0wr index","Standardized IBTS 1wr","Standardized IBTS 2wr"),pch=c(19,1,6),lty=c(1,2,3),box.lty=0)
+
+
+range.          <- range(as.numeric(dimnames(NSH.tun[[4]]@index)[[2]]))
+ACOUSTIC.mat    <- window(NSH@mat,range.[1],range.[2])[ac(dimnames(NSH.tun[[4]]@index)[[1]]),] * NSH.tun[[4]]@index
+ACOUSTIC.matst  <- colSums(ACOUSTIC.mat)/mean(colSums(ACOUSTIC.mat))
+
+plot(MLAI.histst[,"ageall"]~MLAI.histst[,"measurement_year"],type="b",pch=19,main="Relative abundance MLAI and Acoustic mature part",ylab="Relative abundance",xlab="Years",cex.lab=cl,cex.axis=ca,font=fonts,family=fam)
+lines(ACOUSTIC.matst~as.numeric(dimnames(ACOUSTIC.matst)$year),type="b",pch=1,lty=2)
+legend("topleft",legend=c("Standardized MLAI index","Standardized Acoustic mature part index"),pch=c(19,1),lty=c(1,2),box.lty=0)
+
+
+mikyears    <- range(MIK.hist[,"measurement_year"])
+ibtsyears   <- range(IBTS.hist[,"measurement_year"]+1)
+range.      <- c(max(mikyears[1],ibtsyears[1]),min(mikyears[2],ibtsyears[2])-1)
+start.mik   <- range.[1];   end.mik <- range.[2]
+start.ibts  <- start.mik+1; end.ibts <- end.mik+1
+
+MIK  <- MIK.hist[which(MIK.hist[,"measurement_year"]==start.mik):which(MIK.hist[,"measurement_year"]==end.mik),"age0"]
+IBTS <- IBTS.hist[which(IBTS.hist[,"measurement_year"]==start.ibts):which(IBTS.hist[,"measurement_year"]==end.ibts),"age1"]
+
+plot(MIK,IBTS,pch=19,ylab="IBTS 1wr",xlab="MIK 0wr",cex.lab=cl,cex.axis=ca,font=fonts,family=fam)
+lines(predict(lm(IBTS~MIK),newdata=data.frame(MIK=range(MIK)))~range(MIK),lwd=2)
+mtext(bquote(R^2 [(.(round(summary(lm(IBTS~MIK))$r.squared,2)))]),side=3,line=-2,outer=F,at=40,font=2,cex=1.2)
+points(rev(MIK)[1],rev(IBTS)[1],col="red",pch=19); text(rev(MIK)[1],rev(IBTS)[1],labels=c(end.mik-1),col="red",pos=3)
+lines(x=c(rep(rev(MIK.hist[,"age0"])[1],2)),y=c(0,max(IBTS,na.rm=T)/7),col="darkgreen",lwd=2); text(rev(MIK.hist[,"age0"])[1],max(IBTS,na.rm=T)/8,labels=end.mik,col="darkgreen",pos=2)
+legend("bottomright",c("MIK 0wr vs. IBTS 1wr",paste(end.mik-1,"yearclass"),paste(end.mik,"yearclass")),col=c("black","red","darkgreen"),lty=c(0,0,1),pch=c(19,19,-1),lwd=3,box.lty=0)
+
+
 
  
  

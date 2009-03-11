@@ -171,10 +171,10 @@ retro.landings.sel(NSH,NSH.sr,10,rpts=refpts()[4:5,])
 cor.tun(NSH.tun)
 
 source("./private_diagnostics_1.2.r")
-#LNV.fbar(NSH,0.25,0.1,c(2,6))
-#LNV.fbar(NSH,0.1,0.04,c(0,1))
-#LNV.ssb(NSH,1.3e6,0.8e6)
-#LNV.rec(NSH)     
+LNV.fbar(NSH,0.25,0.1,c(2,6))
+LNV.fbar(NSH,0.1,0.04,c(0,1))
+LNV.ssb(NSH,1.3e6,0.8e6)
+LNV.rec(NSH,NSH.ica)     
 
 
 ### ======================================================================================================
