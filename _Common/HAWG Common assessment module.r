@@ -539,6 +539,7 @@ if(compareVersion(paste(version$major,version$minor,sep="."),required.version)==
 
 #Add in other functions
 source(file.path("..","_Common","HAWG Retro func.r"))
+source(file.path("..","_Common","Stacked Area plot.r"))
 
 #Set penality function so that we don't get any scientific notation
 options("scipen"=1000)

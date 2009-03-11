@@ -68,12 +68,13 @@ stacked.area.plot <- function(x,data,...) {
 
 
 #Now, to try it out
-library(FLCore)
-library(FLEDA)
-data(ple4sex)
-data(ple4)
-print(stacked.area.plot(data~year*age| unit, as.data.frame(ple4sex@catch.n),ylab="Catch in numbers"))
-print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(ple4sex@catch.n)),ylab="Proportion of Catch at age"))
-print(stacked.area.plot(data~year*age,as.data.frame(pay(ple4@stock.n*ple4@stock.wt)),col=c("black","white"),ylab="Proportion by weight in the stock"))
-print(stacked.area.plot(data ~age*year| unit, as.data.frame(ple4sex@catch.n),ylab="Total Historic Catches from an age group"))
-print(stacked.area.plot(data ~ year*unit| sprintf("Age %02i",age), as.data.frame(ple4sex@catch.n),ylab="Catches from an age group by sex"))
+#library(FLCore)
+#library(FLEDA)
+#data(ple4sex)
+#data(ple4)
+#print(stacked.area.plot(data~year*age| unit, as.data.frame(ple4sex@catch.n),ylab="Catch in numbers"))
+#print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(ple4sex@catch.n)),ylab="Proportion of Catch at age"))
+#print(stacked.area.plot(data~year*age,as.data.frame(pay(ple4@stock.n*ple4@stock.wt)),col=c("black","white"),ylab="Proportion by weight in the stock"))
+#print(stacked.area.plot(data ~age*year| unit, as.data.frame(ple4sex@catch.n),ylab="Total Historic Catches from an age group"))
+#print(stacked.area.plot(data ~ year*unit| sprintf("Age %02i",age), as.data.frame(ple4sex@catch.n),ylab="Catches from an age group by sex"))
+#
