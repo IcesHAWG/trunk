@@ -68,6 +68,8 @@ stacked.area.plot <- function(x,data,...) {
 
 
 #Now, to try it out
+library(FLCore)
+library(FLEDA)
 data(ple4sex)
 data(ple4)
 print(stacked.area.plot(data~year*age| unit, as.data.frame(ple4sex@catch.n),ylab="Catch in numbers"))
