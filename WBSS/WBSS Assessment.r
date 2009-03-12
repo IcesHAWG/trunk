@@ -126,8 +126,8 @@ WBSS.tun   <- lapply(WBSS.tun,function(idx) {
 WBSS.tun[[1]]@range["plusgroup"] <- 8
 
 #Generate two new indices by truncating current indices etc
-WBSS.tun[[8]]      <-  trim(WBSS.tun[[1]],age=3:6,year=1993:2007) #HERAS 3-6 wr
-WBSS.tun[[9]]      <-  trim(WBSS.tun[[2]],age=1:3,year=1994:2007) #GerAS 1-3 wr
+WBSS.tun[[8]]      <-  trim(WBSS.tun[[1]],age=3:6,year=1993:2008) #HERAS 3-6 wr
+WBSS.tun[[9]]      <-  trim(WBSS.tun[[2]],age=1:3,year=1994:2008) #GerAS 1-3 wr
 WBSS.tun[[9]]@index[,"2001"] <- -1     #2001 is excluded from GerAS due to lack of coverage in SD23
 names(WBSS.tun)[8:9] <- c("HERAS 3-6 wr","GerAS 1-3 wr")
 

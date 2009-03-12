@@ -1,7 +1,7 @@
 Herring in Sub-division 22-24 and Division IIIa (spring-spawners). Only the first three are used in the assessment, whilst the rest are kept here for historical reference.
                  107
 HERAS 0-8+ wr: Acoustic Survey in Div IIIa+IVaE Ages 0-8+ (Number). Only ages 3-6, and 1993 onwards are used in the assessment
-                1991      2007
+                1991      2008
          1         1      0.58      0.67
          0         8
          1           NA           NA   1864000000   1927000000    866000000    350000000     88000000     72000000     10000000
@@ -21,8 +21,9 @@ HERAS 0-8+ wr: Acoustic Survey in Div IIIa+IVaE Ages 0-8+ (Number). Only ages 3-
          1           NA   2687000000   1342100000    463500000    201300000    102500000     83600000     37200000     21400000
          1           NA   2081100000   2217000000   1780400000    490000000    180400000     27000000      9500000       100000
          1           NA   3918000000   3621000000    933000000    499000000    154000000     34000000     26000000     14000000
+         1           112000000   5852000000   1160000000   843000000   333000000   274000000   176000000   45000000   44000000
 GerAS 0-8 wr (SD 21-24): Acoustic Survey in SD 21-24 Ages 0-8 (Number in thousands). Only ages 1-3, and 1994 onwards (except 2001) are used in the assessment.
-      1991      2007
+      1991      2008
          1         1      0.77      0.83
          0         8
          1        -1        -1        -1       -1       -1       -1       -1      -1      -1
@@ -42,8 +43,9 @@ GerAS 0-8 wr (SD 21-24): Acoustic Survey in SD 21-24 Ages 0-8 (Number in thousan
          1   3055340    752980    640060   401070   191550   105230    89910   25530   16940                    
          1   4158740    950450    274460   376480   352710   182850   131180   85190   30400
          1   2591000    560000    278000   149000   136000    88000    25000   23000   11000 
+         1   2150450    392780    233500   209000   149870    166320  101620  42210   18950
 N20: Larval Surv. (Number in Millions). Add years used in the assessment
-                1992      2007
+                1992      2008
                    1         1       0.3       0.5
                    0         0
                    1      1060
@@ -62,6 +64,7 @@ N20: Larval Surv. (Number in Millions). Add years used in the assessment
                    1      3887
                    1      3774
                    1      1900
+	   1      1600
 GerAS 0-8 wr (SD 22-24): Acoustic Survey in Sub div 22-24 Ages 0-8 (Number in thousands)
       1991      2007
          1         1      0.77      0.83
