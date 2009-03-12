@@ -190,13 +190,13 @@ stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec
 WBSS.stf        <- FLSTF(stock=WBSS,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
+#writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(WBSS,WBSS.stf,WBSS.tun,WBSS.ctrl,file=paste(output.base,"Assessment.RData"))
-save.image(file=paste(output.base,"Assessment Workspace.RData"))
+save(WBSS,WBSS.stf,WBSS.tun,WBSS.ctrl,file=paste(output.base,".RData"))
+save.image(file=paste(output.base,"Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
