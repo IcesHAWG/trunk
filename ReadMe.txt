@@ -43,15 +43,22 @@ do.summary.plots(stck,ica.obj)
 	ica.obj		FLICA			Output of an FLICA stock assessment
 
 do.retrospective.plots(stck,idxs,ctrl,n.retro.yrs) 
-	Performs a retrospective analysis and plots the results, showing retrospective results of
-	SSB, Fbar and Recruits, the perception of individual cohorts, and the retrospective 
-	perception of individual age groups
+	Performs a classic retrospective analysis and sends the results to retro.plots() for plotting.
 	Argument	Class			Description
 	stck		FLStock			Contains the information about the stock eg m, catch numbers etc
 	idxs		FLIndices		Contains the tuning indices
 	ctrl		FLICA.control	Contains the FLICA assessment setting parameters
 	n.retro.yrs	integer			Number of years for which to perform the retrospective analysis
 
+retro.plots(stck,idxs,ctrl) 
+	Plots the results of a retrospective analysis, showing retrospective results of
+	SSB, Fbar and Recruits, the perception of individual cohorts, and the retrospective 
+	perception of individual age groups
+	Argument	Class			Description
+	stck		FLStock			Contains the information about the stock eg m, catch numbers etc
+	idxs		FLIndices		Contains the tuning indices
+	ctrl		FLICA.control	Contains the FLICA assessment setting parameters
+    
 do.SRR.plot(stck) 
 	Plots a basic stock-recrutiment relationship by joing the dots for sequential years, and labelling
 	each point with the corresponding year

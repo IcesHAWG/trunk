@@ -211,9 +211,22 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     cat("GENERATING RETROSPECTIVE ANALYSES...\n");flush.console()
 
     #Generate a retrospective analysis
-    retro.icas <- retro(stck,idxs,ctrl,retro=n.retro.yrs,return.FLStocks=FALSE)
-    retro.stck <- do.call(FLStocks,lapply(retro.icas,function(ica) {ica + trim(stck, year=dims(ica@stock.n)$minyear:dims(ica@stock.n)$maxyear)}))
+    icas <- retro(stck,idxs,ctrl,retro=n.retro.yrs,return.FLStocks=FALSE)
+    stcks <- do.call(FLStocks,lapply(icas,function(ica) {ica + trim(stck, year=dims(ica@stock.n)$minyear:dims(ica@stock.n)$maxyear)}))
+
+    #Now call the retro plotting functions
+    retro.plots(stcks,icas,ctrl)
+
+    #Return retrospective object
+    return(stcks)
+}
+
+retro.plots<- function(retro.stck,retro.icas,ctrl) {
+    #Setup some prelims
     most.recent <- max(as.numeric(names(retro.stck)))
+    most.recent.stck <- retro.stck[[ac(most.recent)]]
+    n.retros    <- length(retro.stck)
+    stck.name   <- most.recent.stck@name
 
     #Standard retrospective plot
     cat("RETROSPECTIVE PLOT...\n");flush.console()
@@ -229,7 +242,7 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     retro.dat$data <- retro.dat$data/10^scaling.factors[retro.dat$value]
     retro.dat$value <-  factor(retro.dat$value,levels=unique(retro.dat$value))  #Need to force the factoring to get the correct plotting order
     retro.plot<-xyplot(data~year|value,data=retro.dat,
-                    main=list(paste(stck@name,"Retrospective Summary Plot"),cex=0.9),
+                    main=list(paste(stck.name,"Retrospective Summary Plot"),cex=0.9),
                     groups=qname,
                     prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                     layout=c(1,3),
@@ -237,7 +250,7 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
                     ylab=do.call(c,ylabels),
                     type="l",
                     as.table=TRUE,
-                    lwd=c(rep(1,n.retro.yrs),3),
+                    lwd=c(rep(1,n.retros-1),3),
                     col="black",
                     panel=function(...) {
                         panel.grid(h=-1,v=-1)
@@ -265,7 +278,7 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     bias.dat$bias      <-  bias.dat$data/bias.dat$most.recent
     bias.dat$TY.offset <-  bias.dat$year-as.numeric(bias.dat$qname)
     bias.plot<-xyplot(bias~year|value,data=bias.dat,
-                    main=list(paste(stck@name,"Retrospective Bias Plot by Year"),cex=0.9),
+                    main=list(paste(stck.name,"Retrospective Bias Plot by Year"),cex=0.9),
                     groups=qname,
                     yscale.components=yscale.components.log10,
                     layout=c(1,3),
@@ -287,7 +300,7 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     #Calculate the biases by offset from terminal year
     cat("RETROSPECTIVE BIASES BY OFFSET...\n");flush.console()
     bias.offset.plot<-xyplot(bias~TY.offset|value,data=bias.dat,
-                    main=list(paste(stck@name,"Retrospective Bias Plot by Offset"),cex=0.9),
+                    main=list(paste(stck.name,"Retrospective Bias Plot by Offset"),cex=0.9),
                     groups=qname,
                     yscale.components=yscale.components.log10,
                     layout=c(1,3),
@@ -308,11 +321,11 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
 
     #Retrospective cohort plot
     cat("RETROSPECTIVE BY COHORT...\n");flush.console()
-    flc.dat.all   <- as.data.frame(lapply(retro.stck,function(x) FLCohort(x@stock.n)))
-    current.cohorts <- dimnames(FLCohort(stck@stock.n[,as.character(dims(stck)$maxyear)]))$cohort
-    flc.dat       <- subset(flc.dat.all,cohort%in%as.numeric(current.cohorts) & !is.na(data))  #Drop the NAs and the non-current cohorts
+    flc.dat.all     <- as.data.frame(lapply(retro.stck,function(x) FLCohort(x@stock.n)))
+    current.cohorts <- dimnames(FLCohort(most.recent.stck@stock.n[,as.character(dims(most.recent.stck)$maxyear)]))$cohort
+    flc.dat         <- subset(flc.dat.all,cohort%in%as.numeric(current.cohorts) & !is.na(data))  #Drop the NAs and the non-current cohorts
     cohort.retro <- xyplot(data~age|factor(cohort),data=flc.dat,
-                    main=list(paste(stck@name,"Retrospective Plot by Cohort"),cex=0.9),
+                    main=list(paste(stck.name,"Retrospective Plot by Cohort"),cex=0.9),
                     ylim=10^c(floor(min(log10(flc.dat$data))),ceiling(max(log10(flc.dat$data)))),
                     as.table=TRUE,
                     groups=cname,
@@ -331,22 +344,20 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
 
     #Retrospective selectivity
     cat("RETROSPECTIVE SELECTIVITY...\n");flush.console()
-    sels <- sapply(rev(retro.icas),function(ica) drop(yearMeans(ica@sel)@.Data))
+    sels <- sapply(rev(retro.icas),function(ica) {drop(yearMeans(ica@sel)@.Data)})
     most.recent.sel <- subset(retro.icas[[as.character(most.recent)]]@param,Param=="Sel",select=c("Age","Lower.95.pct.CL","Upper.95.pct.CL"))   #For the selectivity from the most recent assessment
     most.recent.sel <- rbind(most.recent.sel,c(ctrl@sep.age,1,1),
-                            c(stck@range["plusgroup"]-1,rep(ctrl@sep.sel,2)),c(stck@range["plusgroup"],rep(ctrl@sep.sel,2)))   #Add CI's for sep.age, last true age, plus.group
+                            c(most.recent.stck@range["plusgroup"]-1,rep(ctrl@sep.sel,2)),c(most.recent.stck@range["plusgroup"],rep(ctrl@sep.sel,2)))   #Add CI's for sep.age, last true age, plus.group
     most.recent.sel <- most.recent.sel[order(most.recent.sel$Age),]
     plot(0,0,pch=NA,xlab="Age",ylab="Catch Selectivity",xlim=range(pretty(as.numeric(rownames(sels)))),
-        ylim=range(pretty(c(0,most.recent.sel$Upper.95.pct.CL))),main=paste(stck@name,"Retrospective selectivity pattern"))
+        ylim=range(pretty(c(0,most.recent.sel$Upper.95.pct.CL))),main=paste(stck.name,"Retrospective selectivity pattern"))
     polygon(c(most.recent.sel$Age,rev(most.recent.sel$Age)),c(most.recent.sel$Lower.95.pct.CL,rev(most.recent.sel$Upper.95.pct.CL)),col="grey")
     grid()
-    matlines(as.numeric(rownames(sels)),sels,type="b",lwd=c(3,rep(1,n.retro.yrs)),
+    matlines(as.numeric(rownames(sels)),sels,type="b",lwd=c(3,rep(1,n.retros-1)),
         pch=as.character(as.numeric(colnames(sels))%%10),col=1:6)
-    legend("bottomright",legend=colnames(sels),lwd=c(3,rep(1,n.retro.yrs)),pch=as.character(as.numeric(colnames(sels))%%10),
+    legend("bottomright",legend=colnames(sels),lwd=c(3,rep(1,n.retros-1)),pch=as.character(as.numeric(colnames(sels))%%10),
         col=1:6,lty=1:5,bg="white")
 
-    #Return retrospective object
-    return(retro.stck)
 }
 
 ### ======================================================================================================
