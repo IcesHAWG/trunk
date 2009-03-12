@@ -148,6 +148,7 @@ WBSS       <-  WBSS + WBSS.ica
 do.summary.plots(WBSS,WBSS.ica)
 WBSS.retro <- do.retrospective.plots(WBSS,WBSS.tun,WBSS.ctrl,n.retro.years)
 do.SRR.plot(WBSS)
+WBSS.srr <- ref.pts(WBSS,"bevholt",1e6)
 
 ### ======================================================================================================
 ### Custom plots
