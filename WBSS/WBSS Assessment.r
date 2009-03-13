@@ -196,7 +196,7 @@ WBSS.stf        <- FLSTF(stock=WBSS,control=stf.ctrl,survivors=NA,quiet=TRUE,sop
 ### Save workspace and Finish Up
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(WBSS,WBSS.stf,WBSS.tun,WBSS.ctrl,file=paste(output.base,".RData"))
+save(WBSS,WBSS.stf,WBSS.ica,WBSS.tun,WBSS.ctrl,file=paste(output.base,".RData"))
 save.image(file=paste(output.base,"Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
