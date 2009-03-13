@@ -148,7 +148,7 @@ WoS.ica@catch.res@.Data <- zapsmall(WoS.ica@catch.res@.Data)
 WoS@harvest <- zapsmall(WoS@harvest)
 WoS.ica@index.res[[1]]@.Data <- zapsmall(WoS.ica@index.res[[1]]@.Data)
 #Now write the file
-ica.out.file <- ica.out(WoS,WoS.tun,WoS.ica,format="TABLE 5.6.1.%i HERRING in VIa (N).")
+ica.out.file <- ica.out(WoS,WoS.tun,WoS.ica,format="TABLE 5.6.2.%i HERRING in VIa (N).")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width)
 
