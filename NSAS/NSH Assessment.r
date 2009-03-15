@@ -182,11 +182,11 @@ LNV.rec(NSH,NSH.ica)
 ### ======================================================================================================
 FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
-old.opt <- options("width")
-options("width"=80)
+old.opt <- options("width","scipen")
+options("width"=80,"scipen"=1000)
 ica.out.file <- ica.out(NSH,NSH.tun,NSH.ica,format="TABLE 3.6.%i NSH HERRING.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
-options("width"=old.opt$width)
+options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(NSH,output.file=output.base)
