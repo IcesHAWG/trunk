@@ -170,11 +170,13 @@ title(main=paste(WBSS@name,"Catch and TAC"))
 ### ======================================================================================================
 FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
-old.opt <- options("width","scipen")
-options("width"=80,"scipen"=1000)
+old.opt <- options("width","scipen","digits")
+options("width"=80,"scipen"=1000,"digits"=3)
+#Fix some of the uglier values
+WBSS.ica@catch.res <- zapsmall(WBSS.ica@catch.res,digits=5)
 WBSS.ica@ica.out <- ica.out(WBSS,WBSS.tun,WBSS.ica,format="TABLE 3.6.%i WBSS HERRING.")
 write(WBSS.ica@ica.out,file=paste(output.base,"ica.out",sep="."))
-options("width"=old.opt$width,"scipen"=old.opt$scipen)
+do.call(options,old.opt)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(WBSS,output.file=output.base)
