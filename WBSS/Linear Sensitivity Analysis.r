@@ -50,10 +50,14 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 workspace           <-  file.path(".","res","WBSS Assessment .RData")      #Workspace containing all data
 output.dir          <-  file.path(".","res")       #Output directory
-devs                <-  c(-0.050,-0.025,0.025,0.050)                #Relative deviations about input value, used to estimate derivatives
-linear.check        <-  FALSE    #Whether the linear approximation should be checked - execution is interrrupted if
+devs                <-  c(-0.001,0.001,-0.002,0.002)               #Relative deviations about input value, used to estimate derivatives
+linear.check        <-  TRUE    #Whether the linear approximation should be checked - execution is interrrupted if
                                 #linearity is violated and the sensitivity is greater than sens.alarm
-sens.alarm          <-  1e-3
+sens.alarm          <-  2e-3
+sens.YR             <-  2008    #Year in which to make CANUM sensitivity analysis
+TY                  <-  2008    #Terminal year of the assessment
+do.canum.sens       <-  TRUE
+do.idx.sens         <-  TRUE
 
 ### ======================================================================================================
 ### Load data, setup values
@@ -63,6 +67,11 @@ stck <- WBSS
 tun  <- WBSS.tun
 ica  <- WBSS.ica
 ctrl <- WBSS.ctrl
+#ctrl@sep.nyr  <-  as.integer(6)
+#
+##Update assessment
+#ica  <- FLICA(stck,tun,ctrl)
+#stck <- stck +ica
 
 ### ======================================================================================================
 ### Generic function to calculate summary states
@@ -73,26 +82,33 @@ sum.stats <- function(stck.in,ica.in) {
                          Fbar=fbar(stck.in)[,ac(c(TY-1,TY)),drop=TRUE]@.Data)
 }
 
-TY  <-  dims(stck)$maxyear  #Terminal Year of the assessment
 zero.pt   <- sum.stats(stck,ica)
+
+### ======================================================================================================
+### Initialise figure
+### ======================================================================================================
+#Initialise Figure
+png(file.path(output.dir,"WBSS sensitivity analysis - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
+trellis.par.set(fontsize=list(text=24,points=20),superpose.symbol=list(pch=16:19))
 
 ### ======================================================================================================
 ### Start with looping through catch
 ### ======================================================================================================
+if(do.canum.sens) {
 catch.derivs <- lapply(as.list(as.character(dims(stck)$min:dims(stck)$max)), function(age) {
                   cat(paste("CATCH SENSITIVITY:\tAge :",age,"\n"));flush.console()
                   #Perform new assessments based on deviations about the input data
                   stats.l <- lapply(as.list(devs), function(dx) {
                       tmp.stck <- stck
-                      x.new  <- tmp.stck@catch.n[age,ac(TY)]*(1+dx)   #Change given point by dx
-                      tmp.stck@catch.n[age,ac(TY)] <- x.new
+                      x.new  <- tmp.stck@catch.n[age,ac(sens.YR)]*(1+dx)   #Change given point by dx
+                      tmp.stck@catch.n[age,ac(sens.YR)] <- x.new
                       tmp.ica  <- FLICA(tmp.stck,tun,ctrl)
                       tmp.stck <- tmp.stck + tmp.ica      #Update stock object to contain new assessment
                       #Now return summary stats
                       return(c(dx=dx,x.new=x.new,sum.stats(tmp.stck,tmp.ica)))
                   })
                   #Add the zero points
-                  stats <- rbind(c(dx=0,x.new=stck@catch.n[age,ac(TY)],zero.pt),
+                  stats <- rbind(c(dx=0,x.new=stck@catch.n[age,ac(sens.YR)],zero.pt),
                               do.call(rbind,stats.l))
                   #Calculate the derivatives - but not of the first two columns
                   derivs <- apply(stats[,-(1:2)],2,x=stats[,"x.new"],FUN=function(y,x){
@@ -110,9 +126,29 @@ catch.derivs <- lapply(as.list(as.character(dims(stck)$min:dims(stck)$max)), fun
                   return(data.frame(dat="Catch.n",age=age,sum.stat=names(derivs),derivs))
                 })
 
+#Now plot the results
+catch.derivs <- do.call(rbind,catch.derivs)
+catch.plot <- xyplot(derivs ~ as.numeric(age) | sum.stat, data=catch.derivs,
+                type="b",pch=19,
+                ylab="Sensitivity",
+                xlab=paste("Catch at Age",sens.YR),
+                prepanel=function(...) list(ylim=range(pretty(c(0,list(...)$y)))),
+                main="WBSS Sensitivity Analysis - Catch at Age in Term. Yr.",
+                as.table=TRUE,
+                scale=list(alternating=1,y=list(relation="free")),
+                panel=function(...) {
+                      panel.grid(h=-1,v=-1)
+                      panel.abline(h=0,col="black",lwd=2)
+                      panel.xyplot(...)
+                      })
+print(catch.plot)
+
+}
 ### ======================================================================================================
 ### Now do the same with the index data
 ### ======================================================================================================
+if(do.idx.sens) {
+
 idx.derivs <- list()
 for(idx in names(tun)) {
   #First update the TY, as it can vary from index to index
@@ -150,40 +186,14 @@ for(idx in names(tun)) {
                       })
 }
 
-
-### ======================================================================================================
-### Plots!
-### ======================================================================================================
-FnPrint("MAKING PLOTS...\n")
-#Initialise Figure
-png(file.path(output.dir,"WBSS sensitivity analysis - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
-trellis.par.set(fontsize=list(text=24,points=20),superpose.symbol=list(pch=16:19))
-
-#First, the catch plots
-catch.derivs <- do.call(rbind,catch.derivs)
-catch.plot <- xyplot(derivs ~ as.numeric(age) | sum.stat, data=catch.derivs,
-                type="b",pch=19,
-                ylab="Sensitivity",
-                xlab="Age",
-                prepanel=function(...) list(ylim=range(pretty(c(0,list(...)$y)))),
-                main="WBSS Sensitivity Analysis - Catch at Age in Term. Yr.",
-                as.table=TRUE,
-                scale=list(alternating=1,y=list(relation="free")),
-                panel=function(...) {
-                      panel.grid(h=-1,v=-1)
-                      panel.abline(h=0,col="black",lwd=2)
-                      panel.xyplot(...)
-                      })
-print(catch.plot)
-
-#Then the index plots
+#Now make the index plots
 idx.dat <- do.call(rbind,do.call(c,idx.derivs))
 idx.plot <- xyplot(derivs ~ as.numeric(age) | sum.stat, data=idx.dat,
                 groups=dat,
                 type="b",
                 main="WBSS Sensitivity Analysis - Index Values in Term. Yr.",
                 ylab="Sensitivity",
-                xlab="Age",
+                xlab=paste("Index Age",sens.YR),
                 prepanel=function(...) list(ylim=range(pretty(c(0,list(...)$y)))),
                 auto.key=list(space="bottom",type="b",points=FALSE,lines=TRUE,columns=length(tun)),
                 as.table=TRUE,
@@ -194,6 +204,7 @@ idx.plot <- xyplot(derivs ~ as.numeric(age) | sum.stat, data=idx.dat,
                       panel.xyplot(...)
                       })
 print(idx.plot)
+}
 
 
 ### ======================================================================================================
