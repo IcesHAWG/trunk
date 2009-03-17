@@ -165,6 +165,13 @@ stacked.age.plot(NSH.tun[[3]],"index")
 #mat.immat.ratio(NSH)
 #cpue.survey(NSH.tun,"index") 
 #wt.at.age(NSH,1980,2007)
+
+print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@stock.n)),ylab="Proportion of stock.n at age",ylim=c(-0.01,1.01)))
+print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@catch.n)),ylab="Proportion of Catch.n at age",ylim=c(-0.01,1.01)))
+print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@catch.wt)),ylab="Proportion of Catch.wt at age",ylim=c(-0.01,1.01)))
+print(stacked.area.plot(data~year*age,as.data.frame(pay(NSH@stock.n*NSH@stock.wt)),ylab="Proportion by weight in the stock",ylim=c(-0.01,1.01)))
+print(stacked.area.plot(data~age*year| unit, as.data.frame(pay(NSH@catch.n)),ylab="Total Historic Catches from an age group",ylim=c(-0.01,1.01)))
+
 catch.curves(NSH,1990,2007)
 NSH.sr <- ref.pts(NSH,"bevholt",100000)
 retro.landings.sel(NSH,NSH.sr,10,rpts=refpts()[4:5,])
