@@ -167,6 +167,59 @@ lines(TAC.plot.dat,lwd=5)
 legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2))
 title(main=paste(WBSS@name,"Catch and TAC"))
 
+#Proportion at age in (numbers) in the catch
+prop.num.catch  <- stacked.area.plot(data~year*age,data=as.data.frame(pay(WBSS@catch.n)),
+                      xlab="Year",
+                      ylab="Proportion at age (by numbers) in catch",
+                      main=paste(WBSS@name,"Proportion at Age by numbers in Catch"))
+print(prop.num.catch)
+
+#Proportion at age (in weight) in the catch
+prop.wt.catch  <- stacked.area.plot(data~year*age,data=as.data.frame(pay(WBSS@catch.n*WBSS@catch.wt)),
+                      xlab="Year",
+                      ylab="Proportion at age (by weight) in catch",
+                      main=paste(WBSS@name,"Proportion at Age by weight in Catch"))
+print(prop.wt.catch)
+
+#Time series of west
+west.ts  <- xyplot(data~year,data=WBSS@stock.wt,
+              groups=age,
+              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+              type="b",
+              xlab="Year",ylab="Weight in the stock (kg)",
+              main=paste(WBSS@name,"Weight in the Stock"),
+              par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25)))
+print(west.ts)
+
+#Comparison of indices with assessment stock numbers
+#idx.values            <- as.data.frame(WBSS.ica@index)
+#idx.values$id         <- paste(idx.values$qname,idx.values$age)
+#catchabilities        <- subset(WBSS.ica@param,Param=="Q",select=c("Index","Age","Value"))
+#colnames(catchabilities) <- c("Index","Age","Q")
+#catchabilities$Index  <- names(WBSS.ica@index)[as.numeric(catchabilities$Index)]
+#catchabilities$id     <- paste(catchabilities$Index,catchabilities$Age)
+#idx.dat               <- merge(idx.values,catchabilities,by="id")
+#idx.dat               <- idx.dat[,c("qname","age","year","unit","season","area","iter","data","Q")]
+#stck.dat              <- data.frame(qname="Est. Stock. N",as.data.frame(WBSS@stock.n),Q=1)
+#comp.dat              <- rbind(stck.dat,idx.dat)
+#comp.dat$N            <- comp.dat$data/comp.dat$Q     #Estimated stock numbers
+#comp.plot  <- xyplot(N~year|paste("Age",age),data=comp.dat,
+#                groups=qname,
+#                prepanel=function(...) list(ylim=range(pretty(c(0,list(...)$y)))),
+#                xlab="Year",ylab="Stock Numbers",
+#                as.table=TRUE,
+#                type="b",
+#                auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+#                main=paste(WBSS@name,"Estimated Stock Numbers"),
+#                scales=list(alternating=1,y=list(relation="free")),
+#                panel=function(...) {
+#                  panel.grid(h=-1,v=-1)
+#                  panel.xyplot(...)
+#                },
+#                par.settings=list(superpose.symbol=list(pch=c(NA,1,2,3)),
+#                                  superpose.line=list(lwd=3,lty=c(1,0,0,0) )))
+#print(comp.plot)
+
 
 ### ======================================================================================================
 ### Document Assessment
