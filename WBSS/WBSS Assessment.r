@@ -58,10 +58,13 @@ n.retro.years       <-  8                          #Number of years for which to
 ### ======================================================================================================
 ### Output setup
 ### ======================================================================================================
-png(paste(output.base,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
+#Portrait output
+#png(paste(output.base,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
+#trellis.par.set(fontsize=list(text=24,points=20))    #Set default lattice fontsize, so that things are actually readible!
+#Square output
+png(paste(output.base,"figures - %02d.png"),units = "px", height=720,width=720,pointsize = 16, bg = "white")
+trellis.par.set(fontsize=list(text=20,points=16))     #Set default lattice fontsize, so that things are actually readible!
 #win.metafile(paste(output.base,"figures - %02d.wmf"),height=130/25.4,width=130/25.4,pointsize = 8)
-#Set default lattice fontsize, so that things are actually readible!
-trellis.par.set(fontsize=list(text=24,points=20))
 
 ### ======================================================================================================
 ### Prepare control object for assessment
@@ -114,25 +117,25 @@ WBSS@name    <- paste(cfg$run.name,collapse=" ")
 ### ======================================================================================================
 FnPrint("PREPARING INDEX OBJECT...\n")
 #Load and modify all index data
-WBSS.tun   <- readFLIndices(file.path(data.source, "tun.txt"))
+WBSS.tun.in   <- readFLIndices(file.path(data.source, "tun.txt"))
 
 #Set names, and parameters etc
-names(WBSS.tun) <-  gsub(":.*$","",names(WBSS.tun))
-WBSS.tun   <- lapply(WBSS.tun,function(idx) {
-                idx@type 	     <- 	"number"
-          		idx@index.var[]  <-	1
-                idx@range["plusgroup"] <- NA
-          		return(idx)})
-WBSS.tun[[1]]@range["plusgroup"] <- 8
+names(WBSS.tun.in) <-  gsub(":.*$","",names(WBSS.tun.in))
+WBSS.tun.in   <- lapply(WBSS.tun.in,function(idx) {
+                      idx@type 	     <- 	"number"
+                  		idx@index.var[]  <-	1
+                      idx@range["plusgroup"] <- NA
+                  		return(idx)})
+WBSS.tun.in[[1]]@range["plusgroup"] <- 8
 
 #Generate two new indices by truncating current indices etc
-WBSS.tun[[8]]      <-  trim(WBSS.tun[[1]],age=3:6,year=1993:2008) #HERAS 3-6 wr
-WBSS.tun[[9]]      <-  trim(WBSS.tun[[2]],age=1:3,year=1994:2008) #GerAS 1-3 wr
-WBSS.tun[[9]]@index[,"2001"] <- -1     #2001 is excluded from GerAS due to lack of coverage in SD23
-names(WBSS.tun)[8:9] <- c("HERAS 3-6 wr","GerAS 1-3 wr")
+WBSS.tun.in[[8]]      <-  trim(WBSS.tun.in[[1]],age=3:6,year=1993:2008) #HERAS 3-6 wr
+WBSS.tun.in[[9]]      <-  trim(WBSS.tun.in[[2]],age=1:3,year=1994:2008) #GerAS 1-3 wr
+WBSS.tun.in[[9]]@index[,"2001"] <- -1     #2001 is excluded from GerAS due to lack of coverage in SD23
+names(WBSS.tun.in)[8:9] <- c("HERAS 3-6 wr","GerAS 1-3 wr")
 
 #Only use the relevant data sets
-WBSS.tun  <- WBSS.tun[c("HERAS 3-6 wr","GerAS 1-3 wr","N20")]
+WBSS.tun  <- WBSS.tun.in[c("HERAS 3-6 wr","GerAS 1-3 wr","N20")]
 
 ### ======================================================================================================
 ### Perform the assessment
