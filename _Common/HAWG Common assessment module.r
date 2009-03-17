@@ -97,7 +97,7 @@ do.summary.plots <- function(stck,ica.obj) {
                         panel.barchart(...)
                         panel.abline(h=0,col="black",lwd=1)
                       },
-                      scales=list(alternating=1))
+                      scales=list(alternating=1,y=list(relation="free")))
     ssq.yr.breakdown <- update(ssq.yr.breakdown,main=list(paste(stck@name,"SSQ Breakdown by Year"),cex=0.9))
     print(ssq.yr.breakdown)
 
@@ -121,7 +121,7 @@ do.summary.plots <- function(stck,ica.obj) {
                         panel.barchart(...)
                         panel.abline(h=0,col="black",lwd=1)
                       },
-                      scales=list(alternating=1))
+                      scales=list(alternating=1,y=list(relation="free")))
     ssq.cohort.breakdown <- update(ssq.cohort.breakdown,main=list(paste(stck@name,"SSQ Breakdown by Cohort"),cex=0.9))
     print(ssq.cohort.breakdown)
 
