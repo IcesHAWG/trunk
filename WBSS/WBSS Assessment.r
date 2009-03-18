@@ -63,7 +63,7 @@ n.retro.years       <-  8                          #Number of years for which to
 #trellis.par.set(fontsize=list(text=24,points=20))    #Set default lattice fontsize, so that things are actually readible!
 #Square output
 png(paste(output.base,"figures - %02d.png"),units = "px", height=720,width=720,pointsize = 16, bg = "white")
-trellis.par.set(fontsize=list(text=20,points=16))     #Set default lattice fontsize, so that things are actually readible!
+trellis.par.set(fontsize=list(text=18,points=16))     #Set default lattice fontsize, so that things are actually readible!
 #win.metafile(paste(output.base,"figures - %02d.wmf"),height=130/25.4,width=130/25.4,pointsize = 8)
 
 ### ======================================================================================================
@@ -195,6 +195,7 @@ print(west.ts)
 index.ts.dat  <- lapply(WBSS.tun,slot,"index")
 index.ts.dat  <- as.data.frame(index.ts.dat)
 index.ts.dat$id <- paste(index.ts.dat$qname,", Age ",index.ts.dat$age,sep="")
+index.ts.dat$data[index.ts.dat$data<0] <- NA
 index.ts.plot <- xyplot(data~year|id,data=index.ts.dat,
                     type="b",
                     xlab="Year",ylab="Index Value",
