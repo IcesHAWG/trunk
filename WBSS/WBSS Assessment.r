@@ -200,7 +200,7 @@ west.cohort.plot  <- xyplot(data~year,data=west.by.cohort,
               auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
               type="b",
               xlab="Year",ylab="Weight in the stock (kg)",
-              main=paste(WBSS@name,"Weight in the Stock"),
+              main=paste(WBSS@name,"Weight in the stock by cohort"),
               par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1.25)),
               panel=function(...) {
                 panel.grid(h=-1,v=-1)
