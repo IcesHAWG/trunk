@@ -191,7 +191,25 @@ west.ts  <- xyplot(data~year,data=WBSS@stock.wt,
               par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25)))
 print(west.ts)
 
-#Comparison of indices with assessment stock numbers
+#Time series of each index
+index.ts.dat  <- lapply(WBSS.tun,slot,"index")
+index.ts.dat  <- as.data.frame(index.ts.dat)
+index.ts.dat$id <- paste(index.ts.dat$qname,", Age ",index.ts.dat$age,sep="")
+index.ts.plot <- xyplot(data~year|id,data=index.ts.dat,
+                    type="b",
+                    xlab="Year",ylab="Index Value",
+                    prepanel=function(...) list(ylim=range(pretty(c(0,list(...)$y)))),
+                    pch=19,
+                    as.table=TRUE,
+                    main=paste(WBSS@name,"Input Indices"),
+                    scales=list(alternating=1,y=list(relation="free")),
+                    panel=function(...) {
+                        panel.grid(h=-1,v=-1)
+                        panel.xyplot(...)
+                    })
+print(index.ts.plot)
+
+##Comparison of indices with assessment stock numbers
 #idx.values            <- as.data.frame(WBSS.ica@index)
 #idx.values$id         <- paste(idx.values$qname,idx.values$age)
 #catchabilities        <- subset(WBSS.ica@param,Param=="Q",select=c("Index","Age","Value"))
