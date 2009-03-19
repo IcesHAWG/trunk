@@ -149,7 +149,7 @@ print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@stock.n)),mai
 print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@catch.n)),main="Proportion of Catch.n at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@catch.wt)),main="Proportion of Catch.wt at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 print(stacked.area.plot(data~year*age,as.data.frame(pay(NSH@stock.n*NSH@stock.wt)),main="Proportion by weight in the stock",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-print(stacked.area.plot(data~age*year| unit, as.data.frame(pay(NSH@catch.n)),main="Total Historic Catches from an age group",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+print(stacked.area.plot(data~age*year| unit, as.data.frame(pay(NSH@catch.n)),main="Total Historic Catches from an age group",xlab="years",col=gray(9:0/9)))
 
 print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH.tun[[3]]@index)),main="Proportion of IBTS index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH.tun[[4]]@index)),main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
@@ -169,18 +169,6 @@ plot(NSH.sr)
 NSH.sr@params <- NSH.sr@params*100000
 plot(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],type="b",xlab="SSB",ylab="Rec",main="Yearly stock recruitment relationship")
 text(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
-
-plot(x=c(0,0.8,1.5,2),y=c(0.1,0.1,0.25,0.25),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tons",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
-abline(v=0.8,col="red",lwd=2,lty=2)
-abline(v=1.3,col="blue",lwd=2,lty=2)
-abline(v=1.5,col="darkgreen",lwd=2,lty=2)
-text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
-text(1.3,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
-text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
-
-points(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6),pch=19)
-lines(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6))
-text(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6),labels=ac(2002:2009),pos=3,cex=0.7)
 
 ### ======================================================================================================
 ### Document Assessment
@@ -205,6 +193,19 @@ REC               <- NSH.ica@param["Recruitment prediction","Value"]
 TAC               <- 171000
 NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,fbar.nyrs=1,f.rescale=TRUE,rec=REC,catch.constraint=TAC)
 NSH.stock09       <- as.FLStock(FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE))
+
+#A plot on the agreed management plan with the estimated Fbar in 2009
+plot(x=c(0,0.8,1.5,2),y=c(0.1,0.1,0.25,0.25),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tons",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
+abline(v=0.8,col="red",lwd=2,lty=2)
+abline(v=1.3,col="blue",lwd=2,lty=2)
+abline(v=1.5,col="darkgreen",lwd=2,lty=2)
+text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
+text(1.3,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
+text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
+
+points(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6),pch=19)
+lines(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6))
+text(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6),labels=ac(2002:2009),pos=3,cex=0.7)
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(NSH.stock09,output.file=paste(output.base,"with STF"))
