@@ -377,48 +377,7 @@ do.SRR.plot<- function(stck) {
 ### ======================================================================================================
 ### Data exploration plots
 ### ======================================================================================================
-
-cl  <- 1.2
-ca  <- 1
-fam <- ""
-cols    <- c("black","grey50","grey20","grey80","red2","green3","red","white")
-fonts   <- 2
-parmar <- rep(0.4,4)
-paroma <- (c(6,6,2,2)+0.1)
-mtextline <- 3
-ltextcex <- 1
-
-#Catch of each cohort as a fraction of the total catch from that yearclass
-catch.coh <- function(stk){                  
-                 rel <- c(colSums(FLCohort(stk@catch.n)[,ac((dims(stk)$minyear):(dims(stk)$maxyear-dims(stk)$age+1))]))  
-                 plot((c(FLCohort(stk@catch.n)[1,ac((dims(stk)$minyear):(dims(stk)$maxyear-dims(stk)$age+1))])/rel)~c(((dims(stk)$minyear):(dims(stk)$maxyear-dims(stk)$age+1))),
-                 type="l",cex.lab=cl,cex.axis=ca,main=paste("Proportion of a cohort in the catch",name(stk)),font=fonts,family=fam,
-                 xlab="Years",ylab="Relative propotion of the cohort",ylim=c(0,1))
-                 old.polygon <- rep(0,length((dims(stk)$minyear):(dims(stk)$maxyear-dims(stk)$age+1)))
-                 for(i in 1:((range(stk)[c("max")]-range(stk)[c("min")])+1)){
-                    polygon(c(c(((dims(stk)$minyear):(dims(stk)$maxyear-dims(stk)$age+1))),rev(c(((dims(stk)$minyear):(dims(stk)$maxyear-dims(stk)$age+1))))),
-                    c(old.polygon,rev((c(FLCohort(stk@catch.n)[i,ac(((dims(stk)$minyear):(dims(stk)$maxyear-dims(stk)$age+1)))])/rel)+old.polygon)),col=grey(i/((range(stk)[c("max")]-range(stk)[c("min")])+1)))
-                    text((dims(stk)$maxyear-dims(stk)$age+1),mean(c(old.polygon[length(old.polygon)],rev((c(FLCohort(stk@catch.n)[i,ac(((dims(stk)$minyear):(dims(stk)$maxyear-dims(stk)$age+1)))]@.Data)/rel)+old.polygon)[1])),labels=seq(range(stk)["min"],range(stk)["max"],1)[i],cex=ltextcex,adj=c(-0.6,0),font=fonts,col="black")
-                    old.polygon <- (c(FLCohort(stk@catch.n)[i,ac(((dims(stk)$minyear):(dims(stk)$maxyear-dims(stk)$age+1)))])/rel)+old.polygon 
-                 }
-                }
-                
 cor.tun <- function(stk.tun){ for(i in names(stk.tun)) if(dim(stk.tun[[i]]@index)[1]>1) plot(stk.tun[[i]],type="internal",main=name(stk.tun[[i]]))}              
-
-#Any age based slot of an FLStock object can be visualized as stacked lines
-stacked.age.plot <- function(stk,slnm){
-                rel <- colSums(slot(stk,slnm))
-                plot((c(slot(stk,slnm)[1,]@.Data)/rel)~seq(range(stk)[c("minyear")],range(stk)[c("maxyear")],1),
-                type="l",cex.lab=cl,cex.axis=ca,main=paste("Proportion of age-groups in the",slnm,name(stk)),font=fonts,family=fam,
-                xlab="Years",ylab=paste("Relative propotion of the",slnm),ylim=c(0,1))
-                old.polygon <- rep(0,range(stk)[c("maxyear")]-range(stk)[c("minyear")]+1)
-                for(i in 1:((range(stk)[c("max")]-range(stk)[c("min")])+1)){
-                  polygon(c(seq(range(stk)[c("minyear")],range(stk)[c("maxyear")],1),rev(seq(range(stk)[c("minyear")],range(stk)[c("maxyear")],1))),
-                  c(old.polygon,rev((c(slot(stk,slnm)[i,]@.Data)/rel)+old.polygon)),col=grey(i/((range(stk)[c("max")]-range(stk)[c("min")])+1)))
-                  text(range(stk)[c("maxyear")],mean(c(old.polygon[length(old.polygon)],rev((c(slot(stk,slnm)[i,]@.Data)/rel)+old.polygon)[1])),labels=seq(range(stk)["min"],range(stk)["max"],1)[i],cex=ltextcex,adj=c(-0.6,0),font=fonts,col="black")
-                  old.polygon <- (c(slot(stk,slnm)[i,]@.Data)/rel)+old.polygon 
-                }
-              }  
 
 #Ratio of mature and immature biomass              
 mat.immat.ratio <- function(stk,...){
@@ -474,7 +433,6 @@ wt.at.age <- function(stk,start.,end.){
               
                      panel.xyplot(...)
                      panel.text(x=rep((start.-1),(length(seq(range(stk)["max"]-range(stk)["min"]))+1)), y=stk@catch.wt[,ac(start.)], labels=seq(range(stk)["max"]-range(stk)["min"]),col=1:(length(seq(range(stk)["max"]-range(stk)["min"]))+1))
-                     panel.points(x=rep(end.,(length(seq(range(stk)["max"]-range(stk)["min"]))+1)),y=stk@stock.wt[,ac(end.)],col=1:(length(seq(range(stk)["max"]-range(stk)["min"]))+1),pch=19)
               }))
               }
  
@@ -513,18 +471,9 @@ ref.pts <- function(stk,model.,factor.){
                 plot(stk.brp)
                 return(stk.sr)
             }
+            
+an <- function(x){ return(as.numeric(x))}            
 
-#Retrospective plot of the landing selectivity 
-retro.landings.sel <- function(stk,stk.sr,mnYrs,rpts){
-  for(i in 0:(mnYrs-1)){
-    range. <- c(range(stk)[c("minyear","maxyear")])
-    stk. <- window(stk,(range.[2]-mnYrs-i+1),(range.[2]-1-i+1))
-    if(i==0){ plot(c(landings.sel(brp(FLBRP(stk.,fbar=seq(0,1,length.out=100),nyrs=mnYrs,refpts=rpts))))~c(range(stk.)[c("min")]:range(stk.)[c("max")]),type="l",xlab="Age",ylab="Landings selectivity",ylim=c(0,1.5))
-    } else { lines(c(landings.sel(brp(FLBRP(stk.,fbar=seq(0,1,length.out=100),nyrs=mnYrs,refpts=rpts))))~c(range(stk.)[c("min")]:range(stk.)[c("max")]),col=i+1)
-      }
-  }
-  legend("bottomright",legend=c(range(stk)["maxyear"]:(range(stk)["maxyear"]-mnYrs)),col=c(1:mnYrs),lty=1,lwd=1,box.lty=0)
-}  
 
 ### ======================================================================================================
 ### Check FLR Package version numbers
