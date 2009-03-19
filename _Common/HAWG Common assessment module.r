@@ -421,10 +421,17 @@ stacked.age.plot <- function(stk,slnm){
               }  
 
 #Ratio of mature and immature biomass              
-mat.immat.ratio <- function(stk){
-                    stk.bmass <- bmass(stk)
-                    mykey <- simpleKey(text=c("Mature", "Immature"), points=F, lines=T)
-                    xyplot(data~year, data=stk.bmass, groups=qname,type="l", main="Mature - Immature biomass ratio", key=mykey, ylab="Relative biomass",sub=stk@name)
+mat.immat.ratio <- function(stk,...){
+                    default.args <- list(x=data~year, data=as.data.frame(bmass(stk)),
+                                      groups=expression(qname),
+                                      type="l",
+                                      main="Mature - Immature biomass ratio",
+                                      key=simpleKey(text=c("Mature", "Immature"), points=F, lines=T),
+                                      ylab="Relative biomass")
+                    arg.ins      <- list(...)
+                    call.args    <- default.args
+                    call.args[names(arg.ins)]  <- arg.ins
+                    do.call(xyplot,call.args)
                   }
 
 #CPUE plot of the surveys per age class                  
