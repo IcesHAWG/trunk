@@ -74,18 +74,6 @@ trellis.par.set(fontsize=list(text=24,points=20))
 FnPrint("PREPARING CONTROL OBJECTS...\n")
 #Set control object straight up (option 1)
 #-----------------------------------------
-#NSH.ctrl   <-  FLICA.control(sep.nyr=5,
-#                              sep.age=4,
-#                              sep.sel=1.0,
-#                              lambda.yr=1,
-#                              lambda.age=c(0.1,1,1,1,1,1,1,1,1),
-#                              lambda.sr=0,
-#                              sr=FALSE,
-#                              sr.age=0,
-#                              index.model=c("l","l","l"),
-#                              index.cor=1)
-#
-
 
 #Setup FLICA control object
 NSH.ctrl <- FLICA.control(sep.nyr=5, sep.age=4, sep.sel=1.0, sr.age=1, sr=TRUE,
@@ -151,36 +139,39 @@ do.summary.plots(NSH,NSH.ica)
 NSH.retro <- do.retrospective.plots(NSH,NSH.tun,NSH.ctrl,n.retro.years)
 #do.SRR.plot(NSH)
 
+NSH.sr <- fmle(as.FLSR(transform(NSH,stock.n=NSH@stock.n/100000),model="bevholt")); 
+plot(NSH.sr)
+NSH.sr@params <- NSH.sr@params*100000
+
+plot(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],type="b",xlab="SSB",ylab="Rec",main="Yearly stock recruitment relationship")
+text(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
+
 ### ======================================================================================================
 ### Custom plots
 ### ======================================================================================================
 FnPrint("GENERATING CUSTOM PLOTS...\n")
 
-catch.coh(window(NSH,1960,2007)) #Proportion of a cohort in the catch      
-stacked.age.plot(window(NSH,1960,2007),"stock.n") #Proportion of age-group in the stock
-stacked.age.plot(window(NSH,1960,2007),"catch.n")
-stacked.age.plot(window(NSH,1960,2007),"catch.wt") #Proportion of age-group in the catch
-stacked.age.plot(NSH.tun[[4]],"index")
-stacked.age.plot(NSH.tun[[3]],"index")
 #mat.immat.ratio(NSH)
 #cpue.survey(NSH.tun,"index") 
 #wt.at.age(NSH,1980,2007)
 
-print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@stock.n)),ylab="Proportion of stock.n at age",ylim=c(-0.01,1.01)))
-print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@catch.n)),ylab="Proportion of Catch.n at age",ylim=c(-0.01,1.01)))
-print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@catch.wt)),ylab="Proportion of Catch.wt at age",ylim=c(-0.01,1.01)))
-print(stacked.area.plot(data~year*age,as.data.frame(pay(NSH@stock.n*NSH@stock.wt)),ylab="Proportion by weight in the stock",ylim=c(-0.01,1.01)))
-print(stacked.area.plot(data~age*year| unit, as.data.frame(pay(NSH@catch.n)),ylab="Total Historic Catches from an age group",ylim=c(-0.01,1.01)))
+print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@stock.n)),main="Proportion of stock.n at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@catch.n)),main="Proportion of Catch.n at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@catch.wt)),main="Proportion of Catch.wt at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+print(stacked.area.plot(data~year*age,as.data.frame(pay(NSH@stock.n*NSH@stock.wt)),main="Proportion by weight in the stock",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+print(stacked.area.plot(data~age*year| unit, as.data.frame(pay(NSH@catch.n)),main="Total Historic Catches from an age group",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+
+print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH.tun[[3]]@index)),main="Proportion of IBTS index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH.tun[[4]]@index)),main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
 catch.curves(NSH,1990,2007)
 NSH.sr <- ref.pts(NSH,"bevholt",100000)
-retro.landings.sel(NSH,NSH.sr,10,rpts=refpts()[4:5,])
 cor.tun(NSH.tun)
 
 source("./private_diagnostics_1.2.r")
 LNV.fbar(NSH,0.25,0.1,c(2,6))
 LNV.fbar(NSH,0.1,0.04,c(0,1))
-LNV.ssb(NSH,1.3e6,0.8e6)
+LNV.ssb(NSH,1.5e6,0.8e6)
 LNV.rec(NSH,NSH.ica)     
 
 
@@ -203,24 +194,19 @@ writeFLStock(NSH,output.file=output.base)
 ### Short Term Forecast
 ### ======================================================================================================
 FnPrint("PERFORMING SHORT TERM FORECAST...\n")
-#Make forecast
-TAC               <- 201
 REC               <- NSH.ica@param["Recruitment prediction","Value"]
-NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,catch.constraint=TAC,f.rescale=TRUE,rec=REC)
-NSH.stock09       <- FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE)
-NSH.stock.tot     <- window(NSH,1960,2009)
-NSH.stock.tot     <- NSH.stock09
-
-
+TAC               <- 210000
+NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,fbar.nyrs=1,f.rescale=TRUE,rec=REC,catch.constraint=TAC)
+NSH.stock09       <- as.FLStock(FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE))
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(NSH.stock.tot,output.file=paste(output.base,"with STF"))
+writeFLStock(NSH.stock09,output.file=paste(output.base,"with STF"))
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(NSH,NSH.stock.tot,NSH.tun,NSH.ctrl,file=paste(output.base,"Assessment.RData"))
+save(NSH,NSH.stock09,NSH.tun,NSH.ctrl,file=paste(output.base,"Assessment.RData"))
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
