@@ -423,20 +423,6 @@ cpue.survey <- function(stk.tun,slot.){
                 groups=qname,as.table=TRUE, layout=c(5,2,1)))
             }
 
-#Plot of weight at age in the catch compared to stock wt in final year
-wt.at.age <- function(stk,start.,end.){
-              dat <- window(stk@catch.wt,start.,end.)
-              ttl <- list(paste("Catch.wt vs stock.wt in",end.),cex=1)
-              print(xyplot(data~year,data=dat,groups=age,type="l",
-                    col=1:(length(seq(range(stk)["max"]-range(stk)["min"]))+1),ylab="Weight in Kg",
-                    main=ttl ,panel = function(stk,start.,end.,...) { 
-              
-                     panel.xyplot(...)
-                     panel.text(x=rep((start.-1),(length(seq(range(stk)["max"]-range(stk)["min"]))+1)), y=stk@catch.wt[,ac(start.)], labels=seq(range(stk)["max"]-range(stk)["min"]),col=1:(length(seq(range(stk)["max"]-range(stk)["min"]))+1))
-              }))
-              }
- 
-
 #Three ways of looking at the catch curves
 catch.curves <- function(stk,start.,end.){
                   stk.cc.l      <- logcc(window(stk@catch.n,start=start.,end=end.))
