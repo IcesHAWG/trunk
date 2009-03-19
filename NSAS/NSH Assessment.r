@@ -97,6 +97,8 @@ units(NSH)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep
 range(NSH)[c("minfbar","maxfbar")] <- c(2,6)
 #Set plus group
 NSH                        <- setPlusGroup(NSH,NSH@range["max"])
+#Strange thing going on: setting the plus group sets the stock.wt in 1977 to 0
+NSH@stock.wt[10,"1977"]    <- NSH@stock.wt[10,"1976"]
 #Set stock object name - this is propagated through into the figure titles
 NSH@name                   <- "NSH Herring"
 
@@ -130,6 +132,7 @@ FnPrint("PERFORMING ASSESSMENT...\n")
 NSH.ica         <-  FLICA(NSH,NSH.tun,NSH.ctrl)
 NSH             <-  NSH + NSH.ica
 range(NSH.ica)  <-  range(NSH)[1:5]
+
 
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
@@ -169,6 +172,35 @@ plot(NSH.sr)
 NSH.sr@params <- NSH.sr@params*100000
 plot(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],type="b",xlab="SSB",ylab="Rec",main="Yearly stock recruitment relationship")
 text(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
+
+#Time series of west
+west.ts  <- xyplot(data~year,data=window(NSH@stock.wt,1975,2008),
+              groups=age,
+              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+              type="b",
+              xlab="Year",ylab="Weight in the stock (kg)",
+              main=paste(NSH@name,"Weight in the Stock"),
+              par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25)))
+print(west.ts)
+
+#Time series of west by cohort
+west.by.cohort  <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,2008)))
+west.by.cohort  <-  subset(west.by.cohort,!is.na(west.by.cohort$data))
+west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
+west.cohort.plot  <- xyplot(data~year,data=west.by.cohort,
+              groups=cohort,
+              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+              type="b",
+              xlab="Year",ylab="Weight in the stock (kg)",
+              main=paste(NSH@name,"Weight in the stock by cohort"),
+              par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1.25)),
+              panel=function(...) {
+                panel.grid(h=-1,v=-1)
+                panel.xyplot(...)
+              })
+print(west.cohort.plot)
+
+
 
 ### ======================================================================================================
 ### Document Assessment
