@@ -467,7 +467,7 @@ ref.pts <- function(stk,model.,factor.){
                 rpts<-refpts()[4:5,]
                 dimnames(rpts)[[1]][2]<-"crash"
                 stk.brp    <- brp(FLBRP(stk,sr=stk.sr,fbar=seq(0,1,length.out=100),nyrs=3,refpts=rpts))
-                refpts(stk.brp)
+                print(refpts(stk.brp)[,1:5])
                 plot(stk.brp)
                 return(stk.sr)
             }
