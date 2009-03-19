@@ -434,6 +434,7 @@ mat.immat.ratio <- function(stk,...){
                     do.call(xyplot,call.args)
                   }
 
+
 #CPUE plot of the surveys per age class                  
 cpue.survey <- function(stk.tun,slot.){
             lst <- lapply(stk.tun, function(x){return(slot(x,slot.))})
@@ -451,18 +452,16 @@ cpue.survey <- function(stk.tun,slot.){
             stk.indsN01 <- FLQuants(stk.indsN01)
             # stupid hack to correct names (fixed in version 2)
             names(stk.indsN01) <- names(lst)
-            # fine tune
-            ttl <- list("Surveys CPUE", cex=1)
-            xttl <- list(cex=0.8)
-            yttl <- list("Standardized CPUE", cex=0.8)
-            stripttl <- list(cex=0.8)
-            ax <- list(cex=0.7)
-            akey <- simpleKey(text=names(stk.indsN01), points=F, lines=T, columns=2, cex=0.8,col=c(0,6,3,2))
-            akey$lines$lty<-c(0,1,1,1)    #1=mlai, #2=MIK #3=IBTS #4=Acoust
+#            akey$lines$lty<-c(0,1,1,1)    #1=mlai, #2=MIK #3=IBTS #4=Acoust
             # plot                                                                   #1=Acoust, #2=IBTS #3=MIK #4=MLAI
-            print(xyplot(data~year|factor(age), data=stk.indsN01, type="l",col=c(2,3,6,0),
-            main=ttl, xlab=xttl, ylab=yttl, key=akey, striptext=stripttl,
-            scales=ax, groups=qname,as.table=TRUE, layout=c(5,2,1)))
+            print(xyplot(data~year|factor(age), data=as.data.frame(stk.indsN01), type="l",col=c(2,3,6,0),
+                main=list("Surveys CPUE", cex=1),
+                xlab=list(cex=0.8),
+                ylab=list("Standardized CPUE", cex=0.8),
+                key=simpleKey(text=names(stk.indsN01), points=F, lines=T, columns=2, cex=0.8,col=c(0,6,3,2)),
+                striptext=list(cex=0.8),
+                scales=list(cex=0.7),
+                groups=qname,as.table=TRUE, layout=c(5,2,1)))
             }
 
 #Plot of weight at age in the catch compared to stock wt in final year
