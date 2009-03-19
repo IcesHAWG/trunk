@@ -4,28 +4,27 @@
 # $Rev$
 # $Date$
 #
-# Author: Mark Payne
-# DIFRES, Charlottenlund, DK
+# Author: Niels Hintzen
+# Wageningen IMARES, The Netherlands
+# With great compliments to M.Payne, DTU-aqua
 #
 # Performs an assessment of Western Baltic Spring Spawning Herring (NSH) in IIIa using the
 # FLICA package.
 #
 # Developed with:
 #   - R version 2.8.0
-#   - FLCore 1.99-111
-#   - FLICA, version 1.4-3
+#   - FLCore 3.0
+#   - FLICA, version 1.4-8
 #   - FLAssess, version 1.99-102
 #   - FLSTF, version 1.99-1
+#   - FLEDA, version 2.0
+#   - FLash, version 2.0.0
+#   - FLBRP, version 2.0.0
 #
-# Changes:
-# V 5.10 - Reflects modifications to Common Module to work as functions, rather than as a single script
-# V 5.00 - Compatiable with Google Code version
-# V 0.20 - Modifications
-# V 0.10 - Initial version, based on code inherited from Tomas Grösler
 #
 # To be done:
 #
-# Notes:
+# Notes: Have fun running this assessment!
 #
 ####################################################################################################
 
@@ -137,23 +136,14 @@ range(NSH.ica)  <-  range(NSH)[1:5]
 ### ======================================================================================================
 do.summary.plots(NSH,NSH.ica)
 NSH.retro <- do.retrospective.plots(NSH,NSH.tun,NSH.ctrl,n.retro.years)
-#do.SRR.plot(NSH)
-
-NSH.sr <- fmle(as.FLSR(transform(NSH,stock.n=NSH@stock.n/100000),model="bevholt")); 
-plot(NSH.sr)
-NSH.sr@params <- NSH.sr@params*100000
-
-plot(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],type="b",xlab="SSB",ylab="Rec",main="Yearly stock recruitment relationship")
-text(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
 
 ### ======================================================================================================
 ### Custom plots
 ### ======================================================================================================
 FnPrint("GENERATING CUSTOM PLOTS...\n")
 
-#mat.immat.ratio(NSH)
-#cpue.survey(NSH.tun,"index") 
-#wt.at.age(NSH,1980,2007)
+mat.immat.ratio(NSH)
+cpue.survey(NSH.tun,"index") 
 
 print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@stock.n)),main="Proportion of stock.n at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 print(stacked.area.plot(data~year*age| unit, as.data.frame(pay(NSH@catch.n)),main="Proportion of Catch.n at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
@@ -174,6 +164,23 @@ LNV.fbar(NSH,0.1,0.04,c(0,1))
 LNV.ssb(NSH,1.5e6,0.8e6)
 LNV.rec(NSH,NSH.ica)     
 
+NSH.sr <- fmle(as.FLSR(transform(NSH,stock.n=NSH@stock.n/100000),model="bevholt")); 
+plot(NSH.sr)
+NSH.sr@params <- NSH.sr@params*100000
+plot(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],type="b",xlab="SSB",ylab="Rec",main="Yearly stock recruitment relationship")
+text(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
+
+plot(x=c(0,0.8,1.5,2),y=c(0.1,0.1,0.25,0.25),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tons",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
+abline(v=0.8,col="red",lwd=2,lty=2)
+abline(v=1.3,col="blue",lwd=2,lty=2)
+abline(v=1.5,col="darkgreen",lwd=2,lty=2)
+text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
+text(1.3,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
+text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
+
+points(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6),pch=19)
+lines(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6))
+text(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6),labels=ac(2002:2009),pos=3,cex=0.7)
 
 ### ======================================================================================================
 ### Document Assessment
@@ -195,7 +202,7 @@ writeFLStock(NSH,output.file=output.base)
 ### ======================================================================================================
 FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 REC               <- NSH.ica@param["Recruitment prediction","Value"]
-TAC               <- 210000
+TAC               <- 171000
 NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,fbar.nyrs=1,f.rescale=TRUE,rec=REC,catch.constraint=TAC)
 NSH.stock09       <- as.FLStock(FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE))
 
