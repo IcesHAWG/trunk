@@ -1,6 +1,6 @@
-"Celtic"   "Sea"   "and"   "Division"   "VIIj"   "herring"   "(07wg:run1)"
+Celtic Sea   and   Division  VIIj herring
 101
-"FLT02:"   "Celtic"   "revised"   "acoustic"   "(Catch:"   "Millions)"   "(Effort:"   "Unknown)"
+FLT02: Celtic  revised   acoustic   (Catch:   Millions)   (Effort:Unknown)
 1995   2008
 1   1   1   1
 2   5

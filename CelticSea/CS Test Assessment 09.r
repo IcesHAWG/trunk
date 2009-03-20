@@ -2,8 +2,8 @@
 # CS.herring FLICA Assessment
 #  February 2009
 #
-# $Rev$
-# $Date$
+# $Rev: 89 $
+# $Date: 2009-02-20 10:32:54 +0000 (Fri, 20 Feb 2009) $
 #
 # Author: Afra Egan
 # Ireland
@@ -55,7 +55,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 data.source         <-  file.path("data")      #Data source, not code or package source!!!
 output.dir          <-  file.path("res")       #Output directory
 output.base         <-  file.path(output.dir,"cs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <- 7                          #Number of years for which to run the retrospective
+n.retro.years       <- 3                          #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Output setup
@@ -77,10 +77,9 @@ cs.herring.ctrl   <-  FLICA.control(sep.nyr=6,
                              sep.age=3,
                              sep.sel=1.0,
                              lambda.yr=1,
-                             lambda.age=c(0.1,1,1,1,1,1,1,1,1),
+                             lambda.age=c(0.1,1,1,1,1,1,1),
                               lambda.sr=0,
                               sr=FALSE,
-                              sr.age=0,
                               index.model=c("l"),
                               index.cor=1)
 
@@ -133,9 +132,9 @@ cs.herring.ica   <-  FLICA(cs.herring,cs.herring.tun,cs.herring.ctrl)
 cs.herring       <-  cs.herring + cs.herring.ica
 
 ################################################################################
-## Change Recruitment to mean value
+## Change Recruitment to mean value 1958-2006
 
-Rec=exp(mean(log(cs.herring@stock.n[1,as.character(1958:(cs.herring@range['maxyear']-1)),,,,])))
+Rec=exp(mean(log(cs.herring@stock.n[1,as.character(1958:(cs.herring@range['maxyear']-2)),,,,])))
 
 # put recruitment into last fishing year
 cs.herring@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
@@ -172,11 +171,11 @@ title(main=paste(cs.herring@name,"Catch and TAC"))
 ### ======================================================================================================
 FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
-old.opt <- options("width","scipen")
-options("width"=80,"scipen"=1000)
+old.opt <- options("width")
+options("width"=80)
 ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4.6.%i cs.herring HERRING.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
-options("width"=old.opt$width,"scipen"=old.opt$scipen)
+options("width"=old.opt$width)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(cs.herring,output.file=output.base)
