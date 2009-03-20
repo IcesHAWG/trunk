@@ -222,7 +222,7 @@ writeFLStock(NSH,output.file=output.base)
 ### ======================================================================================================
 FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 REC               <- NSH.ica@param["Recruitment prediction","Value"]
-TAC               <- 171000
+TAC               <- 171000 + 0.1*171000 #overshoot = approximately 10% every year
 NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,fbar.nyrs=1,f.rescale=TRUE,rec=REC,catch.constraint=TAC)
 NSH.stock09       <- as.FLStock(FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE))
 
