@@ -223,8 +223,9 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
 
 retro.plots<- function(retro.stck,retro.icas,ctrl) {
     #Setup some prelims
-    most.recent <- max(as.numeric(names(retro.stck)))
-    most.recent.stck <- retro.stck[[ac(most.recent)]]
+    stock.yrs <- sapply(retro.stck,function(x) {dims(x)$maxyear})
+    most.recent <- max(stock.yrs)
+    most.recent.stck <- retro.stck[[which.max(stock.yrs)]]
     n.retros    <- length(retro.stck)
     stck.name   <- most.recent.stck@name
 

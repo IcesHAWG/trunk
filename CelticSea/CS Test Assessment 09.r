@@ -55,7 +55,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 data.source         <-  file.path("data")      #Data source, not code or package source!!!
 output.dir          <-  file.path("res")       #Output directory
 output.base         <-  file.path(output.dir,"cs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  6                          #Number of years for which to run the retrospective
+retro.years         <-  c(2002:2003,2005:2008)              #Specify specific years to do the retrospective over
 
 ### ======================================================================================================
 ### Output setup
@@ -145,10 +145,39 @@ cs.herring@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
 ### Use the standard code from the common modules to produce outputs
 ### ======================================================================================================
 do.summary.plots(cs.herring,cs.herring.ica)
-#cs.herring.retro <- do.retrospective.plots(cs.herring,cs.herring.tun,cs.herring.ctrl,n.retro.years)
-#retro.plots(cs.herring,cs.herring.tun,cs.herring.ctrl)
-
 do.SRR.plot(cs.herring)
+
+### ======================================================================================================
+### Retrospective plots
+### ======================================================================================================
+#Do the retrospective analysis
+cs.retro.icas <- lapply(as.list(retro.years),function(yr) {
+                  tun.tmp <- window(cs.herring.tun,end=yr)
+                  stk.tmp <- window(cs.herring,end=yr)
+                  ica <- FLICA(stk.tmp,tun.tmp,cs.herring.ctrl)
+                  return(ica)
+                  })
+#Update the stock with the results of the assessment
+names(cs.retro.icas) <- retro.years
+cs.retro.stck <- lapply(cs.retro.icas,function(ica) {
+                    last.yr <- dims(ica@stock.n)$maxyear
+                    tmp.stck <- window(cs.herring,end=last.yr)
+                    return(tmp.stck+ica)
+                  })      #Returns a list of stock objects
+#Now, update the recruitment for each stock object according to the geometric mean
+cs.retro.stck <- lapply(cs.retro.stck,function(stk) {
+                    last.yr <- dims(stk)$maxyear
+                    recs <- rec(stk)
+                    gm.recs <- exp(mean(log(window(recs,end=last.yr-2))))
+                    stk@stock.n[1,ac(last.yr)] <- gm.recs
+                    return(stk)
+                  })
+#Now, do the plots
+cs.retro.stck <- do.call(FLStocks,cs.retro.stck)        #Converts to FLStocks
+retro.plots(cs.retro.stck,cs.retro.icas,cs.herring.ctrl)
+
+
+
 
 ### ======================================================================================================
 ### Custom plots
