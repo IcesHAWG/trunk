@@ -228,6 +228,26 @@ index.ts.plot <- xyplot(data~year|id,data=index.ts.dat,
                     })
 print(index.ts.plot)
 
+#Contribution to ssb by age
+ssb.dat    <- WBSS@stock.wt*WBSS@stock.n*exp(-WBSS@harvest*WBSS@harvest.spwn - WBSS@m*WBSS@m.spwn)*WBSS@mat/1000
+ssb.by.age <- stacked.area.plot(data~year*age,as.data.frame(ssb.dat),ylab="Spawning Biomass (kt)")
+print(ssb.by.age)
+
+#Proportion of ssb by age
+ssb.prop.by.age <- stacked.area.plot(data~year*age,as.data.frame(pay(ssb.dat)),ylab="Proportion of SSB")
+print(ssb.prop.by.age)
+
+#Proportion of ssb by cohort
+#ssb.cohorts         <- as.data.frame(FLCohort(ssb.dat))
+#ssb.cohorts$year    <- ssb.cohorts$cohort+ssb.cohorts$age
+#ssb.cohorts         <- subset(ssb.cohorts,!is.na(ssb.cohorts$data))
+#ssb.by.cohort.plot  <- stacked.area.plot(data~year*cohort,ssb.cohorts)
+#print(ssb.by.cohort.plot)
+
+
+
+
+
 ### ======================================================================================================
 ### Document Assessment
 ### ======================================================================================================
