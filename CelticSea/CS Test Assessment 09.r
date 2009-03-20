@@ -197,7 +197,9 @@ legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),co
 title(main=paste(cs.herring@name,"Catch and TAC"))
 
 #Proportion of the catch by age
-canum.prop.age <- stacked.area.plot(data~year*age,data=as.data.frame(pay(cs.herring@catch.n)))
+canum.prop.age <- stacked.area.plot(data~year*age,data=as.data.frame(pay(cs.herring@catch.n)),
+                    main=paste(cs.herring@name,"Proportion at age (by numbers) in the catch"),
+                    xlab="Year",ylab="Prop. at age in the catch")
 print(canum.prop.age)
 
 
