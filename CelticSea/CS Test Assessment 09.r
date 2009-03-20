@@ -148,7 +148,7 @@ do.summary.plots(cs.herring,cs.herring.ica)
 do.SRR.plot(cs.herring)
 
 ### ======================================================================================================
-### Retrospective plots
+### Retrospective analysis
 ### ======================================================================================================
 #Do the retrospective analysis
 cs.retro.icas <- lapply(as.list(retro.years),function(yr) {
