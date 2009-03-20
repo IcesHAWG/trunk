@@ -230,11 +230,13 @@ print(index.ts.plot)
 
 #Contribution to ssb by age
 ssb.dat    <- WBSS@stock.wt*WBSS@stock.n*exp(-WBSS@harvest*WBSS@harvest.spwn - WBSS@m*WBSS@m.spwn)*WBSS@mat/1000
-ssb.by.age <- stacked.area.plot(data~year*age,as.data.frame(ssb.dat),ylab="Spawning Biomass (kt)")
+ssb.by.age <- stacked.area.plot(data~year*age,as.data.frame(ssb.dat),ylab="Spawning Biomass (kt)",xlab="Year",
+                main=paste(WBSS@name,"Contribution of ages to SSB"))
 print(ssb.by.age)
 
 #Proportion of ssb by age
-ssb.prop.by.age <- stacked.area.plot(data~year*age,as.data.frame(pay(ssb.dat)),ylab="Proportion of SSB")
+ssb.prop.by.age <- stacked.area.plot(data~year*age,as.data.frame(pay(ssb.dat)),ylab="Proportion of SSB",xlab="Year",
+                        main=paste(WBSS@name,"Proportion of ages in SSB"))
 print(ssb.prop.by.age)
 
 #Proportion of ssb by cohort
