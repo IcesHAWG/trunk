@@ -53,7 +53,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 data.source         <-  file.path(".","data")      #Data source, not code or package source!!!
 output.dir          <-  file.path(".","res")       #Output directory
 output.base         <-  file.path(output.dir,"WoS Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  5                          #Number of years for which to run the retrospective
+n.retro.years       <-  8                          #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Output setup
@@ -163,7 +163,9 @@ writeFLStock(WoS,output.file=output.base)
 #Make forecast
 gm.recs         <- exp(mean(log(rec(trim(WoS,year=1985:2005)))))  #WBSS recruitment is based on a geometric mean of the last few years
 stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=21760,f.rescale=TRUE,rec=gm.recs)
+WoS@catch.n[1,52,,,,]=1
 WoS.stf        <- FLSTF(stock=WoS,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
+writeFLStock(WoS.stf,output.file="WoSaddyr")
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
 # writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
