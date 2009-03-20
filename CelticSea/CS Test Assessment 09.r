@@ -55,7 +55,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 data.source         <-  file.path("data")      #Data source, not code or package source!!!
 output.dir          <-  file.path("res")       #Output directory
 output.base         <-  file.path(output.dir,"cs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <- 3                          #Number of years for which to run the retrospective
+n.retro.years       <-  6                          #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Output setup
@@ -145,7 +145,9 @@ cs.herring@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
 ### Use the standard code from the common modules to produce outputs
 ### ======================================================================================================
 do.summary.plots(cs.herring,cs.herring.ica)
-cs.herring.retro <- do.retrospective.plots(cs.herring,cs.herring.tun,cs.herring.ctrl,n.retro.years)
+#cs.herring.retro <- do.retrospective.plots(cs.herring,cs.herring.tun,cs.herring.ctrl,n.retro.years)
+#retro.plots(cs.herring,cs.herring.tun,cs.herring.ctrl)
+
 do.SRR.plot(cs.herring)
 
 ### ======================================================================================================
@@ -164,6 +166,10 @@ rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
 lines(TAC.plot.dat,lwd=5)
 legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2))
 title(main=paste(cs.herring@name,"Catch and TAC"))
+
+#Proportion of the catch by age
+canum.prop.age <- stacked.area.plot(data~year*age,data=as.data.frame(pay(cs.herring@catch.n)))
+print(canum.prop.age)
 
 
 ### ======================================================================================================
