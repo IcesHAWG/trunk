@@ -36,4 +36,4 @@ Herring in Sub-area IV, Divisions VIId & IIIa (autumn-spawners)
   2005     1     192.266
   2006     1     117.856
   2007     1     173.003
-  2008     1     150.000
+  2008     1     181.746
