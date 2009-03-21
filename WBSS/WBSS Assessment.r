@@ -144,6 +144,8 @@ FnPrint("PERFORMING ASSESSMENT...\n")
 #Now perform the asssessment
 WBSS.ica   <-  FLICA(WBSS,WBSS.tun,WBSS.ctrl)
 WBSS       <-  WBSS + WBSS.ica
+#Update the stock total biomass
+WBSS@stock <- computeStock(WBSS)
 
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
