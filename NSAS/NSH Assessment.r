@@ -81,7 +81,7 @@ NSH.ctrl <- FLICA.control(sep.nyr=5, sep.age=4, sep.sel=1.0, sr.age=1, sr=TRUE,
                           lambda.sr=0.1,
                           index.model=c("l","l","l","p"), index.cor=FALSE)  #index model: Acoustic, IBTS, MIK, MLAI
 ### don't forget to reorder the index models too!!                          
-NSH.ctrl@index.model <- rev(NSH.ctrl@index.model)
+NSH.ctrl@index.model <- rev(NSH.ctrl@index.model)     #MPA: Reorder the index model to make it easier to clear
 
 ### ======================================================================================================
 ### Prepare stock object for assessment
@@ -95,7 +95,7 @@ NSH@catch.wt               <- NSH@landings.wt
 units(NSH)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
 #Set fbar
 range(NSH)[c("minfbar","maxfbar")] <- c(2,6)
-#Set plus group
+#Set plus group - #MPA: maybe better to hardwire the plus group, just for clarity
 NSH                        <- setPlusGroup(NSH,NSH@range["max"])
 #Strange thing going on: setting the plus group sets the stock.wt in 1977 to 0
 NSH@stock.wt[10,"1977"]    <- NSH@stock.wt[10,"1976"]
@@ -108,6 +108,8 @@ NSH@name                   <- "NSH Herring"
 FnPrint("PREPARING INDEX OBJECT...\n")
 #Load and modify all index data
 NSH.tun   <- readFLIndices(file.path(data.source,"/fleet.txt"),file.path(data.source,"/ssb.txt"),type="ICA")
+#MPA: Load the SSB index first, to prevent all this reordering malarky!
+#MPA: Use index names here, rather than numbers eg NSH.tun[["MLAI"]] rather than NSH.tun[[1]]
 
 #Set names, and parameters etc
 NSH.tun[[1]]@type <- "number"
@@ -124,6 +126,7 @@ NSH.tun[[2]]@index.var[] <- 1.0/FLQuant(0.63,dimnames=dimnames(NSH.tun[[2]]@inde
 NSH.tun[[1]]@index.var[] <- 1.0/FLQuant(0.60,dimnames=dimnames(NSH.tun[[1]]@index)) #MLAI
 #Set names
 names(NSH.tun) <- lapply(NSH.tun,name)
+
 ### ======================================================================================================
 ### Perform the assessment
 ### ======================================================================================================
@@ -131,8 +134,7 @@ FnPrint("PERFORMING ASSESSMENT...\n")
 #Now perform the asssessment
 NSH.ica         <-  FLICA(NSH,NSH.tun,NSH.ctrl)
 NSH             <-  NSH + NSH.ica
-range(NSH.ica)  <-  range(NSH)[1:5]
-
+range(NSH.ica)  <-  range(NSH)[1:5]   #MPA: I'll make some changes to FLICA to do this automatically
 
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
