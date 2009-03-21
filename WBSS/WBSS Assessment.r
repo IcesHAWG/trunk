@@ -274,7 +274,7 @@ FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
 gm.recs         <- exp(mean(log(rec(trim(WBSS,year=2002:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
 stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec=gm.recs)
-WBSS.stf        <- FLSTF(stock=WBSS,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
+WBSS.stf        <- FLSTF(stock=WBSS,control=stf.ctrl,survivors=NA,quiet=FALSE,sop.correct=FALSE)
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
 #writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
