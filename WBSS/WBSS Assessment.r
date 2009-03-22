@@ -276,28 +276,78 @@ writeFLStock(WBSS,file.path(output.dir,"hawg_her-3a22.sum"),type="ICA")
 ### ======================================================================================================
 FnPrint("PERFORMING PROJECTIONS...\n")
 
-WBSS <- window(WBSS,end=2007)
-WBSS.tun <- window(WBSS.tun,end=2007)
-WBSS <- WBSS + FLICA(WBSS,WBSS.tun,WBSS.ctrl)
+#Define years
+TaY <- dims(WBSS)$maxyear   #Terminal assessment year
+ImY <- TaY+1                #Intermediate Year
+FcY <- TaY+2                #Forecast year
+MtY <- TaY+3                #Medium-term year - not reported, but used in calculations in places
+tbl.yrs     <- as.character(c(ImY,FcY,MtY))   #Years to report in the output table
 
-#Define years and data
-DaY <- as.character(dims(WBSS)$maxyear)
-ImY <- as.character(dims(WBSS)$maxyear+1)
-FcY <- as.character(dims(WBSS)$maxyear+2)
-gm.recs  <- 2513544 #exp(mean(log(rec(trim(WBSS,year=2002:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
-WBSS.srr <- list(model="geomean",params=FLPar(2513544))
+#Deal with recruitment - a geometric mean of the five years prior to the terminal assessment year
+rec.years <- (TaY-5):(TaY-1)
+gm.recs  <- exp(mean(log(rec(WBSS)[,as.character(rec.years)])))
+WBSS.srr <- list(model="geomean",params=FLPar(gm.recs))
 
 #Expand stock object
-WBSS.Proj <- stf(WBSS,nyears=4)
-WBSS.Proj@stock.wt[,ac(2008:2010)] <- rowMeans(WBSS.ImY@stock.wt[,ac(2005:2007)])    #This is a bug that should be fixed in stf()
+WBSS.proj <- stf(WBSS,nyears=4,wts.nyears=3,arith.mean=TRUE,na.rm=TRUE)
+WBSS.proj@stock.n[,ac(ImY)]  <- WBSS.ica@survivors
+WBSS.proj@stock.n[1,ac(ImY)] <- gm.recs
 
-#Option 1: F status quo opton
-Fsq.ctrl        <- fwdControl(data.frame(year=2008:2010,val=0.4782,quantity="f"))
-WBSS.Fsq        <- fwd(WBSS.Proj,ctrl=Fsq.ctrl,sr=WBSS.srr)
+#Setup options
+options.l <- list(#Option 1: F status quo option  #2009 catch is TAC restraint, with 30% misreporting 44915
+                  "2009-2011:F Status Quo"=
+                    fwdControl(data.frame(year=c(ImY,FcY,MtY),value=1,quantity="f",rel=TaY)),
+                  #Option 2: F status quo option in intermediate year, followed by Fbar = 0.25
+                  "2009:F Status Quo, 2010-2011:F=0.25"=
+                    fwdControl(data.frame(year=c(ImY,FcY,MtY),
+                                          quantity="f",
+                                          val=c(NA,0.25,0.25),
+                                          rel=c(TaY,NA,NA),
+                                          value=c(1,NA,NA))),
+                  #Option 3: 2009 Catch is 44915, followed by -15% TAC reduction if SSB < 110
+                  "2009:Catch 44915, 2010:-15% TAC"=
+                    fwdControl(data.frame(year=c(ImY,FcY),
+                                          quantity="catch",
+                                          value=c(44915,44915*0.85))))
 
-#Option 2: Fbar = 0.25
-Fbar.ctrl       <- fwdControl(data.frame(year=2008:2010,val=c(0.4782,0.25,0.25),quantity="f"))
-WBSS.Fbar        <- fwd(WBSS.Proj,ctrl=Fbar.ctrl,sr=WBSS.srr)
+#Calculate options
+WBSS.options <- lapply(options.l,function(ctrl.l) {
+                    tmp.stck <- WBSS.proj
+                    if(!is.list(ctrl.l)) ctrl.l <- list(ctrl.l)
+                    for(ctrl in ctrl.l) {
+                       tmp.stck <- fwd(tmp.stck,ctrl=ctrl,sr=WBSS.srr)}
+                    return(tmp.stck)})
+
+#Setup output table
+options.tbl <- lapply(as.list(1:length(WBSS.options)),function(i) {
+                  opt <- names(WBSS.options)[i]
+                  stk <- WBSS.options[[opt]]
+                  #Title first
+                  hdr <- sprintf('Option %0i. "%s"',i,opt)
+                  hdr <- c(hdr,paste(rep("=",nchar(hdr)),collapse=""))
+                  #Now the F and N by age
+                  nums.by.age <- round(stk@stock.n[,tbl.yrs,drop=TRUE],0)
+                  f.by.age    <- round(stk@harvest[,tbl.yrs,drop=TRUE],4)
+                  age.tbl     <- cbind(N=nums.by.age,F=f.by.age)
+                  age.tbl.out <- capture.output(print.default(age.tbl,quote=FALSE,right=TRUE))
+                  #And now the summary tbl
+                  sum.tbl     <- cbind(SSB=round(ssb(stk)[,tbl.yrs],0),
+                                      F.bar=round(fbar(stk)[,tbl.yrs],4),
+                                      Yield=round(computeCatch(stk)[,tbl.yrs],0))
+                  row.names(sum.tbl) <- tbl.yrs
+                  sum.tbl.out     <- capture.output(print.default(sum.tbl,quote=FALSE,right=TRUE))
+                  #Now, bind it all together
+                  return(c(hdr,"",age.tbl.out,"",sum.tbl.out,"\n"))
+                })
+
+#Write options table
+write(do.call(c,options.tbl),file=paste(output.base,"options table.txt",sep="."))
+
+### ======================================================================================================
+### Writing Projections Table
+### ======================================================================================================
+FnPrint("WRITING OPTIONS TABLE...\n")
+
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
