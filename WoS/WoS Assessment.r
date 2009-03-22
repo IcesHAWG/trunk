@@ -161,7 +161,7 @@ writeFLStock(WoS,output.file=output.base)
 ### ======================================================================================================
 # FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
-gm.recs         <- exp(mean(log(rec(trim(WoS,year=1985:2005)))))  #WBSS recruitment is based on a geometric mean of the last few years
+gm.recs         <- exp(mean(log(rec(trim(WoS,year=1989:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
 stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=21760,f.rescale=TRUE,rec=gm.recs)
 WoS@catch.n[1,52,,,,]=1
 WoS.stf        <- FLSTF(stock=WoS,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
