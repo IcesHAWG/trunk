@@ -28,13 +28,16 @@ stacked.area.plot <- function(x,data,...) {
                     #Set NA's to zero
                     z[is.na(z)] <- 0
                     #Calculate the cumulative totals and convert to a matrix
-                    props.l <- tapply(z[subscripts],x[subscripts],cumsum)
-                    props   <- do.call(cbind,props.l)
+                    totals.l <- tapply(z[subscripts],x[subscripts],cumsum)
+                    totals   <- do.call(cbind,totals.l)
+                    #Now add a row of zeros
+                    totals   <- rbind(0,totals)
                     #This basically mimics the structure of the quant, just with everything converted to
                     #cumulative values. Now plot it!
-                    x.lbls <- as.numeric(colnames(props))
-                    for(i in nrow(props):1) {        #For loops aren't sexy, but they allow us to move through the colours as well
-                        panel.polygon(c(x.lbls,rev(x.lbls)),c(props[i,],rep(0,length(x.lbls))),col=rep(col,length.out=i)[i],...)
+                    x.lbls <- as.numeric(colnames(totals))
+                    for(i in 1:(nrow(totals)-1)) {        #For loops aren't sexy, but they allow us to move through the colours as well
+                        panel.polygon(c(x.lbls,rev(x.lbls)), c(totals[i,],rev(totals[i+1,])),
+                            col=rep(col,length.out=i)[i],...)
                     }
         }
 
