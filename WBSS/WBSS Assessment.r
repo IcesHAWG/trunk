@@ -241,13 +241,13 @@ ssb.prop.by.age <- stacked.area.plot(data~year*age,as.data.frame(pay(ssb.dat)),y
                         main=paste(WBSS@name,"Proportion of ages in SSB"))
 print(ssb.prop.by.age)
 
-#Proportion of ssb by cohort
-#ssb.cohorts         <- as.data.frame(FLCohort(ssb.dat))
+##Proportion of ssb by cohort
+#ssb.cohorts         <- as.data.frame(FLCohort(pay(ssb.dat)))
 #ssb.cohorts$year    <- ssb.cohorts$cohort+ssb.cohorts$age
 #ssb.cohorts         <- subset(ssb.cohorts,!is.na(ssb.cohorts$data))
 #ssb.by.cohort.plot  <- stacked.area.plot(data~year*cohort,ssb.cohorts)
 #print(ssb.by.cohort.plot)
-
+#
 
 
 
@@ -265,21 +265,39 @@ WBSS.ica@ica.out <- ica.out(WBSS,WBSS.tun,WBSS.ica,format="TABLE 3.6.%i WBSS HER
 write(WBSS.ica@ica.out,file=paste(output.base,"ica.out",sep="."))
 do.call(options,old.opt)
 
-#And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
+#Write the results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(WBSS,output.file=output.base)
 
+#And for incorporation into the standard graphs
+writeFLStock(WBSS,file.path(output.dir,"hawg_her-3a22.sum"),type="ICA")
 
 ### ======================================================================================================
-### Short Term Forecast
+### Projections and Options Table
 ### ======================================================================================================
-FnPrint("PERFORMING SHORT TERM FORECAST...\n")
-#Make forecast
-gm.recs         <- exp(mean(log(rec(trim(WBSS,year=2002:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
-stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec=gm.recs)
-WBSS.stf        <- FLSTF(stock=WBSS,control=stf.ctrl,survivors=NA,quiet=FALSE,sop.correct=FALSE)
+FnPrint("PERFORMING PROJECTIONS...\n")
 
-#Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-#writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
+WBSS <- window(WBSS,end=2007)
+WBSS.tun <- window(WBSS.tun,end=2007)
+WBSS <- WBSS + FLICA(WBSS,WBSS.tun,WBSS.ctrl)
+
+#Define years and data
+DaY <- as.character(dims(WBSS)$maxyear)
+ImY <- as.character(dims(WBSS)$maxyear+1)
+FcY <- as.character(dims(WBSS)$maxyear+2)
+gm.recs  <- 2513544 #exp(mean(log(rec(trim(WBSS,year=2002:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
+WBSS.srr <- list(model="geomean",params=FLPar(2513544))
+
+#Expand stock object
+WBSS.Proj <- stf(WBSS,nyears=4)
+WBSS.Proj@stock.wt[,ac(2008:2010)] <- rowMeans(WBSS.ImY@stock.wt[,ac(2005:2007)])    #This is a bug that should be fixed in stf()
+
+#Option 1: F status quo opton
+Fsq.ctrl        <- fwdControl(data.frame(year=2008:2010,val=0.4782,quantity="f"))
+WBSS.Fsq        <- fwd(WBSS.Proj,ctrl=Fsq.ctrl,sr=WBSS.srr)
+
+#Option 2: Fbar = 0.25
+Fbar.ctrl       <- fwdControl(data.frame(year=2008:2010,val=c(0.4782,0.25,0.25),quantity="f"))
+WBSS.Fbar        <- fwd(WBSS.Proj,ctrl=Fbar.ctrl,sr=WBSS.srr)
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
