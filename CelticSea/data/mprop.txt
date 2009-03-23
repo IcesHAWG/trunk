@@ -1,6 +1,6 @@
 Proportion of M before Spawning
 1 8
 1958 2008
-1 7
+1 6
 3
    0.5

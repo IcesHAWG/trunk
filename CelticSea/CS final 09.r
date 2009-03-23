@@ -13,7 +13,7 @@
 # Developed with:
 #   - R version 2.8.0
 #   - FLCore 1.99-111
-#   - FLICA, version 1.4-5
+#   - FLICA, version 1.4-10
 #   - FLAssess, version 1.99-102
 #   - FLSTF, version 1.99-1
 #
@@ -55,7 +55,8 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 data.source         <-  file.path("data")      #Data source, not code or package source!!!
 output.dir          <-  file.path("res")       #Output directory
 output.base         <-  file.path(output.dir,"cs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-retro.years         <-  c(2002:2003,2005:2008)              #Specify specific years to do the retrospective over
+retro.years         <-  c(2003,2005:2008)
+             #Specify specific years to do the retrospective over
 
 ### ======================================================================================================
 ### Output setup
@@ -77,7 +78,7 @@ cs.herring.ctrl   <-  FLICA.control(sep.nyr=6,
                              sep.age=3,
                              sep.sel=1.0,
                              lambda.yr=1,
-                             lambda.age=c(0.1,1,1,1,1,1,1),
+                             lambda.age=c(0.1,1,1,1,1,1),
                               lambda.sr=0,
                               sr=FALSE,
                               index.model=c("l"),
@@ -214,18 +215,17 @@ ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width)
 
-#And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(cs.herring,output.file=output.base)
-
-
 ### ======================================================================================================
 ### Short Term Forecast
 ### ======================================================================================================
+
+
 FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
-gm.recs         <- exp(mean(log(rec(trim(cs.herring,year=1958:2006)))))  #cs.herring recruitment is based on geometric mean recruitment
+gm.recs         <- exp(mean(log(rec(trim(cs.herring,year=1958:2006)))))  #cs.herring recruitment is based on a geometric mean of the last few years
 stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec=gm.recs)
 cs.herring.stf  <- FLSTF(stock=cs.herring,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
+
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(cs.herring.stf,output.file=paste(output.base,"with STF"))
