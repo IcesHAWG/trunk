@@ -4,7 +4,7 @@
 # $Rev$
 # $Date$
 #
-# Author: Emma Hatfield
+# Author: Emma Hatfield / John Simmonds
 # FRS, Scotland
 #
 # Performs an assessment of West of Scotland Herring (WoS) in VIaN using the
@@ -112,6 +112,7 @@ FnPrint("PERFORMING ASSESSMENT...\n")
 #Now perform the asssessment
 WoS.ica   <-  FLICA(WoS,WoS.tun,WoS.ctrl)
 WoS       <-  WoS + WoS.ica
+WoS@stock=computeStock(WoS) # to get TSB in stock slot
 
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
@@ -166,6 +167,7 @@ stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.
 WoS@catch.n[1,52,,,,]=1
 WoS.stf        <- FLSTF(stock=WoS,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
 writeFLStock(WoS.stf,output.file="WoSaddyr")
+writeFLStock(WoS.stf,file.path(output.dir,"hawg_her-vian.sum"),type="ICA")
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
 # writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
