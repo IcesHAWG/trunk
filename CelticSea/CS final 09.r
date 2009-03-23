@@ -131,6 +131,7 @@ FnPrint("PERFORMING ASSESSMENT...\n")
 #Now perform the asssessment
 cs.herring.ica   <-  FLICA(cs.herring,cs.herring.tun,cs.herring.ctrl)
 cs.herring       <-  cs.herring + cs.herring.ica
+cs.herring@stock=computeStock(cs.herring) # to get TSB in stock slot
 
 ################################################################################
 ## Change Recruitment to mean value 1958-2006
@@ -211,7 +212,7 @@ FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
 old.opt <- options("width")
 options("width"=80)
-ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4.6.%i cs.herring HERRING.")
+ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4.6.2.%i cs.herring HERRING.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width)
 
@@ -238,3 +239,12 @@ save(cs.herring,cs.herring.stf,cs.herring.tun,cs.herring.ctrl,file=paste(output.
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
+
+
+################################################################################
+## Output for standard Graphs
+
+
+writeFLStock(cs.herring,file.path(output.dir,"hawg_her-irls.sum"),type="ICA")
+
+
