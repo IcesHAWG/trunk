@@ -52,6 +52,7 @@ do.summary.plots <- function(stck,ica.obj) {
                       prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
                       main=list(paste(stck@name,"Stock Summary Plot"),cex=0.9),
                       ylab=do.call(c,ylabels),
+                      xlab="Year",
                       layout=c(1,3),
                       type="l",
                       panel=function(...) {

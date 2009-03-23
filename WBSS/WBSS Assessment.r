@@ -58,13 +58,15 @@ n.retro.years       <-  8                          #Number of years for which to
 ### ======================================================================================================
 ### Output setup
 ### ======================================================================================================
-#Portrait output
-#png(paste(output.base,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
-#trellis.par.set(fontsize=list(text=24,points=20))    #Set default lattice fontsize, so that things are actually readible!
+#Output to report
+win.metafile(paste(output.base,"landscape figures - %02d.wmf"),height=100/25.4,width=130/25.4,pointsize=10)
+trellis.par.set(fontsize=list(text=10,points=8))    #Set default lattice fontsize, so that things are actually readible!
+win.metafile(paste(output.base,"portrait figures - %02d.wmf"),height=180/25.4,width=130/25.4,pointsize = 10)
+trellis.par.set(fontsize=list(text=10,points=8))    #Set default lattice fontsize, so that things are actually readible!
 #Square output
-png(paste(output.base,"figures - %02d.png"),units = "px", height=720,width=720,pointsize = 16, bg = "white")
-trellis.par.set(fontsize=list(text=18,points=16))     #Set default lattice fontsize, so that things are actually readible!
+#png(paste(output.base,"figures - %02d.png"),units = "px", height=720,width=720,pointsize = 16, bg = "white")
 #win.metafile(paste(output.base,"figures - %02d.wmf"),height=130/25.4,width=130/25.4,pointsize = 8)
+#trellis.par.set(fontsize=list(text=18,points=16))     #Set default lattice fontsize, so that things are actually readible!
 
 ### ======================================================================================================
 ### Prepare control object for assessment
@@ -159,6 +161,30 @@ WBSS.srr <- ref.pts(WBSS,"bevholt",1e6)
 ### Custom plots
 ### ======================================================================================================
 FnPrint("GENERATING CUSTOM PLOTS...\n")
+
+#Time series of each index
+index.ts.dat  <- lapply(WBSS.tun,slot,"index")
+index.ts.dat  <- as.data.frame(index.ts.dat)
+index.ts.dat$id <- paste(index.ts.dat$qname,", Age ",index.ts.dat$age,sep="")
+index.ts.dat$data[index.ts.dat$data<0] <- NA
+index.ts.plot <- xyplot(data~year|id,data=index.ts.dat,
+                    type="b",
+                    xlab="Year",ylab="Index Value",
+                    prepanel=function(...) list(ylim=range(pretty(c(0,list(...)$y)))),
+                    pch=19,
+                    as.table=TRUE,
+                    strip=strip.custom(par.strip.text=list(cex=0.8)),
+                    main=paste(WBSS@name,"Input Indices"),
+                    scales=list(alternating=1,y=list(relation="free")),
+                    panel=function(...) {
+                        panel.grid(h=-1,v=-1)
+                        panel.xyplot(...)
+                    })
+print(index.ts.plot)
+
+#Other Custom plots should be in landscape orientation, so close the portrait ones here
+dev.off()
+
 #Catch and TAC
 TACs    <- data.frame(year=1991:2008,TAC=1000*c(155,174,210,191,183,163,100,97,99,101,101,101,101,91,120,102+47.5,69+49.5,51.7+45))
 TAC.plot.dat <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(TACs$TAC,each=2))
@@ -186,7 +212,7 @@ print(prop.wt.catch)
 #Time series of west
 west.ts  <- xyplot(data~year,data=WBSS@stock.wt,
               groups=age,
-              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b",cex=0.8),
               type="b",
               xlab="Year",ylab="Weight in the stock (kg)",
               main=paste(WBSS@name,"Weight in the Stock"),
@@ -199,7 +225,7 @@ west.by.cohort  <-  subset(west.by.cohort,!is.na(west.by.cohort$data))
 west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
 west.cohort.plot  <- xyplot(data~year,data=west.by.cohort,
               groups=cohort,
-              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b",cex=0.8),
               type="b",
               xlab="Year",ylab="Weight in the stock (kg)",
               main=paste(WBSS@name,"Weight in the stock by cohort"),
@@ -209,26 +235,6 @@ west.cohort.plot  <- xyplot(data~year,data=west.by.cohort,
                 panel.xyplot(...)
               })
 print(west.cohort.plot)
-
-
-#Time series of each index
-index.ts.dat  <- lapply(WBSS.tun,slot,"index")
-index.ts.dat  <- as.data.frame(index.ts.dat)
-index.ts.dat$id <- paste(index.ts.dat$qname,", Age ",index.ts.dat$age,sep="")
-index.ts.dat$data[index.ts.dat$data<0] <- NA
-index.ts.plot <- xyplot(data~year|id,data=index.ts.dat,
-                    type="b",
-                    xlab="Year",ylab="Index Value",
-                    prepanel=function(...) list(ylim=range(pretty(c(0,list(...)$y)))),
-                    pch=19,
-                    as.table=TRUE,
-                    main=paste(WBSS@name,"Input Indices"),
-                    scales=list(alternating=1,y=list(relation="free")),
-                    panel=function(...) {
-                        panel.grid(h=-1,v=-1)
-                        panel.xyplot(...)
-                    })
-print(index.ts.plot)
 
 #Contribution to ssb by age
 ssb.dat    <- WBSS@stock.wt*WBSS@stock.n*exp(-WBSS@harvest*WBSS@harvest.spwn - WBSS@m*WBSS@m.spwn)*WBSS@mat/1000
@@ -248,9 +254,6 @@ print(ssb.prop.by.age)
 #ssb.by.cohort.plot  <- stacked.area.plot(data~year*cohort,ssb.cohorts)
 #print(ssb.by.cohort.plot)
 #
-
-
-
 
 ### ======================================================================================================
 ### Document Assessment
@@ -353,7 +356,7 @@ FnPrint("WRITING OPTIONS TABLE...\n")
 ### Save workspace and Finish Up
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(WBSS,WBSS.stf,WBSS.ica,WBSS.tun,WBSS.ctrl,file=paste(output.base,".RData"))
+save(WBSS,WBSS.ica,WBSS.tun,WBSS.ctrl,file=paste(output.base,".RData"))
 save.image(file=paste(output.base,"Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
