@@ -59,8 +59,8 @@ one unit. Lowestoft VPA can't handle this unfortunately.")
     #List of configuration information
     config.df  <-  rbind(
       c(1, "landings", "LATON", "total landings"),
-      c(2, "landings.n", "LANUM", "landings-at-age"),
-      c(3, "landings.wt", "WELAND", "landings weight-at-age"),
+      c(25, "landings.n", "LANUM", "landings-at-age"),
+      c(26, "landings.wt", "WELAND", "landings weight-at-age"),
       c(4, "stock.wt", "WEST", "stock weight-at-age"),
       c(5, "m", "NATMOR", "natural mortality"),
       c(6, "mat", "MATPROP", "maturity-at-age ogive"),
@@ -72,8 +72,8 @@ one unit. Lowestoft VPA can't handle this unfortunately.")
       c(22, "discards.n", "DISNUM", "discards-at-age"),
       c(23, "discards.wt", "WEDIS", "discards weight-at-age"),
       c(24, "catch", "CATON", "total catch"),
-      c(25, "catch.n", "CANUM", "catch-at-age"),
-      c(26, "catch.wt", "WECA", "catch weight-at-age"))
+      c(2, "catch.n", "CANUM", "catch-at-age"),
+      c(3, "catch.wt", "WECA", "catch weight-at-age"))
     colnames(config.df) <-  c("idx","stock.slot","file.ext","desc")
 
     config.df   <- as.data.frame(config.df)
