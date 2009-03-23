@@ -4,7 +4,7 @@ writeFLStock <- function(FLStock, output.file=FLStock@name, type="VPA") {
 		stop("FLStock must be an 'FLStock' object!")
 	switch(type,
 		"VPA" = writeVPA(FLStock, output.file),
-		"ICA" = writeICAsum(FLStock, output.file),
+		"ICAsum" = writeICAsum(FLStock, output.file),
 		stop("type must be either 'VPA' or 'ICA'!"))
 }	# }}}
 

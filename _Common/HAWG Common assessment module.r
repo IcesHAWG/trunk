@@ -479,7 +479,7 @@ check.versions <-  function(lib,ver,required.date="missing"){
   invisible(NULL)
 }
 check.versions("FLCore","3.0",ISOdatetime(2009,03,10,04,42,27))
-check.versions("FLAssess","1.99-102")
+check.versions("FLAssess","1.99-102",ISOdatetime(2009,03,23,08,18,00))
 check.versions("FLICA","1.4-10")
 check.versions("FLSTF","1.99-1")
 check.versions("FLEDA","2.0")
