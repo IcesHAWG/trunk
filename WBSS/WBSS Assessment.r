@@ -272,7 +272,7 @@ do.call(options,old.opt)
 writeFLStock(WBSS,output.file=output.base)
 
 #And for incorporation into the standard graphs
-writeFLStock(WBSS,file.path(output.dir,"hawg_her-3a22.sum"),type="ICA")
+writeFLStock(WBSS,file.path(output.dir,"hawg_her-3a22.sum"),type="ICAsum")
 
 ### ======================================================================================================
 ### Projections and Options Table
@@ -283,8 +283,8 @@ FnPrint("PERFORMING PROJECTIONS...\n")
 TaY <- dims(WBSS)$maxyear   #Terminal assessment year
 ImY <- TaY+1                #Intermediate Year
 FcY <- TaY+2                #Forecast year
-MtY <- TaY+3                #Medium-term year - not reported, but used in calculations in places
-tbl.yrs     <- as.character(c(ImY,FcY,MtY))   #Years to report in the output table
+CtY <- TaY+3                #Continuation year - not of major concern but used in calculations in places
+tbl.yrs     <- as.character(c(ImY,FcY,CtY))   #Years to report in the output table
 
 #Deal with recruitment - a geometric mean of the five years prior to the terminal assessment year
 rec.years <- (TaY-5):(TaY-1)
@@ -299,10 +299,10 @@ WBSS.proj@stock.n[1,ac(ImY)] <- gm.recs
 #Setup options
 options.l <- list(#Option 1: F status quo option  #2009 catch is TAC restraint, with 30% misreporting 44915
                   "2009-2011:F Status Quo"=
-                    fwdControl(data.frame(year=c(ImY,FcY,MtY),value=1,quantity="f",rel=TaY)),
+                    fwdControl(data.frame(year=c(ImY,FcY,CtY),value=1,quantity="f",rel=TaY)),
                   #Option 2: F status quo option in intermediate year, followed by Fbar = 0.25
                   "2009:F Status Quo, 2010-2011:F=0.25"=
-                    fwdControl(data.frame(year=c(ImY,FcY,MtY),
+                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
                                           quantity="f",
                                           val=c(NA,0.25,0.25),
                                           rel=c(TaY,NA,NA),
