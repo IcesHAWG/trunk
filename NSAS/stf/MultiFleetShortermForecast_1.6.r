@@ -40,7 +40,7 @@ f01   <- ac(0:1)
 f26   <- ac(2:6)
 
 stf.options <- c("mp","-15%","+15%","nf","bpa","tacro") #mp=according to management plan, +/-% = TAC change, nf=no fishing, bpa=reach BPA in CtY,tacro=same catch as last year
-mp.options  <- c("f") #i=increase in B fleet is allowed, tacro=B fleet takes TAC as year before, f=fraction of A fleet is taken
+mp.options  <- c("i") #i=increase in B fleet is allowed, fro=B fleet takes fbar as year before
 #===============================================================================
 # Setup stock file
 #===============================================================================
@@ -80,6 +80,7 @@ stf.table[1,1:11] <- c(round(c(mean(stf@harvest[f26,ImY,1]),apply(stf@harvest[f0
 
 stf@stock.n[,FcY] <- c(RECS$FcY,(stf@stock.n[,ImY,1]*exp(-apply(stf@harvest[,ImY],1,sum)-stf@m[,ImY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),],sum((stf@stock.n[,ImY,1]*exp(-apply(stf@harvest[,ImY],1,sum)-stf@m[,ImY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),]))
 
+stf@harvest[,FcY] <- stf@harvest[,ImY]
 for(i in dms$unit){
   if(is.na(TACS[[i]][2])==F) stf@harvest[,FcY,i] <- fleet.harvest(stf,i,FcY,TACS[[i]][2])
 }    
@@ -88,7 +89,7 @@ for(i in dms$unit){
 
 ### Following the management plan ###
 if("mp" %in% stf.options){ 
-  res                           <- optim(c(1,1),find.FAB,stk=window(stf,an(FcY),an(FcY)),f01=f01,f26=f26,mp.options,TACS)$par
+  res                           <- optim(par=c(1,1),fn=find.FAB,stk=window(stf,an(FcY),an(FcY)),f01=f01,f26=f26,mp.options=mp.options)$par
   stf@harvest[,FcY,c("A")]      <- stf@harvest[,FcY,c("A")] * res[1]
   stf@harvest[,FcY,c("B")]      <- stf@harvest[,FcY,c("B")] * res[2]
                   
