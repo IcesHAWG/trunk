@@ -300,36 +300,33 @@ WBSS.proj@stock.n[,ac(ImY)]  <- WBSS.ica@survivors
 WBSS.proj@stock.n[1,ac(ImY)] <- gm.recs
 
 #Setup options
-options.l <- list(#Option 1: F status quo option  #2009 catch is TAC restraint, with 30% misreporting 44915
-                  "2009-2011:F Status Quo"=
-                    fwdControl(data.frame(year=c(ImY,FcY,CtY),value=1,quantity="f",rel=TaY)),
-                  #Option 2: F status quo option in intermediate year, followed by Fbar = 0.25
-                  "2009:F Status Quo, 2010-2011:F=0.25"=
-                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
-                                          quantity="f",
-                                          val=c(NA,0.25,0.25),
-                                          rel=c(TaY,NA,NA),
-                                          value=c(1,NA,NA))),
-                  #Option 3: 2009 Catch is 44915, followed by -15% TAC reduction if SSB < 110
-                  "2009:Catch 44915, 2010:-15% TAC"=
+options.l <- list(#Option 1: 2009 Catch is 44915, followed by -15% TAC reduction => 2010 Catch 54215
+                  "2009:Catch 44915, 2010:-15% TAC (Catch 54215)"=
                     fwdControl(data.frame(year=c(ImY,FcY,CtY),
                                           quantity=c("catch","catch","f"),
-                                          rel=c(NA,ImY,FcY),
-                                          val=c(44915,0.85,1))),
-                  #Option 4: 2009 Catch is 44915, followed Fbar= 0.25
+                                          rel=c(NA,NA,FcY),
+                                          val=c(44915,54215,1))),
+                  #Option 2: 2009 Catch is 44915, followed Fbar= 0.25
                   "2009:Catch 44915, 2010:Fbar=0.25"=
                     fwdControl(data.frame(year=c(ImY,FcY,CtY),
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,FcY),
-                                          val=c(44915,0.25,1))))
+                                          val=c(44915,0.25,1))),
+                  #Option 3: 2009 Catch 44915, 2010 Catch: 63783
+                  "2009:Catch 44915, 2010:TAC (Catch 63783)"=
+                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
+                                          quantity=c("catch","catch","f"),
+                                          rel=c(NA,NA,FcY),
+                                          val=c(44915,63783,1))),
+                  #Option 4: Constant Catch 44915
+                  "Constant Catch 44915"=
+                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
+                                          quantity="catch",
+                                          val=44915))
+)
 
 #Calculate options
-WBSS.options <- lapply(options.l,function(ctrl.l) {
-                    tmp.stck <- WBSS.proj
-                    if(!is.list(ctrl.l)) ctrl.l <- list(ctrl.l)
-                    for(ctrl in ctrl.l) {
-                       tmp.stck <- fwd(tmp.stck,ctrl=ctrl,sr=WBSS.srr)}
-                    return(tmp.stck)})
+WBSS.options <- lapply(options.l,function(ctrl) {fwd(WBSS.proj,ctrl=ctrl,sr=WBSS.srr)})
 
 #Setup output table
 options.tbl <- lapply(as.list(1:length(WBSS.options)),function(i) {
@@ -342,12 +339,14 @@ options.tbl <- lapply(as.list(1:length(WBSS.options)),function(i) {
                   nums.by.age <- round(stk@stock.n[,tbl.yrs,drop=TRUE],0)
                   f.by.age    <- round(stk@harvest[,tbl.yrs,drop=TRUE],4)
                   age.tbl     <- cbind(N=nums.by.age,F=f.by.age)
+                  dimnames(age.tbl) <- list(age=rownames(age.tbl),
+                                        "        Stock Numbers      Fishing Mortality"=colnames(age.tbl))
                   age.tbl.out <- capture.output(print.default(age.tbl,quote=FALSE,right=TRUE))
                   #And now the summary tbl
                   sum.tbl     <- cbind(SSB=round(ssb(stk)[,tbl.yrs],0),
                                       F.bar=round(fbar(stk)[,tbl.yrs],4),
                                       Yield=round(computeCatch(stk)[,tbl.yrs],0))
-                  row.names(sum.tbl) <- tbl.yrs
+                  dimnames(sum.tbl) <- list(Year=tbl.yrs,colnames(sum.tbl))
                   sum.tbl.out     <- capture.output(print.default(sum.tbl,quote=FALSE,right=TRUE))
                   #Now, bind it all together
                   return(c(hdr,"",age.tbl.out,"",sum.tbl.out,"\n"))
