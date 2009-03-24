@@ -11,9 +11,9 @@ writeFLStock <- function(FLStock, output.file=FLStock@name, type="VPA") {
 
 writeICAsum <- function(stk,fname) {
     #Setup header - copied directly from the heart of ICA
-    hdr <-  rbind(" ³ Year ³  Recruits  ³  Total  ³ Spawning³ Landings ³ Yield ³ Mean F ³ SoP ³",
-                  " ³      ³   Age      ³ Biomass ³ Biomass ³          ³ /SSB  ³  Ages  ³     ³",
-                  " ³      ³  thousands ³  tonnes ³ tonnes  ³ tonnes   ³ ratio ³        ³ (%) ³",
+    hdr <-  rbind("³ Year ³  Recruits  ³  Total  ³ Spawning³ Landings ³ Yield ³ Mean F ³ SoP ³",
+                  "³      ³   Age      ³ Biomass ³ Biomass ³          ³ /SSB  ³  Ages  ³     ³",
+                  "³      ³  thousands ³  tonnes ³ tonnes  ³ tonnes   ³ ratio ³        ³ (%) ³",
                   "\n")
 
     #Add extra information into header
