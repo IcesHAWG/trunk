@@ -144,10 +144,21 @@ FnPrint("GENERATING DOCUMENTATION...\n")
 old.opt <- options("width","scipen")
 options("width"=80,"scipen"=1000)
 #Do some tidying up on the ica file
-WoS.ica@catch.res[!is.finite(WoS.ica@catch.res)] <- NA
-WoS.ica@catch.res@.Data <- zapsmall(WoS.ica@catch.res@.Data)
-WoS@harvest <- zapsmall(WoS@harvest)
-WoS.ica@index.res[[1]]@.Data <- zapsmall(WoS.ica@index.res[[1]]@.Data)
+WoS.ica@catch.res[round(WoS.ica@catch.res),3] <- NA
+WoS.ica@catch.res@.Data <- round(WoS.ica@catch.res@.Data,3)
+WoS.ica@index.res[[1]]@.Data <- round(WoS.ica@index.res[[1]]@.Data,3)
+WoS.ica@survivors=round(WoS.ica@survivors)
+WoS.ica@sel=round(WoS.ica@sel,3)
+WoS@harvest <- zapsmall(WoS@harvest,3)
+WoS@stock.n=round(WoS@stock.n)
+WoS@catch.n=round(WoS@catch.n)
+WoS.ica@catch.n=round(WoS.ica@catch.n)
+WoS.ica@index.hat[[1]]@.Data=round(WoS.ica@index.hat[[1]]@.Data)
+WoS@mat=round(WoS@mat,2)
+WoS@stock.wt=round(WoS@stock.wt,3)
+WoS@catch.wt=round(WoS@catch.wt,3)
+WoS.ica@param[,6:10]=round(WoS.ica@param[6:10],2)
+
 #Now write the file
 ica.out.file <- ica.out(WoS,WoS.tun,WoS.ica,format="TABLE 5.6.2.%i HERRING in VIa (N).")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
