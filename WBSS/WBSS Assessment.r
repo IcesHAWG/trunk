@@ -309,9 +309,16 @@ options.l <- list(#Option 1: F status quo option  #2009 catch is TAC restraint, 
                                           value=c(1,NA,NA))),
                   #Option 3: 2009 Catch is 44915, followed by -15% TAC reduction if SSB < 110
                   "2009:Catch 44915, 2010:-15% TAC"=
-                    fwdControl(data.frame(year=c(ImY,FcY),
-                                          quantity="catch",
-                                          value=c(44915,44915*0.85))))
+                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
+                                          quantity=c("catch","catch","f"),
+                                          rel=c(NA,ImY,FcY),
+                                          val=c(44915,0.85,1))),
+                  #Option 4: 2009 Catch is 44915, followed Fbar= 0.25
+                  "2009:Catch 44915, 2010:Fbar=0.25"=
+                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
+                                          quantity=c("catch","f","f"),
+                                          rel=c(NA,NA,FcY),
+                                          val=c(44915,0.25,1))))
 
 #Calculate options
 WBSS.options <- lapply(options.l,function(ctrl.l) {
