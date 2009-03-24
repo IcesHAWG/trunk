@@ -484,7 +484,7 @@ check.versions("FLICA","1.4-10")
 check.versions("FLSTF","1.99-1")
 check.versions("FLEDA","2.0")
 check.versions("FLBRP","2.0")
-check.versions("FLash","2.0")
+check.versions("FLash","2.0",ISOdatetime(2009,03,24,09,11,00))
 #Check R version too!
 required.version <- "2.8.0"
 if(compareVersion(paste(version$major,version$minor,sep="."),required.version)==-1) {
