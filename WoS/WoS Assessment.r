@@ -143,7 +143,7 @@ FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
 old.opt <- options("width","scipen")
 options("width"=80,"scipen"=1000)
-#Do some tidying up on the ica file
+#Do some tidying up on precision of the ica file
 WoS.ica@catch.res[round(WoS.ica@catch.res),3] <- NA
 WoS.ica@catch.res@.Data <- round(WoS.ica@catch.res@.Data,3)
 WoS.ica@index.res[[1]]@.Data <- round(WoS.ica@index.res[[1]]@.Data,3)
