@@ -58,7 +58,7 @@ n.retro.years       <-  8                          #Number of years for which to
 ### ======================================================================================================
 ### Output setup
 ### ======================================================================================================
-#Output to report
+#Output figure sizes for use in report
 win.metafile(paste(output.base,"landscape figures - %02d.wmf"),height=100/25.4,width=130/25.4,pointsize=10)
 trellis.par.set(fontsize=list(text=10,points=8))    #Set default lattice fontsize, so that things are actually readible!
 win.metafile(paste(output.base,"portrait figures - %02d.wmf"),height=180/25.4,width=130/25.4,pointsize = 10)
@@ -104,15 +104,13 @@ WBSS.ctrl <- do.call(FLICA.control, ctrl.list)
 ### Prepare stock object for assessment
 ### ======================================================================================================
 FnPrint("PREPARING STOCK OBJECT...\n")
-WBSS                        <- readFLStock(file.path(data.source, "index.dat"),no.discards=TRUE)
-#Set units
-units(WBSS)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
-#Set fbar
+#Read in data from VPA files
+WBSS <- readFLStock(file.path(data.source, "index.dat"),no.discards=TRUE)
+#Setup rest of logic
+units(WBSS)[1:17] <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
 range(WBSS)[c("minfbar","maxfbar")] <- c(3,6)
-#Set plus group
-WBSS                        <- setPlusGroup(WBSS,WBSS@range["max"])
-#Set stock object name from control file - this is propagated through into the figure titles
-WBSS@name    <- paste(cfg$run.name,collapse=" ")
+WBSS  <- setPlusGroup(WBSS,WBSS@range["max"])
+WBSS@name    <- paste(cfg$run.name,collapse=" ")  #Set stock object name from control file - this is propagated through into the figure titles
 
 ### ======================================================================================================
 ### Prepare index object for assessment
@@ -123,21 +121,26 @@ WBSS.tun.in   <- readFLIndices(file.path(data.source, "tun.txt"))
 
 #Set names, and parameters etc
 names(WBSS.tun.in) <-  gsub(":.*$","",names(WBSS.tun.in))
-WBSS.tun.in   <- lapply(WBSS.tun.in,function(idx) {
-                      idx@type 	     <- 	"number"
-                  		idx@index.var[]  <-	1
-                      idx@range["plusgroup"] <- NA
-                  		return(idx)})
-WBSS.tun.in[[1]]@range["plusgroup"] <- 8
+for(nme in names(WBSS.tun.in)) { #Most indices have the same characteristics
+  WBSS.tun.in[[nme]]@type 	             <- "number"
+  WBSS.tun.in[[nme]]@index.var[]         <-	1
+  WBSS.tun.in[[nme]]@range["plusgroup"]  <- NA
+}
+WBSS.tun.in[["HERAS 0-8+ wr"]]@range["plusgroup"] <- 8
 
 #Generate two new indices by truncating current indices etc
-WBSS.tun.in[[8]]      <-  trim(WBSS.tun.in[[1]],age=3:6,year=1993:2008) #HERAS 3-6 wr
-WBSS.tun.in[[9]]      <-  trim(WBSS.tun.in[[2]],age=1:3,year=1994:2008) #GerAS 1-3 wr
-WBSS.tun.in[[9]]@index[,"2001"] <- -1     #2001 is excluded from GerAS due to lack of coverage in SD23
-names(WBSS.tun.in)[8:9] <- c("HERAS 3-6 wr","GerAS 1-3 wr")
+WBSS.tun.in[["HERAS 3-6 wr"]]      <-  trim(WBSS.tun.in[["HERAS 0-8+ wr"]],age=3:6,year=1993:2008)           #HERAS 3-6 wr
+WBSS.tun.in[["GerAS 1-3 wr"]]      <-  trim(WBSS.tun.in[["GerAS 0-8 wr (SD 21-24)"]],age=1:3,year=1994:2008) #GerAS 1-3 wr
+WBSS.tun.in[["GerAS 1-3 wr"]]@index[,"2001"] <- -1     #2001 is excluded from GerAS due to lack of coverage in SD23
 
-#Only use the relevant data sets
+#Only use the relevant data sets in the assessment
 WBSS.tun  <- WBSS.tun.in[c("HERAS 3-6 wr","GerAS 1-3 wr","N20")]
+
+#Update the names in the trimmed object
+for(nme in names(WBSS.tun)) {
+      WBSS.tun[[nme]]@desc     <-    ""   #Wipe description, so it doesn't end up in the ica.out
+      WBSS.tun[[nme]]@name     <-    nme #Reset index name in the object to that in the list (for consistency)
+}
 
 ### ======================================================================================================
 ### Perform the assessment
@@ -262,7 +265,7 @@ FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
 old.opt <- options("width","scipen","digits")
 options("width"=80,"scipen"=1000,"digits"=3)
-#Fix some of the uglier values
+#Fix up some of the uglier values with too many decimal places
 WBSS.ica@catch.res <- zapsmall(WBSS.ica@catch.res,digits=5)
 WBSS.ica@ica.out <- ica.out(WBSS,WBSS.tun,WBSS.ica,format="TABLE 3.6.%i WBSS HERRING.")
 write(WBSS.ica@ica.out,file=paste(output.base,"ica.out",sep="."))
