@@ -1,5 +1,5 @@
 FLT04: Combined larvae (Catch: Unknown) (Effort: Unknown)
-1 19 2
+1 20 2
 'YEAR' 'VPA' 'NINEL'
 1989   1   -11.0
 1990   1   -11.0
@@ -20,3 +20,4 @@ FLT04: Combined larvae (Catch: Unknown) (Effort: Unknown)
 2005   1    26.4
 2006   1    43.8
 2007   1    12.6
+2008   1    16.8
