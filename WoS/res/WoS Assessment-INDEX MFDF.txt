@@ -1,0 +1,12 @@
+West of Scotland Herring 
+1
+WoS Assessment-CANUM.txt
+WoS Assessment-WECA.txt
+WoS Assessment-WEST.txt
+WoS Assessment-NATMOR.txt
+WoS Assessment-MATPROP.txt
+WoS Assessment-FPROP.txt
+WoS Assessment-MPROP.txt
+WoS Assessment-F.txt
+WoS Assessment-N.txt
+Ctrl.txt

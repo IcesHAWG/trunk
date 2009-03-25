@@ -1,0 +1,18 @@
+West of Scotland Herring 
+1
+./res/WoS Assessment-LATON.txt
+./res/WoS Assessment-LANUM.txt
+./res/WoS Assessment-WELAND.txt
+./res/WoS Assessment-WEST.txt
+./res/WoS Assessment-NATMOR.txt
+./res/WoS Assessment-MATPROP.txt
+./res/WoS Assessment-FPROP.txt
+./res/WoS Assessment-MPROP.txt
+./res/WoS Assessment-F.txt
+./res/WoS Assessment-N.txt
+./res/WoS Assessment-DISTON.txt
+./res/WoS Assessment-DISNUM.txt
+./res/WoS Assessment-WEDIS.txt
+./res/WoS Assessment-CATON.txt
+./res/WoS Assessment-CANUM.txt
+./res/WoS Assessment-WECA.txt

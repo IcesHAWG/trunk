@@ -1,0 +1,6 @@
+Herring in VIa(North) Control file standard 3 yr status quo projection
+3
+3 6
+629204.6  629204.6 629204.6
+1
+21760
