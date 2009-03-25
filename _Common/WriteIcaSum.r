@@ -37,7 +37,7 @@ writeICAsum <- function(stk,fname) {
 
     #And format it, following the following Fortran format string
     #160   format(3X,I4,3X,I9,'0',3X,I7,3X,I7,3X,I7,3X,F6.4,3X,F6.4,3X,I3)
-    dat.fmt <- sprintf("   %4i   %9.0f    %7.0f   %7.0f   %7.0f   %6.4f   %6.4f   %3.0f",
+    dat.fmt <- sprintf("  %4i   %9.0f    %7.0f   %7.0f   %7.0f   %6.4f   %6.4f   %3.0f",
                 dat[,1],dat[,2],dat[,3],dat[,4],dat[,5],dat[,6],dat[,7],dat[,8])
 
     #Write it out to a file
@@ -143,20 +143,22 @@ one unit. Lowestoft VPA can't handle this unfortunately.")
 }	# }}}
 
 writeYPR <- function(stk,fname) {
-    hdr <- c("FLR Pseudo MFYPR output",
+    hdr <- c("Pseudo MFYPR output, generated from FLR",
              "Run: -----",
              stk@name,
              paste("Time and date:",date()),
              paste("Fbar age range:",paste(range(stk)[c("minfbar","maxfbar")],sep="",collapse="-")),
              "","")
+    #The data table takes the information from the last year of the stock object
+    TY <- as.character(dims(stk)$maxyear)
     tbl <- cbind(Age=dimnames(stk@stock.n)$age,
-                 M=0.2,
-                 Mat=0.1,
-                 PF=0.1,
-                 PM=1,
-                 SWt=1,
-                 Sel=1,
-                 CWt=1)
+                 M=stk@m[,TY],
+                 Mat=stk@mat[,TY],
+                 PF=stk@harvest.spwn[,TY],
+                 PM=stk@m.spwn[,TY],
+                 SWt=stk@stock.wt[,TY],
+                 Sel=stk@harvest[,TY],
+                 CWt=stk@catch.wt[,TY])
     tbl.hdr <- colnames(tbl)
     ftr <- c("","Weights in kilograms")
 
@@ -164,8 +166,7 @@ writeYPR <- function(stk,fname) {
     write.table(hdr,fname,row.names=FALSE,col.names=FALSE,quote=TRUE)
     write.table(t(tbl.hdr),fname,row.names=FALSE,col.names=FALSE,quote=TRUE,append=TRUE,sep=",")
     write.table(tbl,fname,row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE,sep=",")
+    write.table(ftr,fname,row.names=FALSE,col.names=FALSE,quote=TRUE,append=TRUE)
 
 }
-
-writeYPR(WBSS,"test.txt")
 
