@@ -46,7 +46,7 @@ find.FAB      <- function(mult,stk,f01,f26,mp.options){
                       }
                       if(ssb >= 0.8e6 & ssb <= 1.5e6){
                         resA <- 0.15/0.7*((ssb-0.8e6)/1e6)+0.1
-                        resB <- 0.04
+                        resB <- 0.05
                       }
                       if(ssb > 1.5e6){
                         resA <- 0.25

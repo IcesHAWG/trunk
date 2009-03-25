@@ -13,25 +13,23 @@ mtextline <- 3
 ltextcex <- 1
 
 LNV.ssb <- function(stk,btrigger,blim){
-              par(oma=c(0,0,0,2))
               plot(c(ssb(stk)@.Data)~seq(range(stk)[c("minyear")],range(stk)[c("maxyear")],1),
               type="b",pch=19,cex.lab=cl,cex.axis=ca,main=paste("SSB",name(stk)),font=fonts,family=fam,
-              ylim=range(pretty(range(c(ssb(stk)@.Data)))),xlab="Years",ylab="SSB")
+              ylim=range(pretty(range(c(ssb(stk)@.Data),na.rm=T))),xlab="Years",ylab="SSB",lwd=2)
               abline(h=btrigger,col="darkgreen",lwd=2,lty=2)
               abline(h=blim,col="red",lwd=2,lty=2)
               #text(btrigger~range(stk)[c("maxyear")],expression(B[trigger]),cex=ltextcex,adj=c(0.6,0),col="darkgreen",las=2,pos=3)
               #text(blim~range(stk)[c("maxyear")],expression(B[lim]),cex=ltextcex,adj=c(0.6,0),col="red",las=2,pos=3)
-              mtext(expression(B[trigger]),4,at=btrigger,cex=ltextcex,col="darkgreen",outer=F,line=0.2,las=2)
-              mtext(expression(B[lim]),    4,at=blim,    cex=ltextcex,col="red",      outer=F,line=0.2,las=2)
+              mtext(expression(B[trigger]),4,at=btrigger,cex=ltextcex,col="darkgreen",outer=F,line=0.2,las=2,font=fonts)
+              mtext(expression(B[lim]),    4,at=blim,    cex=ltextcex,col="red",      outer=F,line=0.2,las=2,font=fonts)
               }
 #LNV.ssb(NSH,1.3e6,0.8e6)
 
 LNV.fbar <- function(stk,ftarget,flim,range.){
-              par(oma=c(0,0,0,2))
               range2 <- range.[1]:range.[2]
               plot(c(apply(stk@harvest[ac(range2),],2,mean)@.Data)~seq(range(stk)[c("minyear")],range(stk)[c("maxyear")],1),
               type="b",pch=19,cex.lab=cl,cex.axis=ca,main=paste("Fbar",name(stk)),font=fonts,family=fam,
-              xlab="Years",ylab="Fbar",ylim=c(0,1.6))
+              xlab="Years",ylab="Fbar",ylim=range(pretty(c(apply(stk@harvest[ac(range2),],2,mean)@.Data))),lwd=2)
               abline(h=ftarget,col="darkgreen",lwd=2,lty=2)
               abline(h=flim,col="red",lwd=2,lty=2)
               mtext(text=bquote(F[.(range.[1])-.(range.[2])[target]]),4,at=ftarget,cex=ltextcex,outer=F,line=0.2,las=2,font=fonts,col="darkgreen")
@@ -44,7 +42,7 @@ LNV.fbar <- function(stk,ftarget,flim,range.){
 LNV.rec <- function(stk,stk.ica){
               plot(c(rec(stk)@.Data)~seq(range(stk)[c("minyear")],range(stk)[c("maxyear")],1),
               type="b",pch=19,,cex.lab=cl,cex.axis=ca,main=paste("Recruitment",name(stk)),font=fonts,family=fam,
-              xlab="Years",ylab="Recruitment [thousands]",xlim=c(range(stk)["minyear"],range(stk)["maxyear"]+1))
+              xlab="Years",ylab="Recruitment [thousands]",xlim=c(range(stk)["minyear"],range(stk)["maxyear"]+1),lwd=2)
               points(range(stk)["maxyear"]+1,stk.ica@param["Recruitment prediction","Value"],col="blue",pch=19)
               legend("topright",legend=paste("Recuitment estimate",range(stk)["maxyear"]+1),col="blue",pch=19,box.lty=0,lty=0)
             }

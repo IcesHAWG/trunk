@@ -22,7 +22,9 @@ FcY   <- ac(2010) #Forecast year
 CtY   <- ac(2011) #Continuation year
 source("./data/readStfData.r")
 
-TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,5100,5100),"D"=c(2701,2000,2000))
+TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,5400,5400),"D"=c(2701,2200,2200)); TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
+#In case the C and D fleet catch a bit more
+TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,7600,7600),"D"=c(2701,3100,3100)); TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
 RECS  <- list("ImY"=NSH.ica@param["Recruitment prediction","Value"],"FcY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-6):(range(NSH)["maxyear"]))]))),"CtY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-6):(range(NSH)["maxyear"]))]))))
 FS    <- list("A"=FA,"B"=FB,"C"=FC,"D"=FD)
 WS    <- list("A"=WA,"B"=WB,"C"=WC,"D"=WD)   
@@ -99,6 +101,8 @@ if("mp" %in% stf.options){
                          round(c(colSums((1-exp(-stf@harvest[,FcY]-stf@m[,FcY]))*stf@stock.n[,FcY]*stf@catch.wt[,FcY]*(stf@harvest[,FcY]/(stf@harvest[,FcY]+stf@m[,FcY])))),0),
                          round(c(sum(stf@stock.n[,FcY,1]*stf@stock.wt[,FcY,1]*exp(-apply(stf@harvest[,FcY],1,sum)*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1])*stf@mat[,FcY,1]),
                          ssb.CtY),0))
+  #As this is most likely the agreed TAC for the B fleet, use this in all other scenario's too                       
+  TACS[["B"]][2]    <-  sum((1-exp(-stf@harvest[,FcY,"B"]-stf@m[,FcY,"B"]))*stf@stock.n[,FcY,"B"]*stf@catch.wt[,FcY,"B"]*(stf@harvest[,FcY,"B"]/(stf@harvest[,FcY,"B"]+stf@m[,FcY,"B"])))
                    
 }
 ### No fishing ###
@@ -120,10 +124,9 @@ if("-15%" %in% stf.options){
   for(i in dms$unit){
     if(is.na(TACS[[i]][2])==F) stf@harvest[,FcY,i] <- fleet.harvest(stf,i,FcY,TACS[[i]][2])
   }
-   
-  TAC.A <- TACS[["A"]][1]*0.85
+  #Take the original TAC, not the overshooted TAC 
+  TAC.A <- TACS.orig[["A"]][1]*0.85
   stf@harvest[,FcY,"A"] <- fleet.harvest(stf,"A",FcY,TAC.A)
-  stf@harvest[,FcY,"B"] <- fleet.harvest(stf,"B",FcY,TACS[["B"]][1])
     
   ssb.CtY           <- sum(c(RECS$CtY,(stf@stock.n[,FcY,1]*exp(-apply(stf@harvest[,FcY],1,sum)-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),],sum((stf@stock.n[,FcY,1]*exp(-apply(stf@harvest[,FcY],1,sum)-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),]))
                      *stf@stock.wt[,FcY,1]*stf@mat[,FcY,1]*exp(-apply(stf@harvest[,FcY],1,sum)*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]))
@@ -140,10 +143,9 @@ if("+15%" %in% stf.options){
   for(i in dms$unit){
     if(is.na(TACS[[i]][2])==F) stf@harvest[,FcY,i] <- fleet.harvest(stf,i,FcY,TACS[[i]][2])
   }
-  
-  TAC.A <- TACS[["A"]][1]*1.15
+  #Take the original TAC, not the overshooted TAC 
+  TAC.A <- TACS.orig[["A"]][1]*1.15
   stf@harvest[,FcY,"A"] <- fleet.harvest(stf,"A",FcY,TAC.A)
-  stf@harvest[,FcY,"B"] <- fleet.harvest(stf,"B",FcY,TACS[["B"]][1])
     
   ssb.CtY           <- sum(c(RECS$CtY,(stf@stock.n[,FcY,1]*exp(-apply(stf@harvest[,FcY],1,sum)-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),],sum((stf@stock.n[,FcY,1]*exp(-apply(stf@harvest[,FcY],1,sum)-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),]))
                      *stf@stock.wt[,FcY,1]*stf@mat[,FcY,1]*exp(-apply(stf@harvest[,FcY],1,sum)*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]))
@@ -153,12 +155,16 @@ if("+15%" %in% stf.options){
                            ssb.CtY),0))
 }
 
-### Same catch as last year ###
+### Same TAC for A-fleet as last year ###
 if("tacro" %in% stf.options){
    #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
-  
-  for(i in dms$unit) stf@harvest[,FcY,i] <- fleet.harvest(stf,i,FcY,TACS[[i]][1])
+
+  for(i in dms$unit){
+    if(is.na(TACS[[i]][2])==F) stf@harvest[,FcY,i] <- fleet.harvest(stf,i,FcY,TACS[[i]][2])
+  }
+  #Take the original TAC, not the overshooted TAC 
+  stf@harvest[,FcY,"A"] <- fleet.harvest(stf,"A",FcY,TACS.orig[["A"]][1])
 
   ssb.CtY           <- sum(c(RECS$CtY,(stf@stock.n[,FcY,1]*exp(-apply(stf@harvest[,FcY],1,sum)-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),],sum((stf@stock.n[,FcY,1]*exp(-apply(stf@harvest[,FcY],1,sum)-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),]))
                      *stf@stock.wt[,FcY,1]*stf@mat[,FcY,1]*exp(-apply(stf@harvest[,FcY],1,sum)*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1]*stf@m.spwn[,FcY,1]))
@@ -172,6 +178,11 @@ if("tacro" %in% stf.options){
 if("bpa" %in% stf.options){
    #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
+  #Scale harvests of all fleets to management procedure outcomes - fixed ones
+  for(i in dms$unit){
+    if(is.na(TACS[[i]][2])==F) stf@harvest[,FcY,i] <- fleet.harvest(stf,i,FcY,TACS[[i]][2])
+  }
+  stf@harvest[,FcY,"A"] <- fleet.harvest(stf,"A",FcY,stf.table["mp","Catch A"])
   
   res <- optimize(find.Bpa,c(0,2),stk=window(stf,an(FcY),an(CtY)),rec=RECS$FcY,bpa=1.3e6)$minimum
   stf@harvest[,FcY] <- stf@harvest[,FcY] * res
