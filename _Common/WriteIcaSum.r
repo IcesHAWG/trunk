@@ -6,7 +6,7 @@ writeFLStock <- function(FLStock, output.file=FLStock@name, type="VPA") {
 		"VPA" = writeVPA(FLStock, output.file),
 		"ICAsum" = writeICAsum(FLStock, output.file),
 		"YPR"  = writeYPR(FLStock, output.file),
-		stop("type must be either 'VPA' or 'ICA'!"))
+		stop("type must be either 'VPA','ICAsum' or 'YPR'!"))
 }	# }}}
 
 
