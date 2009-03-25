@@ -51,7 +51,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
 data.source         <-  file.path(".","data")      #Data source, not code or package source!!!
-output.dir          <-  file.path(".","res")       #Output directory
+output.dir          <-  file.path(".","results")       #Output directory
 output.base         <-  file.path(output.dir,"WBSS Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  8                          #Number of years for which to run the retrospective
 
@@ -92,7 +92,7 @@ FnPrint("PREPARING CONTROL OBJECTS...\n")
 #Make control object from configuration file (option 2)
 #--------------------------------------------------------
 #Read in configuration file, and break into vectors as needed
-cfg.in <- read.table(file.path(".","conf","WBSS.cfg"),sep="=",comment.char="#",row.names=1,
+cfg.in <- read.table(file.path(".","config","WBSS.cfg"),sep="=",comment.char="#",row.names=1,
             strip.white=TRUE,colClasses="character")
 cfg    <- strsplit(cfg.in$V2," +|\t+")    #Breaks the input strings into vectors, using white space as a separator
 names(cfg) <- row.names(cfg.in)

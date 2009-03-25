@@ -48,8 +48,8 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
-workspace           <-  file.path(".","res","WBSS Assessment .RData")      #Workspace containing all data
-output.dir          <-  file.path(".","res")       #Output directory
+workspace           <-  file.path(".","results","WBSS Assessment .RData")      #Workspace containing all data
+output.dir          <-  file.path(".","results")       #Output directory
 devs                <-  c(-0.001,0.001,-0.002,0.002)               #Relative deviations about input value, used to estimate derivatives
 linear.check        <-  TRUE    #Whether the linear approximation should be checked - execution is interrrupted if
                                 #linearity is violated and the sensitivity is greater than sens.alarm
