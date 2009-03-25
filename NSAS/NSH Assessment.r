@@ -53,7 +53,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
 data.source         <-  file.path(".","data")      #Data source, not code or package source!!!
-output.dir          <-  file.path(".","res")       #Output directory
+output.dir          <-  file.path(".","results")       #Output directory
 output.base         <-  file.path(output.dir,"NSH Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  8                          #Number of years for which to run the retrospective
 
@@ -162,7 +162,7 @@ catch.curves(NSH,1990,2007)
 NSH.sr <- ref.pts(NSH,"bevholt",100000)
 cor.tun(NSH.tun)
 
-source("./private_diagnostics_1.2.r")
+source("./private_diagnostics.r")
 LNV.fbar(NSH,0.25,0.1,c(2,6))
 LNV.fbar(NSH,0.1,0.04,c(0,1))
 LNV.ssb(NSH,1.5e6,0.8e6)
