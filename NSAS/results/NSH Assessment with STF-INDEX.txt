@@ -1,0 +1,18 @@
+NSH Herring 
+1
+./res/NSH Assessment with STF-LATON.txt
+./res/NSH Assessment with STF-LANUM.txt
+./res/NSH Assessment with STF-WELAND.txt
+./res/NSH Assessment with STF-WEST.txt
+./res/NSH Assessment with STF-NATMOR.txt
+./res/NSH Assessment with STF-MATPROP.txt
+./res/NSH Assessment with STF-FPROP.txt
+./res/NSH Assessment with STF-MPROP.txt
+./res/NSH Assessment with STF-F.txt
+./res/NSH Assessment with STF-N.txt
+./res/NSH Assessment with STF-DISTON.txt
+./res/NSH Assessment with STF-DISNUM.txt
+./res/NSH Assessment with STF-WEDIS.txt
+./res/NSH Assessment with STF-CATON.txt
+./res/NSH Assessment with STF-CANUM.txt
+./res/NSH Assessment with STF-WECA.txt
