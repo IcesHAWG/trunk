@@ -6,11 +6,18 @@ TAC.C <- (37722 -1000)    * mean(OOF[dims.OOF[1],"C"]) #only last years fraction
 TAC.D <- 8373             * mean(OOF[dims.OOF[1],"D"]) #only last years fractions
 
 #Partial Fs per fleet
-Fs            <- read.csv(paste("./data/partial_fs",ac(an(ImY)-1),".csv",sep=""),header=T)
-FA            <- NSH@harvest[,DtY] * Fs[,"An"]
-FB            <- NSH@harvest[,DtY] * Fs[,"Bn"]
-FC            <- NSH@harvest[,DtY] * Fs[,"Cn"]
-FD            <- NSH@harvest[,DtY] * Fs[,"Dn"]
+#Fs            <- read.csv(paste("./data/partial_fs",ac(an(ImY)-1),".csv",sep=""),header=T)
+#FA            <- NSH@harvest[,DtY] * Fs[,"An"]
+#FB            <- NSH@harvest[,DtY] * Fs[,"Bn"]
+#FC            <- NSH@harvest[,DtY] * Fs[,"Cn"]
+#FD            <- NSH@harvest[,DtY] * Fs[,"Dn"]
+
+#Partial Ns per fleet to partial Fs
+Ns            <- read.csv(paste("./data/partial_ns",ac(an(ImY)-1),".csv",sep=""),header=T)
+FA            <- Ns[,paste("A",DtY,sep="")]/apply(Ns,1,sum) * NSH@harvest[,DtY]
+FB            <- Ns[,paste("B",DtY,sep="")]/apply(Ns,1,sum) * NSH@harvest[,DtY]
+FC            <- Ns[,paste("C",DtY,sep="")]/apply(Ns,1,sum) * NSH@harvest[,DtY]
+FD            <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum) * NSH@harvest[,DtY]
 
 #Partial Ws per fleet
 Ws            <- read.csv(paste("./data/partial_ws",ac(an(ImY)-1),".csv",sep=""),header=T)

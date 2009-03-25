@@ -6,8 +6,10 @@
 # 22 March 2009
 #
 ################################################################################
-
+rm(list=ls());
 #Read in data
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2009/assessment/googlecode/NSAS/"
+try(setwd(path))
 try(setwd("./stf/"))
 
 stk     <- NSH
@@ -24,7 +26,8 @@ source("./data/readStfData.r")
 
 TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,5400,5400),"D"=c(2701,2200,2200)); TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
 #In case the C and D fleet catch a bit more
-TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,7600,7600),"D"=c(2701,3100,3100)); TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
+#TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,7600,7600),"D"=c(2701,3100,3100)); TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
+TACS  <- list("A"=c(194200,NA,NA),"B"=c(7320,NA,NA),"C"=c(6530,5400,5400),"D"=c(2710,2200,2200)); TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
 RECS  <- list("ImY"=NSH.ica@param["Recruitment prediction","Value"],"FcY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-6):(range(NSH)["maxyear"]))]))),"CtY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-6):(range(NSH)["maxyear"]))]))))
 FS    <- list("A"=FA,"B"=FB,"C"=FC,"D"=FD)
 WS    <- list("A"=WA,"B"=WB,"C"=WC,"D"=WD)   
