@@ -1,8 +1,0 @@
-rpts<-refpts()
-NSH.brp <- brp(FLBRP(NSH,sr=NSH.sr,fbar=seq(0,1,length.out=100),nyrs=3,refpts=rpts))
-plot(colSums(sweep(NSH.brp@landings.n,1,NSH.brp@landings.wt,"*"))~c(NSH.brp@fbar),type="l",lwd=2,xlab="Fbar",ylab="Yield",main="Yield and Spawning Stock Biomass per Recruit")
-par(new=T)
-plot(c(ssb(NSH.brp))~c(NSH.brp@fbar),type="l",lwd=2,lty=2,yaxt="n",ylab="",xlab="")
-axis(4)
-mtext("SSB per recruit",4,line=2,cex=0.7)
-legend("right",legend=c("Yield","SSB per recruit"),lwd=c(2,2),lty=c(1,2),box.lty=0)
