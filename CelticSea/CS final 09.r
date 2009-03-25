@@ -134,9 +134,9 @@ cs.herring       <-  cs.herring + cs.herring.ica
 cs.herring@stock=computeStock(cs.herring) # to get TSB in stock slot
 
 ################################################################################
-## Change Recruitment to mean value 1958-2006
+## Change Recruitment to mean value 1995-2006
 
-Rec=exp(mean(log(cs.herring@stock.n[1,as.character(1958:(cs.herring@range['maxyear']-2)),,,,])))
+Rec=exp(mean(log(cs.herring@stock.n[1,as.character(1995:(cs.herring@range['maxyear']-2)),,,,])))
 
 # put recruitment into last fishing year
 cs.herring@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
@@ -208,13 +208,39 @@ print(canum.prop.age)
 ### ======================================================================================================
 ### Document Assessment
 ### ======================================================================================================
+
+
 FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
-old.opt <- options("width")
-options("width"=80)
-ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4.6.2.%i cs.herring HERRING.")
+old.opt <- options("width","scipen")
+options("width"=80,"scipen"=1000)
+#Do some tidying up on the ica file
+## Removes the additional decimal places
+cs.herring.ica@catch.res[round(cs.herring.ica@catch.res),3] <- NA
+cs.herring.ica@catch.res@.Data <- round(cs.herring.ica@catch.res@.Data,3)
+cs.herring.ica@index.res[[1]]@.Data <- round(cs.herring.ica@index.res[[1]]@.Data,3)
+cs.herring.ica@survivors=round(cs.herring.ica@survivors)
+cs.herring.ica@sel=round(cs.herring.ica@sel,3)
+cs.herring@harvest <- zapsmall(cs.herring@harvest,3)
+cs.herring@stock.n=round(cs.herring@stock.n)
+cs.herring@catch.n=round(cs.herring@catch.n)
+cs.herring.ica@catch.n=round(cs.herring.ica@catch.n)
+cs.herring.ica@index.hat[[1]]@.Data=round(cs.herring.ica@index.hat[[1]]@.Data)
+cs.herring@mat=round(cs.herring@mat,2)
+cs.herring@stock.wt=round(cs.herring@stock.wt,3)
+cs.herring@catch.wt=round(cs.herring@catch.wt,3)
+cs.herring.ica@param[,6:10]=round(cs.herring.ica@param[6:10],2)
+
+#Now write the file
+#Number to corresponds to numbers in the report
+ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4.6.2.1.%i Celtic Sea and Division VIIj Herring.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
-options("width"=old.opt$width)
+options("width"=old.opt$width,"scipen"=old.opt$scipen)
+
+#And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
+writeFLStock(cs.herring,output.file=output.base)
+
+
 
 ### ======================================================================================================
 ### Short Term Forecast
@@ -223,7 +249,8 @@ options("width"=old.opt$width)
 
 FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
-gm.recs         <- exp(mean(log(rec(trim(cs.herring,year=1958:2006)))))  #cs.herring recruitment is based on a geometric mean of the last few years
+gm.recs         <- exp(mean(log(rec(trim(cs.herring,year=1995:2006)))))  #cs.herring recruitment is based on a geometric mean from 1995 - 2006
+## Set catch constraint
 stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec=gm.recs)
 cs.herring.stf  <- FLSTF(stock=cs.herring,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
 
@@ -244,7 +271,8 @@ FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),
 ################################################################################
 ## Output for standard Graphs
 
+#And for incorporation into the standard graphs
+writeFLStock(cs.herring,file.path(output.dir,"hawg_her-irls.sum"),type="ICAsum")
 
-writeFLStock(cs.herring,file.path(output.dir,"hawg_her-irls.sum"),type="ICA")
 
 
