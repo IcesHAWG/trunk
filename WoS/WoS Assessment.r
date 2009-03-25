@@ -144,7 +144,7 @@ FnPrint("GENERATING DOCUMENTATION...\n")
 old.opt <- options("width","scipen")
 options("width"=80,"scipen"=1000)
 #Do some tidying up on precision of the ica file
-WoS.ica@catch.res[round(WoS.ica@catch.res),3] <- NA
+WoS.orig=WoS
 WoS.ica@catch.res@.Data <- round(WoS.ica@catch.res@.Data,3)
 WoS.ica@index.res[[1]]@.Data <- round(WoS.ica@index.res[[1]]@.Data,3)
 WoS.ica@survivors=round(WoS.ica@survivors)
@@ -165,7 +165,7 @@ write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(WoS,output.file=output.base)
+writeFLStock(WoS.orig,output.file=output.base)
 
 
 ### ======================================================================================================
@@ -173,12 +173,16 @@ writeFLStock(WoS,output.file=output.base)
 ### ======================================================================================================
 # FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
-gm.recs         <- exp(mean(log(rec(trim(WoS,year=1989:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
+gm.recs         <- exp(mean(log(rec(trim(WoS.orig,year=1989:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
 stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=21760,f.rescale=TRUE,rec=gm.recs)
-WoS@catch.n[1,52,,,,]=1
-WoS.stf        <- FLSTF(stock=WoS,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
+WoS.orig@catch.n[1,52,,,,]=1
+WoS.stf        <- FLSTF(stock=WoS.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
 writeFLStock(WoS.stf,output.file="WoSaddyr")
-writeFLStock(WoS.stf,file.path(output.dir,"hawg_her-vian.sum"),type="ICA")
+## use the rounder version so report and quality control database have same values
+writeFLStock(WoS,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
+# project one year in order to get a single year holding means for YPR output
+WoS.proj=stf(WoS.orig,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
+writeFLStock(WoS.proj,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
 # writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
@@ -187,7 +191,7 @@ writeFLStock(WoS.stf,file.path(output.dir,"hawg_her-vian.sum"),type="ICA")
 ### Save workspace and Finish Up
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(WoS,WoS.tun,WoS.ctrl,file=paste(output.base,"Assessment.RData"))
+save(WoS.orig,WoS.tun,WoS.ctrl,file=paste(output.base,"Assessment.RData"))
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
