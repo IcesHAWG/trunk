@@ -259,25 +259,6 @@ print(ssb.prop.by.age)
 #
 
 ### ======================================================================================================
-### Document Assessment
-### ======================================================================================================
-FnPrint("GENERATING DOCUMENTATION...\n")
-#Document the run with alternative table numbering and a reduced width
-old.opt <- options("width","scipen","digits")
-options("width"=80,"scipen"=1000,"digits"=3)
-#Fix up some of the uglier values with too many decimal places
-WBSS.ica@catch.res <- zapsmall(WBSS.ica@catch.res,digits=5)
-WBSS.ica@ica.out <- ica.out(WBSS,WBSS.tun,WBSS.ica,format="TABLE 3.6.%i WBSS HERRING.")
-write(WBSS.ica@ica.out,file=paste(output.base,"ica.out",sep="."))
-do.call(options,old.opt)
-
-#Write the results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(WBSS,output.file=output.base)
-
-#And for incorporation into the standard graphs
-writeFLStock(WBSS,file.path(output.dir,"hawg_her-3a22.sum"),type="ICAsum")
-
-### ======================================================================================================
 ### Projections and Options Table
 ### ======================================================================================================
 FnPrint("PERFORMING PROJECTIONS...\n")
@@ -385,10 +366,25 @@ write.csv(options.sum.tbl,file=paste(output.base,"options - summary.csv",sep="."
 
 
 ### ======================================================================================================
-### Writing Projections Table
+### Document Assessment
 ### ======================================================================================================
-FnPrint("WRITING OPTIONS TABLE...\n")
+FnPrint("GENERATING DOCUMENTATION...\n")
+#Document the run with alternative table numbering and a reduced width
+old.opt <- options("width","scipen","digits")
+options("width"=80,"scipen"=1000,"digits"=3)
+#Fix up some of the uglier values with too many decimal places
+WBSS.ica@catch.res <- zapsmall(WBSS.ica@catch.res,digits=5)
+WBSS.ica@ica.out <- ica.out(WBSS,WBSS.tun,WBSS.ica,format="TABLE 3.6.%i WBSS HERRING.")
+write(WBSS.ica@ica.out,file=paste(output.base,"ica.out",sep="."))
+do.call(options,old.opt)
 
+#Write the results out in the lowestoft VPA format for further analysis eg MFDP
+writeFLStock(WBSS,output.file=output.base)
+
+#And for incorporation into the standard graphs
+writeFLStock(WBSS,file.path(output.dir,"hawg_her-3a22.sum"),type="ICAsum")
+#The YPR curves based on the same values as the projection - therefore use WBSS.proj
+writeFLStock(WBSS.proj,file.path(output.dir,"hawg_her-3a22.ypr"),type="YPR")
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
