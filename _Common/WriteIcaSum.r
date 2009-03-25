@@ -168,5 +168,8 @@ writeYPR <- function(stk,fname) {
     write.table(tbl,fname,row.names=FALSE,col.names=FALSE,quote=FALSE,append=TRUE,sep=",")
     write.table(ftr,fname,row.names=FALSE,col.names=FALSE,quote=TRUE,append=TRUE)
 
+    #Finished
+    return(invisible(NULL))
+
 }
 
