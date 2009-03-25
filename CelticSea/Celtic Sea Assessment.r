@@ -53,7 +53,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
 data.source         <-  file.path("data")      #Data source, not code or package source!!!
-output.dir          <-  file.path("res")       #Output directory
+output.dir          <-  file.path("Results")       #Output directory
 output.base         <-  file.path(output.dir,"cs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
 retro.years         <-  c(2003,2005:2008)
              #Specify specific years to do the retrospective over
