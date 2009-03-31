@@ -70,35 +70,18 @@ trellis.par.set(fontsize=list(text=10,points=8))    #Set default lattice fontsiz
 
 ### ======================================================================================================
 ### Prepare control object for assessment
-### We use here two different options - the first is the simpler and more normal:, just setting the control
-### directly in the code. The second is reading in the configuration from a file - this is normally not
-### necessary, but is a handy feature for using the code on stockassessment.org
 ### ======================================================================================================
 FnPrint("PREPARING CONTROL OBJECTS...\n")
-#Set control object straight up (option 1)
-#-----------------------------------------
-#WBSS.ctrl   <-  FLICA.control(sep.nyr=5,
-#                              sep.age=4,
-#                              sep.sel=1.0,
-#                              lambda.yr=1,
-#                              lambda.age=c(0.1,1,1,1,1,1,1,1,1),
-#                              lambda.sr=0,
-#                              sr=FALSE,
-#                              sr.age=0,
-#                              index.model=c("l","l","l"),
-#                              index.cor=1)
-#
-
-#Make control object from configuration file (option 2)
-#--------------------------------------------------------
-#Read in configuration file, and break into vectors as needed
-cfg.in <- read.table(file.path(".","config","WBSS.cfg"),sep="=",comment.char="#",row.names=1,
-            strip.white=TRUE,colClasses="character")
-cfg    <- strsplit(cfg.in$V2," +|\t+")    #Breaks the input strings into vectors, using white space as a separator
-names(cfg) <- row.names(cfg.in)
-#Now take the arguments from the configuration file that apply here and make the object
-ctrl.list <-  cfg[names(cfg) %in% names(formals(FLICA.control))]
-WBSS.ctrl <- do.call(FLICA.control, ctrl.list)
+WBSS.ctrl   <-  FLICA.control(sep.nyr=5,                            #Number of years in the separable period
+                              sep.age=4,                            #Age at which catchability is fixed to equal 1.0
+                              sep.sel=1.0,                          #Selectivity of the plus group and last true age
+                              lambda.yr=1,                          #Weighting for each year in the separable period
+                              lambda.age=c(0.1,1,1,1,1,1,1,1,1),    #Weighting for each age group
+                              sr=FALSE,                             #Fit a stock recruitment relationship? (TRUE, FALSE)
+                              lambda.sr=0,                          #Weighting given to the stock recruitment relationship in the fit
+                              sr.age=0,                             #Lag (in years) between SSB and recruitment
+                              index.model=c("l","l","l"),           #Catchability models for each index. (absolute, linear, power)
+                              index.cor=1)                          #Correlations within each index
 
 ### ======================================================================================================
 ### Prepare stock object for assessment
@@ -106,11 +89,11 @@ WBSS.ctrl <- do.call(FLICA.control, ctrl.list)
 FnPrint("PREPARING STOCK OBJECT...\n")
 #Read in data from VPA files
 WBSS <- readFLStock(file.path(data.source, "index.dat"),no.discards=TRUE)
-#Setup rest of logic
+#Setup rest of object
 units(WBSS)[1:17] <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
 range(WBSS)[c("minfbar","maxfbar")] <- c(3,6)
-WBSS  <- setPlusGroup(WBSS,WBSS@range["max"])
-WBSS@name    <- paste(cfg$run.name,collapse=" ")  #Set stock object name from control file - this is propagated through into the figure titles
+WBSS         <- setPlusGroup(WBSS,WBSS@range["max"])
+WBSS@name    <- "WBSS Herring"  #Set stock object name - this is propagated through into the figure titles
 
 ### ======================================================================================================
 ### Prepare index object for assessment
@@ -250,14 +233,14 @@ ssb.prop.by.age <- stacked.area.plot(data~year*age,as.data.frame(pay(ssb.dat)),y
                         main=paste(WBSS@name,"Proportion of ages in SSB"))
 print(ssb.prop.by.age)
 
-##Proportion of ssb by cohort
+###Proportion of ssb by cohort
 #ssb.cohorts         <- as.data.frame(FLCohort(pay(ssb.dat)))
 #ssb.cohorts$year    <- ssb.cohorts$cohort+ssb.cohorts$age
 #ssb.cohorts         <- subset(ssb.cohorts,!is.na(ssb.cohorts$data))
-#ssb.by.cohort.plot  <- stacked.area.plot(data~year*cohort,ssb.cohorts)
+#ssb.by.cohort.plot  <- stacked.area.plot(data~year,ssb.cohorts)
 #print(ssb.by.cohort.plot)
+##
 #
-
 ### ======================================================================================================
 ### Projections and Options Table
 ### ======================================================================================================
