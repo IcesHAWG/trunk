@@ -141,7 +141,7 @@ WBSS@stock <- computeStock(WBSS)
 do.summary.plots(WBSS,WBSS.ica)
 WBSS.retro <- do.retrospective.plots(WBSS,WBSS.tun,WBSS.ctrl,n.retro.years)
 do.SRR.plot(WBSS)
-WBSS.srr <- ref.pts(WBSS,"bevholt",1e6)
+#WBSS.srr <- ref.pts(WBSS,"bevholt",1e6)
 
 ### ======================================================================================================
 ### Custom plots
@@ -242,9 +242,9 @@ print(ssb.prop.by.age)
 ##
 #
 ### ======================================================================================================
-### Projections and Options Table
+### Projections
 ### ======================================================================================================
-FnPrint("PERFORMING PROJECTIONS...\n")
+FnPrint("CALCULATING PROJECTIONS...\n")
 
 #Define years
 TaY <- dims(WBSS)$maxyear   #Terminal assessment year
@@ -261,7 +261,7 @@ WBSS.srr <- list(model="geomean",params=FLPar(gm.recs))
 #Expand stock object
 WBSS.proj <- stf(WBSS,nyears=4,wts.nyears=3,arith.mean=TRUE,na.rm=TRUE)
 WBSS.proj@stock.n[,ac(ImY)]  <- WBSS.ica@survivors
-WBSS.proj@stock.n[1,ac(ImY)] <- gm.recs
+WBSS.proj@stock.n[1,as.character(c(ImY,AdY,CtY))] <- gm.recs
 
 #Define some constants
 ImY.catch <- 45087
@@ -306,6 +306,24 @@ options.l <- list(#Zero catch
 
 #Calculate options
 WBSS.options <- lapply(options.l,function(ctrl) {fwd(WBSS.proj,ctrl=ctrl,sr=WBSS.srr)})
+
+### ======================================================================================================
+### Options Tables
+### ======================================================================================================
+FnPrint("WRITING OPTIONS TABLES...\n")
+
+#Document input settings
+input.tbl.file <-paste(output.base,"options - input.csv",sep=".")
+write.table(NULL,file=input.tbl.file,col.names=FALSE,row.names=FALSE)
+input.tbl.list <- list(N="stock.n",M="m",Mat="mat",PF="harvest.spwn",
+                       PM="m.spwn",SWt="stock.wt",Sel="harvest",CWt="catch.wt")
+for(yr in c(ImY,AdY,CtY)){
+    col.dat <- sapply(input.tbl.list,function(slt) slot(WBSS.proj,slt)[,as.character(yr),drop=TRUE])
+    write.table(yr,file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+    write.table(t(c("Age",colnames(col.dat))),file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+    write.table(col.dat,file=input.tbl.file,col.names=FALSE,row.names=TRUE,append=TRUE,sep=",",na="-")
+    write.table("",file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+}
 
 #Detailed options table
 options.file <-paste(output.base,"options - details.csv",sep=".")
