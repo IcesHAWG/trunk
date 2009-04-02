@@ -361,7 +361,6 @@ colnames(options.sum.tbl) <- c("Rationale",
                                 sprintf("SSB (%i)",CtY))
 write.csv(options.sum.tbl,file=paste(output.base,"options - summary.csv",sep="."),row.names=FALSE)
 
-
 ### ======================================================================================================
 ### Document Assessment
 ### ======================================================================================================
@@ -384,10 +383,14 @@ writeFLStock(WBSS,file.path(output.dir,"hawg_her-3a22.sum"),type="ICAsum")
 writeFLStock(WBSS.proj,file.path(output.dir,"hawg_her-3a22.ypr"),type="YPR")
 
 ### ======================================================================================================
-### Save workspace and Finish Up
+### Save workspaces
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(WBSS,WBSS.ica,WBSS.tun,WBSS.ctrl,file=paste(output.base,".RData"))
-save.image(file=paste(output.base,"Workspace.RData"))
+save(WBSS,WBSS.ica,WBSS.tun,WBSS.ctrl,file=paste(output.base,"- Key Objects.RData"))
+save.image(file=paste(output.base,"- Complete Workspace.RData"))
+
+### ======================================================================================================
+### Finish off
+### ======================================================================================================
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
