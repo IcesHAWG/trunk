@@ -249,9 +249,9 @@ FnPrint("PERFORMING PROJECTIONS...\n")
 #Define years
 TaY <- dims(WBSS)$maxyear   #Terminal assessment year
 ImY <- TaY+1                #Intermediate Year
-FcY <- TaY+2                #Forecast year
+AdY <- TaY+2                #Advice year
 CtY <- TaY+3                #Continuation year - not of major concern but used in calculations in places
-tbl.yrs     <- as.character(c(ImY,FcY,CtY))   #Years to report in the output table
+tbl.yrs     <- as.character(c(ImY,AdY,CtY))   #Years to report in the output table
 
 #Deal with recruitment - a geometric mean of the five years prior to the terminal assessment year
 rec.years <- (TaY-5):(TaY-1)
@@ -264,67 +264,81 @@ WBSS.proj@stock.n[,ac(ImY)]  <- WBSS.ica@survivors
 WBSS.proj@stock.n[1,ac(ImY)] <- gm.recs
 
 #Define some constants
-ImY.catch <- 44915
-FcY.catch <- 63783
+ImY.catch <- 45087
+AdY.catch <- 56627   #Based on 100% uptake of 2009 TAC
 
 #Setup options
 options.l <- list(#Zero catch
-                  "Zero Catch"=
-                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
+                  "Catch(2010) = Zero"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity="catch",
                                           val=c(ImY.catch,0,0))),
-                  #2009 Catch is 44915, followed by -15% TAC reduction => 2010 Catch 54215
-                  "Catch(2010): -15% TAC (54 215 t)"=
-                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
+                  #2009 Catch is 45087, followed by -15% Catch reduction => 2010 Catch 38324
+                  "Catch(2010) = 2009 TACs -15% (48 133 t)"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
-                                          rel=c(NA,NA,FcY),
-                                          val=c(ImY.catch,FcY.catch*0.85,1))),
-                  #2009 Catch is 44915, followed Fbar= 0.25
-                  "Fbar(2010): 0.25"=
-                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
-                                          quantity=c("catch","f","f"),
-                                          rel=c(NA,NA,FcY),
-                                          val=c(ImY.catch,0.25,1))),
-                  #2009 Catch 44915, 2010 Catch: 63783
-                  "Catch(2010): TAC (63 783 t)"=
-                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,AdY.catch*0.85,1))),
+                  #2009 Catch is 45087, followed by +15% Catch increase => 2010 Catch 51850
+                  "Catch(2010) = 2009 TACs (56 627 t)"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
-                                          rel=c(NA,NA,FcY),
-                                          val=c(ImY.catch,FcY.catch,1))),
-                  #Constant Catch 44915
-                  "Constant Catch (44 915 t)"=
-                    fwdControl(data.frame(year=c(ImY,FcY,CtY),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,AdY.catch*1,1))),
+                  #2009 Catch is 45087, followed by +15% Catch increase => 2010 Catch 51850
+                  "Catch(2010) = 2009 TACs +15% (65 121 t)"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","catch","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,AdY.catch*1.15,1))),
+                  #Constant Catch 45087
+                  "Catch(2010) = 2009 Catch (45 087 t)"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity="catch",
-                                          val=ImY.catch))
-)
+                                          val=ImY.catch)),
+                  #2009 Catch is 45087, followed Fbar= 0.25
+                  "Fbar(2010) = 0.25"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","f","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,0.25,1)))
+) #End options list
 
 #Calculate options
 WBSS.options <- lapply(options.l,function(ctrl) {fwd(WBSS.proj,ctrl=ctrl,sr=WBSS.srr)})
 
 #Detailed options table
+options.file <-paste(output.base,"options - details.csv",sep=".")
+write.table(NULL,file=options.file,col.names=FALSE,row.names=FALSE)
 options.tbl <- lapply(as.list(1:length(WBSS.options)),function(i) {
                   opt <- names(WBSS.options)[i]
                   stk <- WBSS.options[[opt]]
                   #Title first
-                  hdr <- sprintf('Option %0i. "%s"',i,opt)
-                  hdr <- c(hdr,paste(rep("=",nchar(hdr)),collapse=""))
+#                  hdr <- c(opt,paste(rep("=",nchar(opt)),collapse=""))
+                  hdr <- c(sprintf("%s). %s",letters[i],opt),"")
                   #Now the F and N by age
                   nums.by.age <- round(stk@stock.n[,tbl.yrs,drop=TRUE],0)
+                  colnames(nums.by.age) <- sprintf("N(%s)",tbl.yrs)
                   f.by.age    <- round(stk@harvest[,tbl.yrs,drop=TRUE],4)
+                  colnames(f.by.age) <- sprintf("F(%s)",tbl.yrs)
                   age.tbl     <- cbind(N=nums.by.age,F=f.by.age)
-                  dimnames(age.tbl) <- list(age=rownames(age.tbl),
-                                        "        Stock Numbers      Fishing Mortality"=colnames(age.tbl))
-                  age.tbl.out <- capture.output(print.default(age.tbl,quote=FALSE,right=TRUE))
                   #And now the summary tbl
-                  sum.tbl     <- cbind(SSB=round(ssb(stk)[,tbl.yrs],0),
-                                      F.bar=round(fbar(stk)[,tbl.yrs],4),
-                                      Yield=round(computeCatch(stk)[,tbl.yrs],0))
-                  dimnames(sum.tbl) <- list(Year=tbl.yrs,colnames(sum.tbl))
-                  sum.tbl.out     <- capture.output(print.default(sum.tbl,quote=FALSE,right=TRUE))
+                  sum.tbl     <- cbind(SSB=sprintf("%i",round(ssb(stk)[,tbl.yrs],0)),
+                                      F.bar=sprintf("%6.4f",round(fbar(stk)[,tbl.yrs],4)),
+                                      Yield=sprintf("%i",round(computeCatch(stk)[,tbl.yrs],0)))
+                  rownames(sum.tbl) <- tbl.yrs
+                  sum.tbl     <- cbind(Year=rownames(sum.tbl),sum.tbl)
                   #Now, bind it all together
-                  return(c(hdr,"",age.tbl.out,"",sum.tbl.out,"\n"))
+                  sum.tbl.padding <- matrix("",nrow=nrow(age.tbl)-nrow(sum.tbl),ncol=ncol(sum.tbl))
+                  comb.tbl    <- cbind(age.tbl,"     ",rbind(sum.tbl,sum.tbl.padding))
+                  dimnames(comb.tbl) <- list(age=rownames(comb.tbl),colnames(comb.tbl))
+                  #And write it
+                  write.table(hdr,options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+                  write.table(t(c("Age",colnames(comb.tbl))),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+                  write.table(comb.tbl,options.file,append=TRUE,col.names=FALSE,row.names=TRUE,sep=",")
+                  write.table(c("",""),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+                  return(list(hdr=hdr,tbl=comb.tbl))
                 })
-write(do.call(c,options.tbl),file=paste(output.base,"options - details.txt",sep="."))
 
 #Options summary table
 options.sum.tbl.l <- lapply(as.list(1:length(WBSS.options)),function(i) {
@@ -332,19 +346,19 @@ options.sum.tbl.l <- lapply(as.list(1:length(WBSS.options)),function(i) {
                       stk <- WBSS.options[[opt]]
                       #Build up the summary
                       sum.tbl     <- data.frame(Rationale=opt,
-                                      Catch.FcY=round(computeCatch(stk)[,as.character(FcY),drop=TRUE]/1000),
-                                      SSB.FcY=round(ssb(stk)[,as.character(FcY),drop=TRUE]/1000),
+                                      Catch.AdY=computeCatch(stk)[,as.character(AdY),drop=TRUE]/1000,
+                                      SSB.AdY=ssb(stk)[,as.character(AdY),drop=TRUE]/1000,
                                       Basis=" ",
-                                      F.FcY=round(fbar(stk)[,as.character(FcY),drop=TRUE],2),
-                                      SSB.CtY=round(ssb(stk)[,as.character(CtY),drop=TRUE]/1000))
+                                      F.AdY=fbar(stk)[,as.character(AdY),drop=TRUE],
+                                      SSB.CtY=ssb(stk)[,as.character(CtY),drop=TRUE]/1000)
                       })
 options.sum.tbl <- do.call(rbind,options.sum.tbl.l)
 colnames(options.sum.tbl) <- c("Rationale",
-                                paste("Catch (",FcY,")",sep=""),
-                                paste("SSB (",FcY,")",sep=""),
+                                sprintf("Catch (%i)",AdY),
+                                sprintf("SSB (%i)",AdY),
                                 "Basis",
-                                paste("Fbar (",FcY,")",sep=""),
-                                paste("SSB (",CtY,")",sep=""))
+                                sprintf("Fbar (%i)",AdY),
+                                sprintf("SSB (%i)",CtY))
 write.csv(options.sum.tbl,file=paste(output.base,"options - summary.csv",sep="."),row.names=FALSE)
 
 
