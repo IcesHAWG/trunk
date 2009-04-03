@@ -379,6 +379,7 @@ do.SRR.plot<- function(stck) {
 ### ======================================================================================================
 ### Data exploration plots
 ### ======================================================================================================
+#MPA: This is a candidate for deletion, as this is one line of code that could be done by the user
 cor.tun <- function(stk.tun){ for(i in names(stk.tun)) if(dim(stk.tun[[i]]@index)[1]>1) plot(stk.tun[[i]],type="internal",main=name(stk.tun[[i]]))}              
 
 #Ratio of mature and immature biomass              
@@ -397,6 +398,7 @@ mat.immat.ratio <- function(stk,...){
 
 
 #CPUE plot of the surveys per age class                  
+#MPA: I think this may be covered by plot FLIndices but am not sure
 cpue.survey <- function(stk.tun,slot.){
             lst <- lapply(stk.tun, function(x){return(slot(x,slot.))})
             # now a nice FLQuants
