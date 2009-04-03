@@ -141,7 +141,7 @@ WBSS@stock <- computeStock(WBSS)
 do.summary.plots(WBSS,WBSS.ica)
 WBSS.retro <- do.retrospective.plots(WBSS,WBSS.tun,WBSS.ctrl,n.retro.years)
 do.SRR.plot(WBSS)
-#WBSS.srr <- ref.pts(WBSS,"bevholt",1e6)
+ref.pts(WBSS,"bevholt",1e6)
 
 ### ======================================================================================================
 ### Custom plots
@@ -233,13 +233,6 @@ ssb.prop.by.age <- stacked.area.plot(data~year*age,as.data.frame(pay(ssb.dat)),y
                         main=paste(WBSS@name,"Proportion of ages in SSB"))
 print(ssb.prop.by.age)
 
-###Proportion of ssb by cohort
-#ssb.cohorts         <- as.data.frame(FLCohort(pay(ssb.dat)))
-#ssb.cohorts$year    <- ssb.cohorts$cohort+ssb.cohorts$age
-#ssb.cohorts         <- subset(ssb.cohorts,!is.na(ssb.cohorts$data))
-#ssb.by.cohort.plot  <- stacked.area.plot(data~year,ssb.cohorts)
-#print(ssb.by.cohort.plot)
-##
 #
 ### ======================================================================================================
 ### Projections
@@ -328,38 +321,30 @@ for(yr in c(ImY,AdY,CtY)){
 #Detailed options table
 options.file <-paste(output.base,"options - details.csv",sep=".")
 write.table(NULL,file=options.file,col.names=FALSE,row.names=FALSE)
-options.tbl <- lapply(as.list(1:length(WBSS.options)),function(i) {
-                  opt <- names(WBSS.options)[i]
-                  stk <- WBSS.options[[opt]]
-                  #Title first
-#                  hdr <- c(opt,paste(rep("=",nchar(opt)),collapse=""))
-                  hdr <- c(sprintf("%s). %s",letters[i],opt),"")
-                  #Now the F and N by age
-                  nums.by.age <- round(stk@stock.n[,tbl.yrs,drop=TRUE],0)
-                  colnames(nums.by.age) <- sprintf("N(%s)",tbl.yrs)
-                  f.by.age    <- round(stk@harvest[,tbl.yrs,drop=TRUE],4)
-                  colnames(f.by.age) <- sprintf("F(%s)",tbl.yrs)
-                  age.tbl     <- cbind(N=nums.by.age,F=f.by.age)
-                  #And now the summary tbl
-                  sum.tbl     <- cbind(SSB=sprintf("%i",round(ssb(stk)[,tbl.yrs],0)),
-                                      F.bar=sprintf("%6.4f",round(fbar(stk)[,tbl.yrs],4)),
-                                      Yield=sprintf("%i",round(computeCatch(stk)[,tbl.yrs],0)))
-                  rownames(sum.tbl) <- tbl.yrs
-                  sum.tbl     <- cbind(Year=rownames(sum.tbl),sum.tbl)
-                  #Now, bind it all together
-                  sum.tbl.padding <- matrix("",nrow=nrow(age.tbl)-nrow(sum.tbl),ncol=ncol(sum.tbl))
-                  comb.tbl    <- cbind(age.tbl,"     ",rbind(sum.tbl,sum.tbl.padding))
-                  dimnames(comb.tbl) <- list(age=rownames(comb.tbl),colnames(comb.tbl))
-                  #And write it
-                  write.table(hdr,options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
-                  write.table(t(c("Age",colnames(comb.tbl))),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
-                  write.table(comb.tbl,options.file,append=TRUE,col.names=FALSE,row.names=TRUE,sep=",")
-                  write.table(c("",""),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
-                  return(list(hdr=hdr,tbl=comb.tbl))
-                })
+for(i in 1:length(WBSS.options)) {
+    opt <- names(WBSS.options)[i]
+    stk <- WBSS.options[[opt]]
+    #Now the F and N by age
+    nums.by.age <- stk@stock.n[,tbl.yrs,drop=TRUE]
+    colnames(nums.by.age) <- sprintf("N(%s)",tbl.yrs)
+    f.by.age    <- stk@harvest[,tbl.yrs,drop=TRUE]
+    colnames(f.by.age) <- sprintf("F(%s)",tbl.yrs)
+    age.tbl     <- cbind(Age=rownames(f.by.age),N=nums.by.age,F=f.by.age)
+    #And now the summary tbl
+    sum.tbl     <- cbind(Year=tbl.yrs,SSB=ssb(stk)[,tbl.yrs],
+                        F.bar=fbar(stk)[,tbl.yrs],Yield=computeCatch(stk)[,tbl.yrs])
+    #Now, bind it all together
+    sum.tbl.padding <- matrix("",nrow=nrow(age.tbl)-nrow(sum.tbl),ncol=ncol(sum.tbl))
+    comb.tbl    <- cbind(age.tbl," ",rbind(sum.tbl,sum.tbl.padding))
+    #And write it - hdr first, then the rest
+    write.table(sprintf("%s). %s",letters[i],opt),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(t(colnames(comb.tbl)),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(comb.tbl,options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(c("",""),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+}
 
 #Options summary table
-options.sum.tbl.l <- lapply(as.list(1:length(WBSS.options)),function(i) {
+options.sum.tbl <- sapply(as.list(1:length(WBSS.options)),function(i) {
                       opt <- names(WBSS.options)[i]
                       stk <- WBSS.options[[opt]]
                       #Build up the summary
@@ -370,13 +355,9 @@ options.sum.tbl.l <- lapply(as.list(1:length(WBSS.options)),function(i) {
                                       F.AdY=fbar(stk)[,as.character(AdY),drop=TRUE],
                                       SSB.CtY=ssb(stk)[,as.character(CtY),drop=TRUE]/1000)
                       })
-options.sum.tbl <- do.call(rbind,options.sum.tbl.l)
-colnames(options.sum.tbl) <- c("Rationale",
-                                sprintf("Catch (%i)",AdY),
-                                sprintf("SSB (%i)",AdY),
-                                "Basis",
-                                sprintf("Fbar (%i)",AdY),
-                                sprintf("SSB (%i)",CtY))
+options.sum.tbl <- t(options.sum.tbl)
+colnames(options.sum.tbl) <- c("Rationale",sprintf("Catch (%i)",AdY),sprintf("SSB (%i)",AdY),
+                                "Basis",sprintf("Fbar (%i)",AdY),sprintf("SSB (%i)",CtY))
 write.csv(options.sum.tbl,file=paste(output.base,"options - summary.csv",sep="."),row.names=FALSE)
 
 ### ======================================================================================================
