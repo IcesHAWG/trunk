@@ -182,14 +182,14 @@ legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),co
 title(main=paste(WBSS@name,"Catch and TAC"))
 
 #Proportion at age in (numbers) in the catch
-prop.num.catch  <- stacked.area.plot(data~year*age,data=as.data.frame(pay(WBSS@catch.n)),
+prop.num.catch  <- stacked.area.plot(data~year,data=as.data.frame(pay(WBSS@catch.n)),groups="age",
                       xlab="Year",
                       ylab="Proportion at age (by numbers) in catch",
                       main=paste(WBSS@name,"Proportion at Age by numbers in Catch"))
 print(prop.num.catch)
 
 #Proportion at age (in weight) in the catch
-prop.wt.catch  <- stacked.area.plot(data~year*age,data=as.data.frame(pay(WBSS@catch.n*WBSS@catch.wt)),
+prop.wt.catch  <- stacked.area.plot(data~year,data=as.data.frame(pay(WBSS@catch.n*WBSS@catch.wt)),groups="age",
                       xlab="Year",
                       ylab="Proportion at age (by weight) in catch",
                       main=paste(WBSS@name,"Proportion at Age by weight in Catch"))
@@ -224,14 +224,32 @@ print(west.cohort.plot)
 
 #Contribution to ssb by age
 ssb.dat    <- WBSS@stock.wt*WBSS@stock.n*exp(-WBSS@harvest*WBSS@harvest.spwn - WBSS@m*WBSS@m.spwn)*WBSS@mat/1000
-ssb.by.age <- stacked.area.plot(data~year*age,as.data.frame(ssb.dat),ylab="Spawning Biomass (kt)",xlab="Year",
-                main=paste(WBSS@name,"Contribution of ages to SSB"))
+ssb.by.age <- stacked.area.plot(data~year,as.data.frame(ssb.dat),groups="age",
+                  ylab="Spawning Biomass (kt)",xlab="Year",
+                  main=paste(WBSS@name,"Contribution of ages to SSB"))
 print(ssb.by.age)
 
 #Proportion of ssb by age
-ssb.prop.by.age <- stacked.area.plot(data~year*age,as.data.frame(pay(ssb.dat)),ylab="Proportion of SSB",xlab="Year",
+ssb.prop.by.age <- stacked.area.plot(data~year,as.data.frame(pay(ssb.dat)),groups="age",
+                        ylab="Proportion of SSB",xlab="Year",
                         main=paste(WBSS@name,"Proportion of ages in SSB"))
 print(ssb.prop.by.age)
+
+##Proportion of ssb by cohort
+#ssb.cohorts         <- as.data.frame(FLCohort(pay(ssb.dat)))
+#ssb.cohorts$year    <- ssb.cohorts$cohort+ssb.cohorts$age
+#ssb.cohorts         <- subset(ssb.cohorts,!is.na(ssb.cohorts$data))
+#
+##Cohort SSB strengths
+#cohort.ssb <- xyplot(data~age,as.data.frame(FLCohort(ssb.dat)),group=cohort,
+#                type="b",xlab="Age",ylab="SSB",
+#                auto.key=list(space="right",points=FALSE,lines=TRUE,type="b",title="Cohort"),
+#                par.settings=list(superpose.symbol=list(cex=1.25,
+#                  pch=as.character(unique(as.data.frame(FLCohort(ssb.dat))$cohort)%%10))))
+#print(cohort.ssb)
+#
+#ssb.by.cohort.plot  <- stacked.area.plot(data~year,ssb.cohorts)
+#print(ssb.by.cohort.plot)
 
 #
 ### ======================================================================================================
