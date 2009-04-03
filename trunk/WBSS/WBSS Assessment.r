@@ -235,21 +235,33 @@ ssb.prop.by.age <- stacked.area.plot(data~year,as.data.frame(pay(ssb.dat)),group
                         main=paste(WBSS@name,"Proportion of ages in SSB"))
 print(ssb.prop.by.age)
 
-##Proportion of ssb by cohort
-#ssb.cohorts         <- as.data.frame(FLCohort(pay(ssb.dat)))
-#ssb.cohorts$year    <- ssb.cohorts$cohort+ssb.cohorts$age
-#ssb.cohorts         <- subset(ssb.cohorts,!is.na(ssb.cohorts$data))
-#
+#SSB structure Analysis
+ssb.dat          <- WBSS@stock.wt*WBSS@stock.n*exp(-WBSS@harvest*WBSS@harvest.spwn - WBSS@m*WBSS@m.spwn)*WBSS@mat
+ssb.cohorts      <- as.data.frame(FLCohort(ssb.dat))
+ssb.cohorts$prop <- as.data.frame(FLCohort(pay(ssb.dat)))$data
+ssb.cohorts$year <- ssb.cohorts$cohort+ssb.cohorts$age
+ssb.cohorts      <- subset(ssb.cohorts,!is.na(ssb.cohorts$data))
+
+#Individual cohort strengths vs age
+cohort.ssb <- xyplot(data~age,as.data.frame(FLCohort(ssb.dat)),group=cohort,
+                type="b",xlab="Age",ylab="SSB",
+                main=paste(WBSS@name,"SSB of Cohorts by age"),
+                auto.key=list(space="right",points=FALSE,lines=TRUE,type="b",title="Cohort"),
+                par.settings=list(superpose.symbol=list(cex=1.25,
+                  pch=as.character(unique(as.data.frame(FLCohort(ssb.dat))$cohort)%%10))))
+print(cohort.ssb)
+
+#Proportion of SSB by cohort
+ssb.prop.by.cohort.plot  <- stacked.area.plot(prop~year,ssb.cohorts,groups="cohort",
+                                ylab="Proportion of SSB",xlab="Year",
+                                main=paste(WBSS@name,"Prop of SSB by Cohorts"))
+print(ssb.prop.by.cohort.plot)
+
 ##Cohort SSB strengths
-#cohort.ssb <- xyplot(data~age,as.data.frame(FLCohort(ssb.dat)),group=cohort,
-#                type="b",xlab="Age",ylab="SSB",
-#                auto.key=list(space="right",points=FALSE,lines=TRUE,type="b",title="Cohort"),
-#                par.settings=list(superpose.symbol=list(cex=1.25,
-#                  pch=as.character(unique(as.data.frame(FLCohort(ssb.dat))$cohort)%%10))))
-#print(cohort.ssb)
-#
-#ssb.by.cohort.plot  <- stacked.area.plot(data~year,ssb.cohorts)
-#print(ssb.by.cohort.plot)
+ssb.by.cohort.plot  <- stacked.area.plot(data~year,ssb.cohorts,groups="cohort",
+                          ylab="SSB",xlab="Year",
+                          main=paste(WBSS@name,"SSB by Cohorts"))
+print(ssb.by.cohort.plot)
 
 #
 ### ======================================================================================================
