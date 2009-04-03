@@ -14,14 +14,14 @@ ltextcex <- 1
 
 LNV.ssb <- function(stk,btrigger,blim){
               plot(c(ssb(stk)@.Data)~seq(range(stk)[c("minyear")],range(stk)[c("maxyear")],1),
-              type="b",pch=19,cex.lab=cl,cex.axis=ca,main=paste("SSB",name(stk)),font=fonts,family=fam,
+              type="b",pch=19,cex.lab=cl,cex.axis=ca,main=paste("SSB",stk@name),font=fonts,family=fam,
               ylim=range(pretty(range(c(ssb(stk)@.Data),na.rm=T))),xlab="Years",ylab="SSB",lwd=2)
               abline(h=btrigger,col="darkgreen",lwd=2,lty=2)
               abline(h=blim,col="red",lwd=2,lty=2)
               #text(btrigger~range(stk)[c("maxyear")],expression(B[trigger]),cex=ltextcex,adj=c(0.6,0),col="darkgreen",las=2,pos=3)
               #text(blim~range(stk)[c("maxyear")],expression(B[lim]),cex=ltextcex,adj=c(0.6,0),col="red",las=2,pos=3)
-              mtext(expression(B[trigger]),4,at=btrigger,cex=ltextcex,col="darkgreen",outer=F,line=0.2,las=2,font=fonts)
-              mtext(expression(B[lim]),    4,at=blim,    cex=ltextcex,col="red",      outer=F,line=0.2,las=2,font=fonts)
+              if(is.na(btrigger) == F) mtext(expression(B[trigger]),4,at=btrigger,cex=ltextcex,col="darkgreen",outer=F,line=0.2,las=2,font=fonts)
+              if(is.na(blim) == F)     mtext(expression(B[lim]),    4,at=blim,    cex=ltextcex,col="red",      outer=F,line=0.2,las=2,font=fonts)
               }
 #LNV.ssb(NSH,1.3e6,0.8e6)
 
