@@ -222,32 +222,46 @@ west.cohort.plot  <- xyplot(data~year,data=west.by.cohort,
               })
 print(west.cohort.plot)
 
-#Contribution to ssb by age
-ssb.dat    <- WBSS@stock.wt*WBSS@stock.n*exp(-WBSS@harvest*WBSS@harvest.spwn - WBSS@m*WBSS@m.spwn)*WBSS@mat/1000
-ssb.by.age <- stacked.area.plot(data~year,as.data.frame(ssb.dat),groups="age",
-                  ylab="Spawning Biomass (kt)",xlab="Year",
-                  main=paste(WBSS@name,"Contribution of ages to SSB"))
-print(ssb.by.age)
+#Cohort growth rates
+cohort.growth  <- xyplot(data~age,data=west.by.cohort,
+                  groups=cohort,
+                  auto.key=list(space="right",points=FALSE,lines=TRUE,type="b",cex=0.8,title="Cohort"),
+                  type="b",
+                  xlab="Year",ylab="Weight in the stock (kg)",
+                  main=paste(WBSS@name,"Growth by Cohort"),
+                  par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1)),
+                  panel=function(...) {
+                    panel.grid(h=-1,v=-1)
+                    panel.xyplot(...)
+                  })
+print(cohort.growth)
 
-#Proportion of ssb by age
-ssb.prop.by.age <- stacked.area.plot(data~year,as.data.frame(pay(ssb.dat)),groups="age",
-                        ylab="Proportion of SSB",xlab="Year",
-                        main=paste(WBSS@name,"Proportion of ages in SSB"))
-print(ssb.prop.by.age)
-
-#SSB structure Analysis
-ssb.dat          <- WBSS@stock.wt*WBSS@stock.n*exp(-WBSS@harvest*WBSS@harvest.spwn - WBSS@m*WBSS@m.spwn)*WBSS@mat
+#SSB structure Analysis - force the age 9 year class to be zero, to give pretty graphs
+ssb.dat          <- FLQuant(0,dimnames=c(list(age=c(dimnames(WBSS@stock.n)[[1]],"9")),dimnames(WBSS@stock.n)[2:6]))
+ssb.dat[1:9,]    <- WBSS@stock.wt*WBSS@stock.n*exp(-WBSS@harvest*WBSS@harvest.spwn - WBSS@m*WBSS@m.spwn)*WBSS@mat
 ssb.cohorts      <- as.data.frame(FLCohort(ssb.dat))
 ssb.cohorts$prop <- as.data.frame(FLCohort(pay(ssb.dat)))$data
 ssb.cohorts$year <- ssb.cohorts$cohort+ssb.cohorts$age
 ssb.cohorts      <- subset(ssb.cohorts,!is.na(ssb.cohorts$data))
 
+#Contribution to ssb by age
+ssb.by.age <- stacked.area.plot(data~year,as.data.frame(ssb.dat[as.character(0:8)]),groups="age",
+                  ylab="Spawning Biomass (kt)",xlab="Year",
+                  main=paste(WBSS@name,"Contribution of ages to SSB"))
+print(ssb.by.age)
+
+#Proportion of ssb by age
+ssb.prop.by.age <- stacked.area.plot(data~year,as.data.frame(pay(ssb.dat[as.character(0:8)])),groups="age",
+                        ylab="Proportion of SSB",xlab="Year",
+                        main=paste(WBSS@name,"Proportion of ages in SSB"))
+print(ssb.prop.by.age)
+
 #Individual cohort strengths vs age
-cohort.ssb <- xyplot(data~age,as.data.frame(FLCohort(ssb.dat)),group=cohort,
+cohort.ssb <- xyplot(data~age,as.data.frame(FLCohort(ssb.dat)),groups=cohort,
                 type="b",xlab="Age",ylab="SSB",
                 main=paste(WBSS@name,"SSB of Cohorts by age"),
-                auto.key=list(space="right",points=FALSE,lines=TRUE,type="b",title="Cohort"),
-                par.settings=list(superpose.symbol=list(cex=1.25,
+                auto.key=list(space="right",points=FALSE,lines=TRUE,type="b",title="Cohort",cex=0.8),
+                par.settings=list(superpose.symbol=list(cex=1,
                   pch=as.character(unique(as.data.frame(FLCohort(ssb.dat))$cohort)%%10))))
 print(cohort.ssb)
 
@@ -257,9 +271,9 @@ ssb.prop.by.cohort.plot  <- stacked.area.plot(prop~year,ssb.cohorts,groups="coho
                                 main=paste(WBSS@name,"Prop of SSB by Cohorts"))
 print(ssb.prop.by.cohort.plot)
 
-##Cohort SSB strengths
-ssb.by.cohort.plot  <- stacked.area.plot(data~year,ssb.cohorts,groups="cohort",
-                          ylab="SSB",xlab="Year",
+##Contribution to ssb by cohort
+ssb.by.cohort.plot  <- stacked.area.plot(data/1000~year,ssb.cohorts,groups="cohort",
+                          ylab="SSB [kt]",xlab="Year",
                           main=paste(WBSS@name,"SSB by Cohorts"))
 print(ssb.by.cohort.plot)
 
