@@ -341,11 +341,22 @@ options.l <- list(#Zero catch
                                           val=c(ImY.catch,0.25,1)))
 ) #End options list
 
+#Multi-options table
+fbar.targs  <- seq(0,0.5,by=0.025)
+mult.opts.l <- lapply(as.list(fbar.targs),function(fbar.targ) {
+                          fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","f","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,fbar.targ,1)))
+                  })
+names(mult.opts.l) <- sprintf("Fbar(2010) = %4.3f",fbar.targs)
+
 #Calculate options
-WBSS.options <- lapply(options.l,function(ctrl) {fwd(WBSS.proj,ctrl=ctrl,sr=WBSS.srr)})
+WBSS.options   <- lapply(options.l,function(ctrl) {fwd(WBSS.proj,ctrl=ctrl,sr=WBSS.srr)})
+WBSS.mult.opts <- lapply(mult.opts.l,function(ctrl) {fwd(WBSS.proj,ctrl=ctrl,sr=WBSS.srr)})
 
 ### ======================================================================================================
-### Options Tables
+### Write Options Tables
 ### ======================================================================================================
 FnPrint("WRITING OPTIONS TABLES...\n")
 
@@ -384,25 +395,34 @@ for(i in 1:length(WBSS.options)) {
     write.table(sprintf("%s). %s",letters[i],opt),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
     write.table(t(colnames(comb.tbl)),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
     write.table(comb.tbl,options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
-    write.table(c("",""),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(c(""),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
 }
 
 #Options summary table
-options.sum.tbl <- sapply(as.list(1:length(WBSS.options)),function(i) {
-                      opt <- names(WBSS.options)[i]
-                      stk <- WBSS.options[[opt]]
-                      #Build up the summary
-                      sum.tbl     <- data.frame(Rationale=opt,
-                                      Catch.AdY=computeCatch(stk)[,as.character(AdY),drop=TRUE]/1000,
-                                      SSB.AdY=ssb(stk)[,as.character(AdY),drop=TRUE]/1000,
-                                      Basis=" ",
-                                      F.AdY=fbar(stk)[,as.character(AdY),drop=TRUE],
-                                      SSB.CtY=ssb(stk)[,as.character(CtY),drop=TRUE]/1000)
-                      })
-options.sum.tbl <- t(options.sum.tbl)
-colnames(options.sum.tbl) <- c("Rationale",sprintf("Catch (%i)",AdY),sprintf("SSB (%i)",AdY),
-                                "Basis",sprintf("Fbar (%i)",AdY),sprintf("SSB (%i)",CtY))
-write.csv(options.sum.tbl,file=paste(output.base,"options - summary.csv",sep="."),row.names=FALSE)
+opt.sum.tbl <- function(stcks,fname) {
+    options.sum.tbl <- sapply(as.list(1:length(stcks)),function(i) {
+                          opt <- names(stcks)[i]
+                          stk <- stcks[[opt]]
+                          #Build up the summary
+                          sum.tbl     <- data.frame(Rationale=opt,
+                                          F.ImY=fbar(stk)[,as.character(ImY),drop=TRUE],
+                                          Catch.ImY=computeCatch(stk)[,as.character(ImY),drop=TRUE],
+                                          SSB.ImY=ssb(stk)[,as.character(ImY),drop=TRUE],
+                                          F.AdY=fbar(stk)[,as.character(AdY),drop=TRUE],
+                                          Catch.AdY=computeCatch(stk)[,as.character(AdY),drop=TRUE],
+                                          SSB.AdY=ssb(stk)[,as.character(AdY),drop=TRUE],
+                                          SSB.CtY=ssb(stk)[,as.character(CtY),drop=TRUE])
+                          })
+    options.sum.tbl <- t(options.sum.tbl)
+    colnames(options.sum.tbl) <- c("Rationale",
+                                    sprintf("Fbar (%i)",ImY),sprintf("Catch (%i)",ImY),sprintf("SSB (%i)",ImY),
+                                    sprintf("Fbar (%i)",AdY),sprintf("Catch (%i)",AdY),sprintf("SSB (%i)",AdY),
+                                    sprintf("SSB (%i)",CtY))
+    write.csv(options.sum.tbl,file=fname,row.names=FALSE)
+}
+opt.sum.tbl(stcks=WBSS.options,fname=paste(output.base,"options - summary.csv",sep="."))
+opt.sum.tbl(stcks=WBSS.mult.opts,fname=paste(output.base,"multi-options - summary.csv",sep="."))
+
 
 ### ======================================================================================================
 ### Document Assessment
