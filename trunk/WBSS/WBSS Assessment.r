@@ -168,18 +168,52 @@ index.ts.plot <- xyplot(data~year|id,data=index.ts.dat,
                     })
 print(index.ts.plot)
 
+#Catch and TAC
+catch.dat <- read.csv(file.path(".","data","Herring catches by area.csv"))
+catch.dat$data <- catch.dat$data/1000
+xlims <- range(pretty(catch.dat$year))
+par(mfrow=c(3,1),mar=c(0,0,1,0),oma=c(5,4,4,2))
+plot.dat <- subset(catch.dat,area=="Div. IIIa")
+IIIa.catches <- tapply(plot.dat[plot.dat$quantity=="Catch","data"],plot.dat[plot.dat$quantity=="Catch","year"],sum)
+IIIa.catches <- data.frame(year=as.numeric(names(IIIa.catches)),data=IIIa.catches)
+plot(0,0,pch=NA,xaxt="n",xlim=xlims,ylim=range(pretty(c(0,IIIa.catches$data))),ylab="Catch (kt)",xlab="",xpd=NA)
+grid()
+rect(IIIa.catches$year-0.5,0,IIIa.catches$year+0.5,IIIa.catches$data,col="lightgrey")
+plot.dat <- subset(catch.dat,area=="Div. IIIa"&stock=="WBSS")
+rect(plot.dat$year-0.5,0,plot.dat$year+0.5,plot.dat$data,col="darkgrey")
+IIIa.TACs <- subset(catch.dat, area=="Div. IIIa"&quantity=="TAC")
+plot.dat <-  data.frame(year=rep(IIIa.TACs$year,each=2)+c(-0.5,0.5),TAC=rep(IIIa.TACs$data,each=2))
+lines(plot.dat,lwd=5)
+legend("topright",legend=c("WBSS Catch in IIIa","NSAS Catch in IIIa","Div. IIIa TAC"),lwd=c(1,1,5),lty=c(NA,NA,1),pch=c(22,22,NA),
+    col="black",pt.bg=c("darkgrey","lightgrey",NA),pt.cex=c(2),bg="white")
+axis(1,labels=FALSE)
+
+plot.dat <- subset(catch.dat,area=="Sub-div. 22-24" & quantity=="Catch")
+plot(0,0,pch=NA,xaxt="n",xlim=xlims,ylim=range(pretty(c(0,plot.dat$data))),ylab="Catch (kt)",xlab="",xpd=NA)
+grid()
+rect(plot.dat$year-0.5,0,plot.dat$year+0.5,plot.dat$data,col="darkgrey")
+sd22.TACs <- subset(catch.dat,area=="Sub-div. 22-24" & quantity=="TAC")
+plot.dat <-  data.frame(year=rep(sd22.TACs$year,each=2)+c(-0.5,0.5),TAC=rep(sd22.TACs$data,each=2))
+lines(plot.dat,lwd=5)
+legend("topright",legend=c("WBSS Catch in SD. 22-24","SD. 22-24 TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),
+    col="black",pt.bg=c("darkgrey",NA),pt.cex=c(2),bg="white")
+axis(1,labels=FALSE)
+
+plot.dat      <- subset(catch.dat,quantity=="Catch" & stock=="WBSS")
+WBSS.catches  <- tapply(plot.dat[plot.dat$quantity=="Catch","data"],plot.dat[plot.dat$quantity=="Catch","year"],sum)
+WBSS.catches  <- data.frame(year=as.numeric(names(WBSS.catches)),data=WBSS.catches)
+plot(0,0,pch=NA,xaxt="n",xlim=xlims,ylim=range(pretty(c(0,WBSS.catches$data))),ylab="Catch (kt)",xlab="",xpd=NA)
+grid()
+rect(WBSS.catches$year-0.5,0,WBSS.catches$year+0.5,WBSS.catches$data,col="darkgrey")
+legend("topright",legend=c("Total WBSS Catch"),pch=c(22,NA),pt.bg=c("darkgrey"),pt.cex=c(2),bg="white")
+axis(1,labels=TRUE)
+
+title(main=paste(WBSS@name,"Catch and TAC"),outer=TRUE)
+title(xlab="Year",xpd=NA)
+
 #Other Custom plots should be in landscape orientation, so close the portrait ones here
 dev.off()
-
-#Catch and TAC
-TACs    <- data.frame(year=1991:2008,TAC=1000*c(155,174,210,191,183,163,100,97,99,101,101,101,101,91,120,102+47.5,69+49.5,51.7+45))
-TAC.plot.dat <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(TACs$TAC,each=2))
-catch   <- as.data.frame(WBSS@catch)
-plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(pretty(c(catch$year,TAC.plot.dat$year))),ylim=range(pretty(c(0,TAC.plot.dat$TAC,catch$data))))
-rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
-lines(TAC.plot.dat,lwd=5)
-legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2))
-title(main=paste(WBSS@name,"Catch and TAC"))
+plot.new()  #Space filler, to make up for the fact that we've moved the Catch TAc plot to portrait mode
 
 #Proportion at age in (numbers) in the catch
 prop.num.catch  <- stacked.area.plot(data~year,data=as.data.frame(pay(WBSS@catch.n)),groups="age",
