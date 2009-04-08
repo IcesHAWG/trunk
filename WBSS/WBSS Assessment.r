@@ -376,14 +376,14 @@ options.l <- list(#Zero catch
 ) #End options list
 
 #Multi-options table
-fbar.targs  <- seq(0,0.5,by=0.025)
-mult.opts.l <- lapply(as.list(fbar.targs),function(fbar.targ) {
+fmult.targs  <- seq(0,2,by=0.1)
+mult.opts.l <- lapply(as.list(fmult.targs),function(fmult) {
                           fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
-                                          rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,fbar.targ,1)))
+                                          rel=c(NA,ImY,AdY),
+                                          val=c(ImY.catch,fmult,1)))
                   })
-names(mult.opts.l) <- sprintf("Fbar(2010) = %4.3f",fbar.targs)
+names(mult.opts.l) <- sprintf("Fmult(2010) = %4.3f",fmult.targs)
 
 #Calculate options
 WBSS.options   <- lapply(options.l,function(ctrl) {fwd(WBSS.proj,ctrl=ctrl,sr=WBSS.srr)})
