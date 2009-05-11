@@ -1,0 +1,13 @@
+Mackerel NE Atlantic  WG2008
+1
+CANUM.txt
+WECA.txt
+WEST.txt
+NATMOR.txt
+MATPROP.txt
+FPROP.txt
+MPROP.txt
+Mackerel NE Atlantic  WG2008-F.txt
+Mackerel NE Atlantic  WG2008-N.txt
+Ctrl.txt
+
