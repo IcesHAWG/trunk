@@ -128,9 +128,6 @@ NEA.Mac.tun[[1]]@effort[] <- 1
 NEA.Mac.tun[[1]]@type <- "biomass"
 names(NEA.Mac.tun) <- "NEA.Mac Egg Survey"  #MPA: Added so that your graphs are a bit prettier
 
-#Need to set stock.wts
-NEA.Mac@stock.wt[,] <- NEA.Mac@catch.wt[,"2007"]
-
 ### ======================================================================================================
 ### Perform the assessment
 ### ======================================================================================================
@@ -201,7 +198,7 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 #Make forecast
 gm.recs         <- exp(mean(log(rec(trim(NEA.Mac.orig,year=1989:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
 stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=21760,f.rescale=TRUE,rec=gm.recs)
-NEA.Mac.orig@catch.n[1,52,,,,]=1
+NEA.Mac.orig@catch.n[1,52,,,,]=1    #MPA: This is where the error occurs now - what are you trying to do here?
 NEA.Mac.stf        <- FLSTF(stock=NEA.Mac.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
 writeVPA(NEA.Mac.stf, output.file=output.base,slots=c("stock.n"))
 ## use the rounder version so report and quality control database have same values
