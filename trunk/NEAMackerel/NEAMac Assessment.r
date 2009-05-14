@@ -38,7 +38,7 @@ FnPrint     <-  function(string) {
 	cat(string)
 	flush.console()
 }
-FnPrint("\nNEAMac FLICA Assessment\n=====================\n")
+FnPrint("\nNEAMac FLICA Assessment\n=======================\n")
 
 ### ======================================================================================================
 ### Incorporate Common modules
@@ -51,7 +51,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
 data.source         <-  file.path(".","data")      #Data source, not code or package source!!!
-output.dir          <-  file.path(".","res")       #Output directory
+output.dir          <-  file.path(".","results")       #Output directory
 output.base         <-  file.path(output.dir,"NEAMac Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  5                          #Number of years for which to run the retrospective
 
@@ -128,10 +128,13 @@ NEA.Mac.tun[[1]]@effort[] <- 1
 NEA.Mac.tun[[1]]@type <- "biomass"
 names(NEA.Mac.tun) <- "NEA.Mac Egg Survey"  #MPA: Added so that your graphs are a bit prettier
 
+#Need to set stock.wts
+NEA.Mac@stock.wt[,] <- NEA.Mac@catch.wt[,"2007"]
+
 ### ======================================================================================================
 ### Perform the assessment
 ### ======================================================================================================
-FnPrint("PERFORMING ASSESSMENT.    currently hangs here --- not sure why assessment does not function..\n")
+FnPrint("PERFORMING ASSESSMENT.\n")
 #Now perform the asssessment
 NEA.Mac.ica   <-  FLICA(NEA.Mac,NEA.Mac.tun,NEA.Mac.ctrl)
 NEA.Mac       <-  NEA.Mac + NEA.Mac.ica
