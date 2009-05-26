@@ -131,7 +131,11 @@ names(NEA.Mac.tun) <- "NEA.Mac Egg Survey"  #MPA: Added so that your graphs are 
 ### ======================================================================================================
 ### Perform the assessment
 ### ======================================================================================================
+<<<<<<< .mine
+FnPrint("PERFORMING ASSESSMENT.    ")
+=======
 FnPrint("PERFORMING ASSESSMENT.\n")
+>>>>>>> .r253
 #Now perform the asssessment
 NEA.Mac.ica   <-  FLICA(NEA.Mac,NEA.Mac.tun,NEA.Mac.ctrl)
 NEA.Mac       <-  NEA.Mac + NEA.Mac.ica
@@ -183,7 +187,7 @@ NEA.Mac@catch.wt=round(NEA.Mac@catch.wt,3)
 NEA.Mac.ica@param[,6:10]=round(NEA.Mac.ica@param[6:10],2)
 
 #Now write the file
-ica.out.file <- ica.out(NEA.Mac,NEA.Mac.tun,NEA.Mac.ica,format="TABLE 5.6.2.%i HERRING in VIa (N).")
+ica.out.file <- ica.out(NEA.Mac,NEA.Mac.tun,NEA.Mac.ica,format="TABLE 5.6.2.%i NEA Mackerel).")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
@@ -195,17 +199,24 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 ### Short Term Forecast
 ### ======================================================================================================
 # FnPrint("PERFORMING SHORT TERM FORECAST...\n")
+<<<<<<< .mine
+#Make forecast - update years for recruits and TAC
+gm.recs         <- exp(mean(log(rec(trim(NEA.Mac.orig,year=1972:(NEA.Mac.orig@range[5]-2))))))  #NEA recruitment is based on a geometric mean of the series excluding last 2 years
+TAC.int <- 600000 # set TAC correctly for intermedfiate year
+stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=TAC.int,f.rescale=TRUE,rec=gm.recs)
+=======
 #Make forecast
 gm.recs         <- exp(mean(log(rec(trim(NEA.Mac.orig,year=1989:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
 stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=21760,f.rescale=TRUE,rec=gm.recs)
 NEA.Mac.orig@catch.n[1,52,,,,]=1    #MPA: This is where the error occurs now - what are you trying to do here?
+>>>>>>> .r253
 NEA.Mac.stf        <- FLSTF(stock=NEA.Mac.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
 writeVPA(NEA.Mac.stf, output.file=output.base,slots=c("stock.n"))
 ## use the rounder version so report and quality control database have same values
-writeFLStock(NEA.Mac,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
+writeFLStock(NEA.Mac,file.path(output.dir,"wide_mac-nea.sum"),type="ICAsum")
 # project one year in order to get a single year holding means for YPR output
 NEA.Mac.proj=stf(NEA.Mac.orig,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
-writeFLStock(NEA.Mac.proj,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
+writeFLStock(NEA.Mac.proj,file.path(output.dir,"wide_mac-nea.ypr"),type="YPR")
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
 # writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
