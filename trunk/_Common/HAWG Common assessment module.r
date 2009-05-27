@@ -350,6 +350,7 @@ retro.plots<- function(retro.stck,retro.icas,ctrl) {
     most.recent.sel <- subset(retro.icas[[as.character(most.recent)]]@param,Param=="Sel",select=c("Age","Lower.95.pct.CL","Upper.95.pct.CL"))   #For the selectivity from the most recent assessment
     most.recent.sel <- rbind(most.recent.sel,c(ctrl@sep.age,1,1),
                             c(most.recent.stck@range["plusgroup"]-1,rep(ctrl@sep.sel,2)),c(most.recent.stck@range["plusgroup"],rep(ctrl@sep.sel,2)))   #Add CI's for sep.age, last true age, plus.group
+    most.recent.sel$Age <- as.numeric(most.recent.sel$Age)
     most.recent.sel <- most.recent.sel[order(most.recent.sel$Age),]
     plot(0,0,pch=NA,xlab="Age",ylab="Catch Selectivity",xlim=range(pretty(as.numeric(rownames(sels)))),
         ylim=range(pretty(c(0,most.recent.sel$Upper.95.pct.CL))),main=paste(stck.name,"Retrospective selectivity pattern"))
