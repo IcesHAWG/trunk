@@ -1,18 +1,20 @@
 ######################################################################################################
 # NEA Mackerel FLICA Assessment
 
-# Notes on updating stock files
-# Caton.txt / Canum.txt / Weca.txt  supplied by stock coordinator either as new files or for one line to be added and year to be changed
-# Fprop.txt and Mprop.txt require change of last year
-# Natmor.txt requires one more line and change of last year
+# Notes on updating stock files on the 'data' directory
+# Caton.txt / Canum.txt / Weca.txt  supplied by stock coordinator either as new files or for one line to be added and year to be incremented
+# Fprop.txt and Mprop.txt require change of last year increment by one
+# Natmor.txt requires one more line added at the end and increment of last year
 # Matprop.txt - based on satandard maturities for areas prpotiopned by most recent surveys 2008 value = 2007 value
-# but new caculation requiored next year (2010) for 2009 value
-# see section 2.4.6 in the report
-# West.txt based on catch weights at age in 2nd quaster from spawing area from stock coordinator but examinewd critically
+# but new caculation will be required next year (2010) for 2009 value
+# for matprop proceedure see section 2.4.6 in the report
+# West.txt based on catch weights at age in 2nd quarter from spawing area from stock coordinator but examinewd critically
 # see section 2.4.5 in the report
-#Future need to look at this at benchmark - and to check that SSB method used to give stock from egg surveys comatible with SSB cacluations in the assessment.
-# Ssb.txt file update in 2010 following new egg survey if value acceptable. (quality check of completed data from spanish required)
-# Index.txt and indexMFDP.txt not required to be updated
+# Future need to look at this at benchmark - how reliable is this how variable and is the variability correct?
+# but also to check that SSB method used to give stock from egg surveys comatible with SSB cacluations in the assessment.
+# Because ICA fits to SSB using numbers maturies and weights and egg survey use numbers maturities and weight they should be in accord.
+# No change this year Ssb.txt file will nedd updating in 2010 following new egg survey if value acceptable. (quality check of completed data from spanish required)
+# Index.txt and indexMFDP.txt not required to be updated, just file lists
 # Ctrl.txt only required of MFDP required to be run  - update catches and recruitment
 
 
@@ -27,6 +29,7 @@
 #
 # Performs an assessment of North East Atlantic Mackerel stock using the
 # FLICA package.
+# and provides short term options that comare with MFDP to 4 figures
 #
 # Developed with:
 #   - R version 2.8.1
@@ -168,6 +171,8 @@ NEA.Mac.ica   <-  FLICA(NEA.Mac,NEA.Mac.tun,NEA.Mac.ctrl)
 NEA.Mac       <-  NEA.Mac + NEA.Mac.ica
 # calculate total stock biomass for use in outpurt tables
 NEA.Mac@stock=computeStock(NEA.Mac) # to get TSB in stock slot
+# set flagged index resituals set to -99 as missing residuals to 0
+NEA.Mac.ica@index.res[[1]]@.Data[NEA.Mac.ica@index.res[[1]]@.Data==-99] <- NA
 
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
@@ -203,6 +208,7 @@ NEA.Mac@catch.wt=round(NEA.Mac@catch.wt,3)
 NEA.Mac.ica@param[,6:10]=round(NEA.Mac.ica@param[6:10],2)
 
 #Now write the file set up table number you require in the report
+# change table number here as required
 ica.out.file <- ica.out(NEA.Mac,NEA.Mac.tun,NEA.Mac.ica,format="TABLE 2.7.1.%i NEA Mackerel.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
@@ -212,37 +218,14 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 
 
 ### ======================================================================================================
-### Short Term Forecast - old method suspect
+### Short Term Forecast
 ### ======================================================================================================
 
 #Define intermediate year catch based on agreed TACs
-# MUST BE UPDATED FOR THE CURRENT YEAR
+# MUST BE UPDATED FOR THE CURRENT YEAR currently set for 2008 as intermediate year
 ImY.catch <- 600000
 
-# FnPrint("PERFORMING SHORT TERM FORECAST...\n")
-#Make forecast --- remember to change final year for GM recruits
-# this creates correct n file for use of MFDP, of not needed you dont need to run it
-gm.recs         <- exp(mean(log(rec(trim(NEA.Mac.orig,year=1989:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
-stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=ImY.catch,f.rescale=TRUE,rec=gm.recs)
-NEA.Mac.stf        <- FLSTF(stock=NEA.Mac.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
-# over-write the stock.n file with suvivors added to last line
-writeVPA(NEA.Mac.stf, output.file=output.base,slots=c("stock.n"))
-# write standard files for graphs
-# use the rounder version so report and quality control database have same values
-writeFLStock(NEA.Mac,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
-# project one year in order to get a single year holding means for YPR output
-NEA.Mac.proj=stf(NEA.Mac.orig,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
-writeFLStock(NEA.Mac.proj,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
-
-
-############################################################################
-# NEW PROJECTION routine
-#
-### ======================================================================================================
-### Projections
-### ======================================================================================================
-FnPrint("CALCULATING PROJECTIONS...\n")
-
+ FnPrint("YPR and stock summary for standard graphs...\n")
 #Define years
 TaY <- dims(NEA.Mac)$maxyear   #Terminal assessment year
 ImY <- TaY+1                #Intermediate Year
@@ -251,7 +234,28 @@ CtY <- TaY+3                #Continuation year - not of major concern but used i
 tbl.yrs     <- as.character(c(ImY,AdY,CtY))   #Years to report in the output table
 
 #Deal with recruitment - a geometric mean of the time series 1972 to 2 years prior to the terminal assessment year
-# if terminal catch year is 2008 last year for recruits is 2006
+# if terminal catch year is 2008 last year for recruits is 2006 if its 2007 it will be 2005
+rec.years <- (dims(NEA.Mac)$minyear:(TaY-2))
+gm.recs  <- exp(mean(log(rec(NEA.Mac)[,as.character(rec.years)])))
+
+stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=ImY.catch,f.rescale=TRUE,rec=gm.recs)
+NEA.Mac.stf        <- FLSTF(stock=NEA.Mac.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
+# just in case you want to run MFDP the write line here gives correct file with n  1st jan last year
+# over-write the stock.n file with suvivors added to last line
+writeVPA(NEA.Mac.stf, output.file=output.base,slots=c("stock.n"))
+# write standard files for graphs
+# use the rounder version so report and quality control database have same values
+writeFLStock(NEA.Mac,file.path(output.dir,"wide_mac-nea.sum"),type="ICAsum")
+# project one year in order to get a single year holding means for YPR output
+NEA.Mac.proj=stf(NEA.Mac.orig,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
+writeFLStock(NEA.Mac.proj,file.path(output.dir,"wide_mac-nea.ypr"),type="YPR")
+
+
+### ======================================================================================================
+# NEW PROJECTION routine
+### ======================================================================================================
+FnPrint("CALCULATING PROJECTIONS...\n")
+
 rec.years <- (dims(NEA.Mac)$minyear:(TaY-2))
 gm.recs  <- exp(mean(log(rec(NEA.Mac)[,as.character(rec.years)])))
 NEA.Mac.srr <- list(model="geomean",params=FLPar(gm.recs))
@@ -261,8 +265,9 @@ NEA.Mac.proj <- stf(NEA.Mac,nyears=4,wts.nyears=3,arith.mean=TRUE,na.rm=TRUE)
 NEA.Mac.proj@stock.n[,ac(ImY)]  <- NEA.Mac.ica@survivors
 NEA.Mac.proj@stock.n[1,as.character(c(TaY,ImY,AdY,CtY))] <- gm.recs
 
+#Setup options to suite the advice sheet  the choice here is based on the following:
+#0 catch,  role over + and - 25% on TAC, F=0.20,0.21,0.22 from management plan
 
-#Setup options
 options.l <- list(#Zero catch
                   "Catch(2010) = Zero"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
@@ -306,7 +311,8 @@ options.l <- list(#Zero catch
                                           val=c(ImY.catch,0.22,0.22)))
 ) #End options list
 
-#Multi-options table
+#Multi-options table - stand ard one to show wider range of otiuons for the report
+# F multipliers from 0 to 2 *role over F
 fmult.targs  <- seq(0,2,by=0.1)
 mult.opts.l <- lapply(as.list(fmult.targs),function(fmult) {
                           fwdControl(data.frame(year=c(ImY,AdY,CtY),
@@ -316,7 +322,7 @@ mult.opts.l <- lapply(as.list(fmult.targs),function(fmult) {
                   })
 names(mult.opts.l) <- sprintf("Fmult(2010) = %4.3f",fmult.targs)
 
-#Calculate options
+#Calculate options for two option tables
 NEA.Mac.options   <- lapply(options.l,function(ctrl) {fwd(NEA.Mac.proj,ctrl=ctrl,sr=NEA.Mac.srr)})
 NEA.Mac.mult.opts <- lapply(mult.opts.l,function(ctrl) {fwd(NEA.Mac.proj,ctrl=ctrl,sr=NEA.Mac.srr)})
 
