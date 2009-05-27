@@ -1,8 +1,26 @@
 ######################################################################################################
 # NEA Mackerel FLICA Assessment
+
+# Notes on updating stock files
+# Caton.txt / Canum.txt / Weca.txt  supplied by stock coordinator either as new files or for one line to be added and year to be changed
+# Fprop.txt and Mprop.txt require change of last year
+# Natmor.txt requires one more line and change of last year
+# Matprop.txt - based on satandard maturities for areas prpotiopned by most recent surveys 2008 value = 2007 value
+# but new caculation requiored next year (2010) for 2009 value
+# see section 2.4.6 in the report
+# West.txt based on catch weights at age in 2nd quaster from spawing area from stock coordinator but examinewd critically
+# see section 2.4.5 in the report
+#Future need to look at this at benchmark - and to check that SSB method used to give stock from egg surveys comatible with SSB cacluations in the assessment.
+# Ssb.txt file update in 2010 following new egg survey if value acceptable. (quality check of completed data from spanish required)
+# Index.txt and indexMFDP.txt not required to be updated
+# Ctrl.txt only required of MFDP required to be run  - update catches and recruitment
+
+
+
+
 #
 # $Rev: 1 $
-# $Date: 2009-04-16 18:43:20 +0000 (Tue, 24 Mar 2009) $
+# $Date: 2009-05-27 $
 #
 # Author: John Simmonds
 # FRS, Scotland
@@ -11,12 +29,13 @@
 # FLICA package.
 #
 # Developed with:
-#   - R version 2.8.0
-#   - FLCore 1.99-111
-#   - FLICA, version 1.4-3
+#   - R version 2.8.1
+#   - FLCore 3.0
+#   - FLICA, version 1.4-10
 #   - FLAssess, version 1.99-102
 #   - FLSTF, version 1.99-1
-#
+#   - FLASH, version 2.0
+#   - FLEDA, version 2.0.0
 # Changes:
 # V 5.10 - Reflects modifications to Common Module to work as functions, rather than as a single script
 # V 5.00 - Compatiable with Google Code version
@@ -52,12 +71,12 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 data.source         <-  file.path(".","data")      #Data source, not code or package source!!!
 output.dir          <-  file.path(".","results")       #Output directory - some questions regarding use old "res" or "results"
-# these two are stock specific - others are stand across stocks
+# these next two lines are stock specific - others are standar across stocks
 output.base         <-  file.path(output.dir,"NEAMac Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  5                          #Number of years for which to run the retrospective
+n.retro.years       <-  6                          #Number of years for which to run the retrospective 7 in 2009
 
 ### ======================================================================================================
-### Output setup
+### Output setup creates png here look at others if wmf required.
 ### ======================================================================================================
 png(paste(output.base,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
 #Set default lattice fontsize, so that things are actually readible!
@@ -73,6 +92,14 @@ FnPrint("PREPARING CONTROL OBJECTS...\n")
 #Set control object straight up (option 1)
 #-----------------------------------------
 # copied from John Simmonds' 2008 WIDE script
+# single 12 years separable period
+# F on oldest true age = 1.5 * F on reference age of 5
+# do not fit s/r relationship
+# flat weighting across years to fit separable period
+# down weightong of fittimg at age 0 (1/100) and age 1 (1/10) then flat weigtiong all other ages (1)
+# survey weight not set here but in indices object (30)
+# all weights divided by 3 ----- to match requirements in ICA and a max weight of 10 on the survey.
+
 NEA.Mac.ctrl<-FLICA.control(sep.nyr=12,sep.age=5,sep.sel=1.5,sr=FALSE,
                                 lambda.yr=c(1,1,1,1,1,1,1,1,1,1,1,1),
                                 lambda.age =c(0.0033333, 0.033333, 0.33333,
@@ -81,7 +108,7 @@ NEA.Mac.ctrl<-FLICA.control(sep.nyr=12,sep.age=5,sep.sel=1.5,sr=FALSE,
 
 
 ### ======================================================================================================
-### Prepare stock object for assessment
+### Prepare stock object for assessment - standard FL stock object
 ### ======================================================================================================
 FnPrint("PREPARING STOCK OBJECT...\n")
 NEA.Mac                        <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE)
@@ -101,8 +128,9 @@ FnPrint("PREPARING INDEX OBJECT...\n")
 #Load and modify all index data
 
 
-#line should be as follows but this does not work
+# Ideally line should be as follows but this does not work because the call expects at least one age disaggregated index
 #NEA.Mac.tun   <- readFLIndices(file.path(data.source, "/Ssb.txt"),type="ICA")
+# here we only have an SSB index so we use a short routine to load iot and comple the indices object
 ## add tempory solution --- subroutine
   read.SSB.Index<-function(file.str,catch){
      aa       <-scan(file=file.str,skip=3)
@@ -123,7 +151,8 @@ NEA.Mac.tun=FLIndices(NEA.Mac.indices)
 
 
 #Set names, and parameters etc
-NEA.Mac.tun[[1]]@index.var[] <- 0.1 # implies a weighting of 10 which was chosden in 2007 Benchmark
+NEA.Mac.tun[[1]]@index.var[] <- 0.1 # implies a weighting of 10 which was chosen in 2007 Benchmark
+# overall the weightinmg set here is 30 relative to catch weight of 1
 NEA.Mac.tun[[1]]@effort[] <- 1 # just a standard number - realy ignored if 1
 
 NEA.Mac.tun[[1]]@type <- "biomass"
@@ -135,7 +164,9 @@ names(NEA.Mac.tun) <- "NEA.Mac Egg Survey"  #MPA: Added so that your graphs are 
 FnPrint("PERFORMING ASSESSMENT.    \n")
 #Now perform the asssessment
 NEA.Mac.ica   <-  FLICA(NEA.Mac,NEA.Mac.tun,NEA.Mac.ctrl)
+# put assessment results in stock object
 NEA.Mac       <-  NEA.Mac + NEA.Mac.ica
+# calculate total stock biomass for use in outpurt tables
 NEA.Mac@stock=computeStock(NEA.Mac) # to get TSB in stock slot
 
 ### ======================================================================================================
@@ -144,20 +175,6 @@ NEA.Mac@stock=computeStock(NEA.Mac) # to get TSB in stock slot
 do.summary.plots(NEA.Mac,NEA.Mac.ica)
 NEA.Mac.retro <- do.retrospective.plots(NEA.Mac,NEA.Mac.tun,NEA.Mac.ctrl,n.retro.years)
 do.SRR.plot(NEA.Mac)
-
-### ======================================================================================================
-### Custom plots
-### ======================================================================================================
-# FnPrint("GENERATING CUSTOM PLOTS...\n")
-#Catch and TAC
-# TACs    <- data.frame(year=1991:2008,TAC=1000*c(155,174,210,191,183,163,100,97,99,101,101,101,101,91,120,102+47.5,69+49.5,51.7+45))
-# TAC.plot.dat <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(TACs$TAC,each=2))
-# catch   <- as.data.frame(WBSS@catch)
-# plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(pretty(catch$year,TACs$year)),ylim=range(pretty(c(0,TACs$TAC,catch$data))))
-# rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
-# lines(TAC.plot.dat,lwd=5)
-# legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2))
-# title(main=paste(WBSS@name,"Catch and TAC"))
 
 
 ### ======================================================================================================
@@ -168,6 +185,8 @@ FnPrint("GENERATING DOCUMENTATION...\n")
 old.opt <- options("width","scipen")
 options("width"=80,"scipen"=1000)
 #Do some tidying up on precision of the ica file
+# making sure precision is either integer or 3 decimal places in most cases
+# to avoid altering the final data make a copy then change that one
 NEA.Mac.orig=NEA.Mac
 NEA.Mac.ica@catch.res@.Data <- round(NEA.Mac.ica@catch.res@.Data,3)
 NEA.Mac.ica@index.res[[1]]@.Data <- round(NEA.Mac.ica@index.res[[1]]@.Data,3)
@@ -193,23 +212,183 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 
 
 ### ======================================================================================================
-### Short Term Forecast
+### Short Term Forecast - old method suspect
 ### ======================================================================================================
+
+#Define intermediate year catch based on agreed TACs
+# MUST BE UPDATED FOR THE CURRENT YEAR
+ImY.catch <- 600000
+
 # FnPrint("PERFORMING SHORT TERM FORECAST...\n")
-#Make forecast
+#Make forecast --- remember to change final year for GM recruits
+# this creates correct n file for use of MFDP, of not needed you dont need to run it
 gm.recs         <- exp(mean(log(rec(trim(NEA.Mac.orig,year=1989:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
-stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=21760,f.rescale=TRUE,rec=gm.recs)
-NEA.Mac.orig@catch.n[1,52,,,,]=1
+stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=ImY.catch,f.rescale=TRUE,rec=gm.recs)
 NEA.Mac.stf        <- FLSTF(stock=NEA.Mac.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
+# over-write the stock.n file with suvivors added to last line
 writeVPA(NEA.Mac.stf, output.file=output.base,slots=c("stock.n"))
-## use the rounder version so report and quality control database have same values
+# write standard files for graphs
+# use the rounder version so report and quality control database have same values
 writeFLStock(NEA.Mac,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
 # project one year in order to get a single year holding means for YPR output
 NEA.Mac.proj=stf(NEA.Mac.orig,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
 writeFLStock(NEA.Mac.proj,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
 
-#Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-# writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
+
+############################################################################
+# NEW PROJECTION routine
+#
+### ======================================================================================================
+### Projections
+### ======================================================================================================
+FnPrint("CALCULATING PROJECTIONS...\n")
+
+#Define years
+TaY <- dims(NEA.Mac)$maxyear   #Terminal assessment year
+ImY <- TaY+1                #Intermediate Year
+AdY <- TaY+2                #Advice year
+CtY <- TaY+3                #Continuation year - not of major concern but used in calculations in places
+tbl.yrs     <- as.character(c(ImY,AdY,CtY))   #Years to report in the output table
+
+#Deal with recruitment - a geometric mean of the time series 1972 to 2 years prior to the terminal assessment year
+# if terminal catch year is 2008 last year for recruits is 2006
+rec.years <- (dims(NEA.Mac)$minyear:(TaY-2))
+gm.recs  <- exp(mean(log(rec(NEA.Mac)[,as.character(rec.years)])))
+NEA.Mac.srr <- list(model="geomean",params=FLPar(gm.recs))
+
+#Expand stock object
+NEA.Mac.proj <- stf(NEA.Mac,nyears=4,wts.nyears=3,arith.mean=TRUE,na.rm=TRUE)
+NEA.Mac.proj@stock.n[,ac(ImY)]  <- NEA.Mac.ica@survivors
+NEA.Mac.proj@stock.n[1,as.character(c(TaY,ImY,AdY,CtY))] <- gm.recs
+
+
+#Setup options
+options.l <- list(#Zero catch
+                  "Catch(2010) = Zero"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity="catch",
+                                          val=c(ImY.catch,0,0))),
+                  #2009 Catch is 600000, followed by -25% Catch reduction => 2010
+                  "Catch(2010) = 2009 TAC -25%"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","catch","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,ImY.catch*0.75,1))),
+                  #2009 and 2010 Catch is 600000
+                  "Catch(2010) = 2009 TAC"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","catch","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,ImY.catch,1))),
+                  #2009 Catch is 600000, followed by +25% Catch increase => 2010 Catch 51850
+                  "Catch(2010) = 2009 TAC +25%"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","catch","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,ImY.catch*1.25,1))),
+                 #2009 Catch is 600000, followed Fbar= 0.20
+                  "Fbar(2010) = 0.20"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","f","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,0.20,0.20))),
+                 #2009 Catch is 600000, followed Fbar= 0.21
+                  "Fbar(2010) = 0.21"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","f","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,0.21,0.21))),
+                 #2009 Catch is 600000, followed Fbar= 0.22
+                  "Fbar(2010) = 0.22"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","f","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,0.22,0.22)))
+) #End options list
+
+#Multi-options table
+fmult.targs  <- seq(0,2,by=0.1)
+mult.opts.l <- lapply(as.list(fmult.targs),function(fmult) {
+                          fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","f","f"),
+                                          rel=c(NA,ImY,AdY),
+                                          val=c(ImY.catch,fmult,1)))
+                  })
+names(mult.opts.l) <- sprintf("Fmult(2010) = %4.3f",fmult.targs)
+
+#Calculate options
+NEA.Mac.options   <- lapply(options.l,function(ctrl) {fwd(NEA.Mac.proj,ctrl=ctrl,sr=NEA.Mac.srr)})
+NEA.Mac.mult.opts <- lapply(mult.opts.l,function(ctrl) {fwd(NEA.Mac.proj,ctrl=ctrl,sr=NEA.Mac.srr)})
+
+### ======================================================================================================
+### Write Options Tables
+### ======================================================================================================
+FnPrint("WRITING OPTIONS TABLES...\n")
+
+#Document input settings
+input.tbl.file <-paste(output.base,"options - input.csv",sep=".")
+write.table(NULL,file=input.tbl.file,col.names=FALSE,row.names=FALSE)
+input.tbl.list <- list(N="stock.n",M="m",Mat="mat",PF="harvest.spwn",
+                       PM="m.spwn",SWt="stock.wt",Sel="harvest",CWt="catch.wt")
+for(yr in c(ImY,AdY,CtY)){
+    col.dat <- sapply(input.tbl.list,function(slt) slot(NEA.Mac.proj,slt)[,as.character(yr),drop=TRUE])
+    write.table(yr,file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+    write.table(t(c("Age",colnames(col.dat))),file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+    write.table(col.dat,file=input.tbl.file,col.names=FALSE,row.names=TRUE,append=TRUE,sep=",",na="-")
+    write.table("",file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+}
+
+#Detailed options table
+options.file <-paste(output.base,"options - details.csv",sep=".")
+write.table(NULL,file=options.file,col.names=FALSE,row.names=FALSE)
+for(i in 1:length(NEA.Mac.options)) {
+    opt <- names(NEA.Mac.options)[i]
+    stk <- NEA.Mac.options[[opt]]
+    #Now the F and N by age
+    nums.by.age <- stk@stock.n[,tbl.yrs,drop=TRUE]
+    colnames(nums.by.age) <- sprintf("N(%s)",tbl.yrs)
+    f.by.age    <- stk@harvest[,tbl.yrs,drop=TRUE]
+    colnames(f.by.age) <- sprintf("F(%s)",tbl.yrs)
+    age.tbl     <- cbind(Age=rownames(f.by.age),N=nums.by.age,F=f.by.age)
+    #And now the summary tbl
+    sum.tbl     <- cbind(Year=tbl.yrs,SSB=ssb(stk)[,tbl.yrs],
+                        F.bar=fbar(stk)[,tbl.yrs],Yield=computeCatch(stk)[,tbl.yrs])
+    #Now, bind it all together
+    sum.tbl.padding <- matrix("",nrow=nrow(age.tbl)-nrow(sum.tbl),ncol=ncol(sum.tbl))
+    comb.tbl    <- cbind(age.tbl," ",rbind(sum.tbl,sum.tbl.padding))
+    #And write it - hdr first, then the rest
+    write.table(sprintf("%s). %s",letters[i],opt),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(t(colnames(comb.tbl)),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(comb.tbl,options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(c(""),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+}
+
+#Options summary table
+opt.sum.tbl <- function(stcks,fname) {
+    options.sum.tbl <- sapply(as.list(1:length(stcks)),function(i) {
+                          opt <- names(stcks)[i]
+                          stk <- stcks[[opt]]
+                          #Build up the summary
+                          sum.tbl     <- data.frame(Rationale=opt,
+                                          F.ImY=fbar(stk)[,as.character(ImY),drop=TRUE],
+                                          Catch.ImY=computeCatch(stk)[,as.character(ImY),drop=TRUE],
+                                          SSB.ImY=ssb(stk)[,as.character(ImY),drop=TRUE],
+                                          F.AdY=fbar(stk)[,as.character(AdY),drop=TRUE],
+                                          Catch.AdY=computeCatch(stk)[,as.character(AdY),drop=TRUE],
+                                          SSB.AdY=ssb(stk)[,as.character(AdY),drop=TRUE],
+                                          SSB.CtY=ssb(stk)[,as.character(CtY),drop=TRUE])
+                          })
+    options.sum.tbl <- t(options.sum.tbl)
+    colnames(options.sum.tbl) <- c("Rationale",
+                                    sprintf("Fbar (%i)",ImY),sprintf("Catch (%i)",ImY),sprintf("SSB (%i)",ImY),
+                                    sprintf("Fbar (%i)",AdY),sprintf("Catch (%i)",AdY),sprintf("SSB (%i)",AdY),
+                                    sprintf("SSB (%i)",CtY))
+    write.csv(options.sum.tbl,file=fname,row.names=FALSE)
+}
+opt.sum.tbl(stcks=NEA.Mac.options,fname=paste(output.base,"options - summary.csv",sep="."))
+opt.sum.tbl(stcks=NEA.Mac.mult.opts,fname=paste(output.base,"multi-options - summary.csv",sep="."))
+
+
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
@@ -219,3 +398,7 @@ save(NEA.Mac.orig,NEA.Mac.tun,NEA.Mac.ctrl,file=paste(output.base,"Assessment.RD
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
+
+
+
+
