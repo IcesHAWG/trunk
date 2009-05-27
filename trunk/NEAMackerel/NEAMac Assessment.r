@@ -158,6 +158,9 @@ NEA.Mac.tun[[1]]@index.var[] <- 0.1 # implies a weighting of 10 which was chosen
 # overall the weightinmg set here is 30 relative to catch weight of 1
 NEA.Mac.tun[[1]]@effort[] <- 1 # just a standard number - realy ignored if 1
 
+#Set the 0 values to NAs
+NEA.Mac.tun[[1]]@index[NEA.Mac.tun[[1]]@index==0] <- NA
+
 NEA.Mac.tun[[1]]@type <- "biomass"
 names(NEA.Mac.tun) <- "NEA.Mac Egg Survey"  #MPA: Added so that your graphs are a bit prettier
 
