@@ -50,7 +50,6 @@
 # Notes:
 #
 ####################################################################################################
-
 ### ======================================================================================================
 ### Initialise system, including convenience functions and title display
 ### ======================================================================================================
@@ -60,7 +59,7 @@ FnPrint     <-  function(string) {
 	cat(string)
 	flush.console()
 }
-FnPrint("\nNEAMac FLICA Assessment\n=====================\n")
+FnPrint("\nNEAMac FLICA Assessment - dont forget to set working directory to stock\n=======\n")
 
 ### ======================================================================================================
 ### Incorporate Common modules
@@ -226,6 +225,7 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 
 #Define intermediate year catch based on agreed TACs
 # MUST BE UPDATED FOR THE CURRENT YEAR currently set for 2008 as intermediate year
+# see for example section 2.8 short term  prediction inputs
 ImY.catch <- 600000
 
  FnPrint("YPR and stock summary for standard graphs...\n")
@@ -298,19 +298,16 @@ options.l <- list(#Zero catch
                   "Fbar(2010) = 0.20"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
-                                          rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,0.20,0.20))),
                  #2009 Catch is 600000, followed Fbar= 0.21
                   "Fbar(2010) = 0.21"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
-                                          rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,0.21,0.21))),
                  #2009 Catch is 600000, followed Fbar= 0.22
                   "Fbar(2010) = 0.22"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
-                                          rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,0.22,0.22)))
 ) #End options list
 
