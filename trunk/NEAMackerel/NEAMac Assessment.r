@@ -226,7 +226,12 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 #Define intermediate year catch based on agreed TACs
 # MUST BE UPDATED FOR THE CURRENT YEAR currently set for 2008 as intermediate year
 # see for example section 2.8 short term  prediction inputs
-ImY.catch <- 600000
+ImY.catch <- 600000  # estimaed catches expected due to TAC discards payback overfishinmg and Icelandic catch
+# see table in text of section 2.8
+IMY.TAC <- 605000  # to be checked from NEAFC and Coatal states agreement (not EU TAC regulations whicvh is only part of this
+# check that coast states includes NEACFC number 57,884 if so number probably correct
+# final number should be very close REF TAC + southern TAC = 0.0700767 * CS Ref TAC   + NEAFC = 57,884
+#
 
  FnPrint("YPR and stock summary for standard graphs...\n")
 #Define years
@@ -236,8 +241,8 @@ AdY <- TaY+2                #Advice year
 CtY <- TaY+3                #Continuation year - not of major concern but used in calculations in places
 tbl.yrs     <- as.character(c(ImY,AdY,CtY))   #Years to report in the output table
 
-#Deal with recruitment - a geometric mean of the time series 1972 to 2 years prior to the terminal assessment year
-# if terminal catch year is 2008 last year for recruits is 2006 if its 2007 it will be 2005
+#Deal with recruitment - a geometric mean of the time series 1972 to 2 years prior to the terminal catch year
+# if terminal catch year is 2008 last year for recruits is 2006 if catrc year was 2007 it use up to 2005
 rec.years <- (dims(NEA.Mac)$minyear:(TaY-2))
 gm.recs  <- exp(mean(log(rec(NEA.Mac)[,as.character(rec.years)])))
 
@@ -281,19 +286,19 @@ options.l <- list(#Zero catch
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,ImY.catch*0.75,1))),
+                                          val=c(ImY.catch,ImY.TAC*0.75,1))),
                   #2009 and 2010 Catch is 600000
                   "Catch(2010) = 2009 TAC"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,ImY.catch,1))),
+                                          val=c(ImY.catch,ImY.TAC,1))),
                   #2009 Catch is 600000, followed by +25% Catch increase => 2010 Catch 51850
                   "Catch(2010) = 2009 TAC +25%"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,ImY.catch*1.25,1))),
+                                          val=c(ImY.catch,ImY.TAC*1.25,1))),
                  #2009 Catch is 600000, followed Fbar= 0.20
                   "Fbar(2010) = 0.20"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
