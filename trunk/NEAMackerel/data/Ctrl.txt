@@ -1,6 +1,5 @@
-Herring in VIa(North) Control file standard 3 yr status quo projection
-3
-3 6
-596324.2 596324.2 596324.2
+NEA Mackerel Control file standard 3 yr with catch constraint 1st year
+4 8
+3835910 3835910 3835910 3835910 3835910
 1
-27200
+600000
