@@ -282,11 +282,11 @@ options.l <- list(#Zero catch
                                           quantity="catch",
                                           val=c(ImY.catch,0,0))),
                   #2009 Catch is 600000, followed by -25% Catch reduction => 2010
-                  "Catch(2010) = 2009 TAC -25%"=
+                  "Catch(2010) = 2009 TAC -20%"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,ImY.TAC*0.75,1))),
+                                          val=c(ImY.catch,ImY.TAC*0.80,1))),
                   #2009 and 2010 Catch is 600000
                   "Catch(2010) = 2009 TAC"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
@@ -294,11 +294,11 @@ options.l <- list(#Zero catch
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,ImY.TAC,1))),
                   #2009 Catch is 600000, followed by +25% Catch increase => 2010 Catch 51850
-                  "Catch(2010) = 2009 TAC +25%"=
+                  "Catch(2010) = 2009 TAC +20%"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,ImY.TAC*1.25,1))),
+                                          val=c(ImY.catch,ImY.TAC*1.20,1))),
                  #2009 Catch is 600000, followed Fbar= 0.20
                   "Fbar(2010) = 0.20"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
