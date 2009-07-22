@@ -228,7 +228,7 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 # see for example section 2.8 short term  prediction inputs
 ImY.catch <- 600000  # estimaed catches expected due to TAC discards payback overfishinmg and Icelandic catch
 # see table in text of section 2.8
-IMY.TAC <- 605000  # to be checked from NEAFC and Coatal states agreement (not EU TAC regulations whicvh is only part of this
+ImY.TAC <- 605000  # to be checked from NEAFC and Coatal states agreement (not EU TAC regulations whicvh is only part of this
 # final number should be very close REF TAC + southern TAC = 0.0700767 * CS Ref TAC   + NEAFC = 57,884
 # Now checked for 2009 TACs agreed at NEAFC 2008
 # REF TAC = 511287t  Southern = 35829  NEAFC = 57844 total = 605000
