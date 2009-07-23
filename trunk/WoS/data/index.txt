@@ -3,8 +3,8 @@ Herring VIaN
 caton.txt
 canum.txt
 weca.txt
-new west.txt
+west.txt
 natmor.txt
-new matprop.txt
+matprop.txt
 fprop.txt
 mprop.txt
