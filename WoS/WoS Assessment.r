@@ -97,7 +97,7 @@ WoS@name    <- "West of Scotland Herring"
 ### ======================================================================================================
 FnPrint("PREPARING INDEX OBJECT...\n")
 #Load and modify all index data
-WoS.tun   <- readFLIndices(file.path(data.source, "fleet.txt"))
+WoS.tun   <- readFLIndices(file.path(data.source, "new fleet.txt"))
 
 #Set names, and parameters etc
 WoS.tun[[1]]@index.var[] <- 1
