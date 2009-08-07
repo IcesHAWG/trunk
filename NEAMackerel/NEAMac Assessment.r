@@ -48,7 +48,8 @@
 # To be done:
 #
 # Notes:
-#
+# This sets the working directory on CM's machine:
+setwd("c://WORK/Stock Assessment/Tortoise/HAWG/NEAMackerel")
 ####################################################################################################
 ### ======================================================================================================
 ### Initialise system, including convenience functions and title display
@@ -75,7 +76,7 @@ data.source         <-  file.path(".","data")      #Data source, not code or pac
 output.dir          <-  file.path(".","results")       #Output directory - some questions regarding use old "res" or "results"
 # these next two lines are stock specific - others are standar across stocks
 output.base         <-  file.path(output.dir,"NEAMac Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  6                          #Number of years for which to run the retrospective 7 in 2009
+n.retro.years       <-  7                          #Number of years for which to run the retrospective: 7 in 2009
 
 ### ======================================================================================================
 ### Output setup creates png here look at others if wmf required.
