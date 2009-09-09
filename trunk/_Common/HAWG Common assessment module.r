@@ -12,7 +12,7 @@
 #
 # Developed with:
 #   - R version 2.8.0
-#   - FLCore 2.0
+#   - FLCore 2.2
 #   - FLICA, version 1.4-3
 #   - FLAssess, version 1.99-102
 #   - FLSTF, version 1.99-1
@@ -472,7 +472,7 @@ an <- function(x){ return(as.numeric(x))}
 #Load packages - strict, active enforcement of version numbers.
 check.versions <-  function(lib,ver,required.date="missing"){
   available.ver <-  do.call(packageDescription,list(pkg=lib, fields = "Version"))
-  if(compareVersion(available.ver,ver)==-1) {stop(paste("ERROR:",lib,"package availabe is version",available.ver,"but requires at least version",ver))}
+  if(compareVersion(available.ver,ver)==-1) {stop(paste("ERROR:",lib,"package available is version",available.ver,"but requires at least version",ver))}
   package.date <- as.POSIXct(strptime(strsplit(packageDescription(lib)$Built,";")[[1]][3],format="%Y-%m-%d %H:%M:%S"))
   if(!missing(required.date)) {
     if(required.date - package.date > 0)
@@ -481,7 +481,7 @@ check.versions <-  function(lib,ver,required.date="missing"){
   do.call(require,list(package=lib))
   invisible(NULL)
 }
-check.versions("FLCore","3.0",ISOdatetime(2009,03,10,04,42,27))
+check.versions("FLCore","2.2",ISOdatetime(2009,05,19,19,23,00))
 check.versions("FLAssess","1.99-102",ISOdatetime(2009,03,23,08,18,00))
 check.versions("FLICA","1.4-10")
 check.versions("FLSTF","1.99-1")
@@ -489,7 +489,7 @@ check.versions("FLEDA","2.0")
 check.versions("FLBRP","2.0")
 check.versions("FLash","2.0",ISOdatetime(2009,03,24,09,11,00))
 #Check R version too!
-required.version <- "2.8.0"
+required.version <- "2.8.1"
 if(compareVersion(paste(version$major,version$minor,sep="."),required.version)==-1) {
  stop(paste("ERROR: Current R version is",paste(version$major,version$minor,sep="."),"This code requires at least R",required.version))
 }
