@@ -12,7 +12,7 @@
 #
 # Developed with:
 #   - R version 2.8.0
-#   - FLCore 2.2
+#   - FLCore 2.0
 #   - FLICA, version 1.4-3
 #   - FLAssess, version 1.99-102
 #   - FLSTF, version 1.99-1
@@ -40,31 +40,50 @@ flush.console()
 ### Summary Plots
 ### ======================================================================================================
 do.summary.plots <- function(stck,ica.obj) {
-    cat("GENERATING SUMMARY PLOTS ...\n");flush.console()
+cat("GENERATING SUMMARY PLOTS ...\n");flush.console()
 
-    #Make stock summary plots (ie SSB, Fbar, recs)
-    summary.data <- as.data.frame(FLQuants(SSB=ssb(stck),"Mean F"=fbar(stck),Recruits=rec(stck)))
-    scaling.factors <- tapply(summary.data$data,summary.data$qname,function(x) trunc(log10(max(pretty(c(0,x))))/3)*3)
-    summary.data$data <- summary.data$data/10^scaling.factors[summary.data$qname]
-    ylabels <- apply(cbind(lbl=names(scaling.factors),fctr=scaling.factors),1,function(x) {
-        if(x[2]=="0"){x[1]}else {bquote(expression(paste(.(x[1])," [",10^.(x[2]),"]"))) }})
-    summary.plot <-xyplot(data~year|qname,data=summary.data,
-                      prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
-                      main=list(paste(stck@name,"Stock Summary Plot"),cex=0.9),
-                      ylab=do.call(c,ylabels),
-                      xlab="Year",
-                      layout=c(1,3),
-                      type="l",
-                      panel=function(...) {
-                        panel.grid(h=-1,v=-1)
-                        if(panel.number()==2) { #Do recruits as bar plot
-                            panel.barchart(...,horizontal=FALSE,origin=0,box.width=1,col="grey")
-                        } else {
-                            panel.xyplot(...,col="black")
-                        }
-                      },
-                      scales=list(alternating=1,y=list(relation="free",rot=0)))
-    print(summary.plot)
+  #Make stock summary plots (ie SSB, Fbar, recs)
+  summary.data <- as.data.frame(FLQuants(SSB=ssb(stck),"Fbar4-8"=fbar(stck),Recruits=1000*rec(stck),Landings=catch(stck)))
+  scaling.factors <- tapply(summary.data$data,summary.data$qname,function(x) trunc(log10(max(pretty(c(0,x))))/3)*3)
+  summary.data$data <- summary.data$data/10^scaling.factors[summary.data$qname]
+  ylabels <- apply(cbind(lbl=names(scaling.factors),fctr=scaling.factors),1,function(x) {
+  if(x[2]=="0"){x[1]}else {bquote(expression(paste(.(x[1])," [",10^.(x[2]),"]"))) }})
+  summary.plot <-
+  xyplot(data~year|qname,data=summary.data,
+  prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},
+  main=list(paste(stck@name,"Stock Summary Plot"),cex=0.9),
+  ylab=do.call(c,ylabels),
+  xlab="Year",
+  layout=c(1,4),
+  type="l",
+  panel=function(...) {
+  panel.grid(h=-1,v=-1)
+  if(panel.number()==4) {  panel.xyplot(...,col="black")  
+                           #panel.abline(h= 2.2)
+                           panel.abline(h= 2.3,lty="dotted")
+                           panel.abline(h= 1.67,lty="dashed")
+                           panel.text(1972,1.67+0.25," Blim",cex=0.8)
+                           panel.text(1972,2.3+0.25,"Bpa",cex=0.8)
+   }
+  if(panel.number()==1) {  panel.xyplot(...,col="black")  
+                           panel.abline(h= 0.23,lty="dotted")
+                           panel.abline(h= 0.42,lty="dashed")
+                           panel.text(1972,0.23+0.025,"Fpa",cex=0.8)
+                           panel.text(1972,0.42+0.025,"Flim",cex=0.8)
+   }
+  if(panel.number()==3) { #Do recruits as bar plot
+  panel.barchart(...,horizontal=FALSE,origin=0,box.width=1,col="grey")
+  
+  } else {
+  panel.xyplot(...,col="black")
+  }
+  },
+  scales=list(alternating=1,y=list(relation="free",rot=0)))
+  
+  
+  
+  
+  print(summary.plot)
 
     #Now generate the diagnostic plots
     cat("GENERATING DIAGNOSTICS ...\n");flush.console()
@@ -472,7 +491,7 @@ an <- function(x){ return(as.numeric(x))}
 #Load packages - strict, active enforcement of version numbers.
 check.versions <-  function(lib,ver,required.date="missing"){
   available.ver <-  do.call(packageDescription,list(pkg=lib, fields = "Version"))
-  if(compareVersion(available.ver,ver)==-1) {stop(paste("ERROR:",lib,"package available is version",available.ver,"but requires at least version",ver))}
+  if(compareVersion(available.ver,ver)==-1) {stop(paste("ERROR:",lib,"package availabe is version",available.ver,"but requires at least version",ver))}
   package.date <- as.POSIXct(strptime(strsplit(packageDescription(lib)$Built,";")[[1]][3],format="%Y-%m-%d %H:%M:%S"))
   if(!missing(required.date)) {
     if(required.date - package.date > 0)
@@ -481,7 +500,7 @@ check.versions <-  function(lib,ver,required.date="missing"){
   do.call(require,list(package=lib))
   invisible(NULL)
 }
-check.versions("FLCore","2.2",ISOdatetime(2009,05,19,19,23,00))
+check.versions("FLCore","3.0",ISOdatetime(2009,03,10,04,42,27))
 check.versions("FLAssess","1.99-102",ISOdatetime(2009,03,23,08,18,00))
 check.versions("FLICA","1.4-10")
 check.versions("FLSTF","1.99-1")
@@ -489,7 +508,7 @@ check.versions("FLEDA","2.0")
 check.versions("FLBRP","2.0")
 check.versions("FLash","2.0",ISOdatetime(2009,03,24,09,11,00))
 #Check R version too!
-required.version <- "2.8.1"
+required.version <- "2.8.0"
 if(compareVersion(paste(version$major,version$minor,sep="."),required.version)==-1) {
  stop(paste("ERROR: Current R version is",paste(version$major,version$minor,sep="."),"This code requires at least R",required.version))
 }
