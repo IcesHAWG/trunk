@@ -1,7 +1,8 @@
 ######################################################################################################
 # NEA Mackerel FLICA Assessment
 
-# Notes on updating stock files on the 'data' directory
+
+## Notes on updating stock files on the 'data' directory
 # Caton.txt / Canum.txt / Weca.txt  supplied by stock coordinator either as new files or for one line to be added and year to be incremented
 # Fprop.txt and Mprop.txt require change of last year increment by one
 # Natmor.txt requires one more line added at the end and increment of last year
@@ -50,6 +51,7 @@
 # Notes:
 # This sets the working directory on CM's machine:
 setwd("c://WORK/Stock Assessment/Tortoise/HAWG/NEAMackerel")
+
 ####################################################################################################
 ### ======================================================================================================
 ### Initialise system, including convenience functions and title display
@@ -76,7 +78,7 @@ data.source         <-  file.path(".","data")      #Data source, not code or pac
 output.dir          <-  file.path(".","results")       #Output directory - some questions regarding use old "res" or "results"
 # these next two lines are stock specific - others are standar across stocks
 output.base         <-  file.path(output.dir,"NEAMac Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  7                          #Number of years for which to run the retrospective: 7 in 2009
+n.retro.years       <-  6                          #Number of years for which to run the retrospective: 7 in 2009
 
 ### ======================================================================================================
 ### Output setup creates png here look at others if wmf required.
@@ -109,8 +111,7 @@ NEA.Mac.ctrl<-FLICA.control(sep.nyr=12,sep.age=5,sep.sel=1.5,sr=FALSE,
                                  0.33333, 0.33333, 0.33333, 0.33333, 0.33333, 0.33333, 0.33333,0.33333,0.33333,0.33333),
                                 lambda.sr=0.01,index.model=c("l"),index.cor=0)
 
-
-### ======================================================================================================
+## ======================================================================================================
 ### Prepare stock object for assessment - standard FL stock object
 ### ======================================================================================================
 FnPrint("PREPARING STOCK OBJECT...\n")
@@ -170,6 +171,17 @@ names(NEA.Mac.tun) <- "NEA.Mac Egg Survey"  #MPA: Added so that your graphs are 
 FnPrint("PERFORMING ASSESSMENT.    \n")
 #Now perform the asssessment
 NEA.Mac.ica   <-  FLICA(NEA.Mac,NEA.Mac.tun,NEA.Mac.ctrl)
+
+
+# T Brunel 26-08 : replace the recruitment value in the last year by the geometric mean of recruitment over the period 1972 to two year before assessment year
+nyears<-dim(NEA.Mac.ica@stock.n)[2]
+NEA.Mac.ica@stock.n[1,nyears]<-prod(NEA.Mac.ica@stock.n[1,1:(nyears-2)])^(1/(nyears-2))
+# do the same for the survivors
+NEA.Mac.ica@survivors[1,]<-prod(NEA.Mac.ica@stock.n[1,1:(nyears-2)])^(1/(nyears-2))
+# recalculate age 1 for the survivors given the new recruitment for the last year and the fishing mortality
+NEA.Mac.ica@survivors[2,]<-NEA.Mac.ica@stock.n[1,nyears]*exp(-NEA.Mac.ica@harvest[1,nyears]-NEA.Mac@m[1,nyears])
+
+
 # put assessment results in stock object
 NEA.Mac       <-  NEA.Mac + NEA.Mac.ica
 # calculate total stock biomass for use in outpurt tables
@@ -227,12 +239,15 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 #Define intermediate year catch based on agreed TACs
 # MUST BE UPDATED FOR THE CURRENT YEAR currently set for 2008 as intermediate year
 # see for example section 2.8 short term  prediction inputs
-ImY.catch <- 600000  # estimaed catches expected due to TAC discards payback overfishinmg and Icelandic catch
+ImY.catch <- 830200  # estimated catches expected due to TAC, discards, payback, overfishing, and Icelandic catch
 # see table in text of section 2.8
-ImY.TAC <- 605000  # to be checked from NEAFC and Coatal states agreement (not EU TAC regulations whicvh is only part of this
+ImY.TAC <- 640819  # to be checked from NEAFC and Coatal states agreement (not EU TAC regulations whicvh is only part of this
 # final number should be very close REF TAC + southern TAC = 0.0700767 * CS Ref TAC   + NEAFC = 57,884
 # Now checked for 2009 TACs agreed at NEAFC 2008
 # REF TAC = 511287t  Southern = 35829  NEAFC = 57844 total = 605000
+
+# CM: 04/09/2009 New unilateral TAC for Norway and Faroes = 35819
+# Therefore IMY.TAC = REF TAC + southern TAC + NEAFC + NOFO unilateral
 
  FnPrint("YPR and stock summary for standard graphs...\n")
 #Define years
@@ -275,42 +290,42 @@ NEA.Mac.proj@stock.n[,ac(ImY)]  <- NEA.Mac.ica@survivors
 NEA.Mac.proj@stock.n[1,as.character(c(TaY,ImY,AdY,CtY))] <- gm.recs
 
 #Setup options to suite the advice sheet  the choice here is based on the following:
-#0 catch,  role over + and - 25% on TAC, F=0.20,0.21,0.22 from management plan
+#0 catch,  role over + and - 20% on TAC, F=0.20,0.21,0.22 from management plan
 
 options.l <- list(#Zero catch
                   "Catch(2010) = Zero"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity="catch",
                                           val=c(ImY.catch,0,0))),
-                  #2009 Catch is 600000, followed by -25% Catch reduction => 2010
+                  #2009 Catch is 840320, followed by -20% Catch reduction => 2010
                   "Catch(2010) = 2009 TAC -20%"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,ImY.TAC*0.80,1))),
-                  #2009 and 2010 Catch is 600000
+                  #2009 and 2010 Catch is 640819
                   "Catch(2010) = 2009 TAC"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,ImY.TAC,1))),
-                  #2009 Catch is 600000, followed by +25% Catch increase => 2010 Catch 51850
+                  #2009 Catch is 840320, followed by +20% Catch increase => 2010 Catch 51850
                   "Catch(2010) = 2009 TAC +20%"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,ImY.TAC*1.20,1))),
-                 #2009 Catch is 600000, followed Fbar= 0.20
+                 #2009 Catch is 840320, followed Fbar= 0.20
                   "Fbar(2010) = 0.20"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           val=c(ImY.catch,0.20,0.20))),
-                 #2009 Catch is 600000, followed Fbar= 0.21
+                 #2009 Catch is 840320, followed Fbar= 0.21
                   "Fbar(2010) = 0.21"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           val=c(ImY.catch,0.21,0.21))),
-                 #2009 Catch is 600000, followed Fbar= 0.22
+                 #2009 Catch is 840320, followed Fbar= 0.22
                   "Fbar(2010) = 0.22"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
@@ -318,7 +333,7 @@ options.l <- list(#Zero catch
 ) #End options list
 
 #Multi-options table - stand ard one to show wider range of otiuons for the report
-# F multipliers from 0 to 2 *role over F
+# F multipliers from 0 to 2 *roll over F
 fmult.targs  <- seq(0,2,by=0.1)
 mult.opts.l <- lapply(as.list(fmult.targs),function(fmult) {
                           fwdControl(data.frame(year=c(ImY,AdY,CtY),
