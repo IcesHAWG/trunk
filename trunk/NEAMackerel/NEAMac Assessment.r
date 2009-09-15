@@ -285,7 +285,9 @@ gm.recs  <- exp(mean(log(rec(NEA.Mac)[,as.character(rec.years)])))
 NEA.Mac.srr <- list(model="geomean",params=FLPar(gm.recs))
 
 #Expand stock object
-NEA.Mac.proj <- stf(NEA.Mac,nyears=4,wts.nyears=3,arith.mean=TRUE,na.rm=TRUE)
+#NEA.Mac.proj <- stf(NEA.Mac,nyears=4,wts.nyears=3,arith.mean=TRUE,na.rm=TRUE)
+NEA.Mac.proj <- stf(NEA.Mac.orig,nyears=4,wts.nyears=3,arith.mean=TRUE,na.rm=TRUE) # to use object saved before rounding
+
 NEA.Mac.proj@stock.n[,ac(ImY)]  <- NEA.Mac.ica@survivors
 NEA.Mac.proj@stock.n[1,as.character(c(TaY,ImY,AdY,CtY))] <- gm.recs
 
