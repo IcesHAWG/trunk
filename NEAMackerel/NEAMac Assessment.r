@@ -50,7 +50,8 @@
 #
 # Notes:
 # This sets the working directory on CM's machine:
-setwd("c://WORK/Stock Assessment/Tortoise/HAWG/NEAMackerel")
+path <- "c://WORK/Stock Assessment/Tortoise/HAWG/NEAMackerel"
+try(setwd(path),silent=TRUE)
 
 ####################################################################################################
 ### ======================================================================================================
@@ -69,6 +70,7 @@ FnPrint("\nNEAMac FLICA Assessment - dont forget to set working directory to sto
 ### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
 ### ======================================================================================================
 source(file.path("..","_Common","HAWG Common assessment module.r"))
+source("NEAMac Stock summary plot.r")
 ### ======================================================================================================
 
 ### ======================================================================================================
@@ -192,6 +194,9 @@ NEA.Mac.ica@index.res[[1]]@.Data[NEA.Mac.ica@index.res[[1]]@.Data==-99] <- NA
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
 ### ======================================================================================================
+#Make the customised NEA mackerel stock summary plot
+NEAmac.stock.summary.plot(NEA.Mac)
+#Do the other common plots
 do.summary.plots(NEA.Mac,NEA.Mac.ica)
 NEA.Mac.retro <- do.retrospective.plots(NEA.Mac,NEA.Mac.tun,NEA.Mac.ctrl,n.retro.years)
 do.SRR.plot(NEA.Mac)
