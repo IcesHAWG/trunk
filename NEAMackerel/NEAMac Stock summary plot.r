@@ -1,7 +1,7 @@
 ######################################################################################################
 # NEA Mackerel Stock summary plot
 ######################################################################################################
-NEAmac.stock.stummary.plot <- function(stck) {
+NEAmac.stock.summary.plot <- function(stck) {
   #Make stock summary plots (ie SSB, Fbar, recs)
   summary.data <- as.data.frame(FLQuants(SSB=ssb(stck),"Fbar4-8"=fbar(stck),Recruits=1000*rec(stck),Landings=catch(stck)))
   scaling.factors <- tapply(summary.data$data,summary.data$qname,function(x) trunc(log10(max(pretty(c(0,x))))/3)*3)
