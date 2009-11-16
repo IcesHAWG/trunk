@@ -465,6 +465,41 @@ ref.pts <- function(stk,model.,factor.){
             
 an <- function(x){ return(as.numeric(x))}            
 
+#Anomaly plots - primarily oriented towards weight at age anomalies, but should work for other things too
+anom.plot <- function(x,...) {
+    #Calculate anomalies
+    means <- rowMeans(x)
+    sds   <- apply(x,1,sd)
+    anoms <- (x-means)/drop(sds@.Data)
+    weight.anoms <- as.data.frame(t(drop(anoms@.Data)))
+    #Generate plot
+    yrs <- as.numeric(colnames(anoms))
+    matplot(yrs,weight.anoms,pch=rownames(x),...)
+    grid()
+    smoother <- loess(unlist(weight.anoms) ~ rep(yrs,ncol(weight.anoms)),span=0.2)
+    predict.yrs <- seq(min(yrs),max(yrs),length.out=100)
+    smoothed <- predict(smoother,predict.yrs,se=TRUE)
+    polygon(c(predict.yrs,rev(predict.yrs)),
+        c(smoothed$fit+smoothed$se.fit*1.96,rev(smoothed$fit-smoothed$se.fit*1.96)),
+        col="lightgrey")
+    matpoints(yrs,weight.anoms,type="p",pch=rownames(x))
+    lines(predict.yrs,smoothed$fit,lwd=2,col="black")
+}
+
+growth.anom.plot <- function(y,...) {
+    #Calculate growth
+    flc <- FLCohort(y)
+    growth <- apply(flc,2,diff)
+    #Coerce back to an FLQuant
+    x <- flc[1:(dims(flc)$age-1),]
+    x@.Data[1:dims(x)$age,1:dims(x)$cohort,1,1,1,1] <-growth
+    flq   <- flc2flq(x)
+    flq <- flq[,2:(dims(flq)$year-1)]    #Drop the first and last year, where we don't have any information
+    #Plot anomaly
+    anom.plot(flq,...)
+}
+
+
 
 ### ======================================================================================================
 ### Check FLR Package version numbers
