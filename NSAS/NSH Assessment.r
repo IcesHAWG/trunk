@@ -184,6 +184,12 @@ west.ts  <- xyplot(data~year,data=window(NSH@stock.wt,1975,2008),
               par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25)))
 print(west.ts)
 
+#Time series of west anomalies
+anom.plot(trim(NSH@stock.wt,year=1983:dims(NSH)$maxyear,age=0:1),xlab="Year",ylab="Anomaly (std. devs)",
+    main=paste(NSH@name,"Weight in the Stock Anomaly (Age 0-1)"),ylim=c(-3,3))
+anom.plot(trim(NSH@stock.wt,year=1983:dims(NSH)$maxyear,age=3:6),xlab="Year",ylab="Anomaly (std. devs)",
+    main=paste(NSH@name,"Weight in the Stock Anomaly (Age 3-6)"),ylim=c(-3,3))
+
 #Time series of west by cohort
 west.by.cohort  <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,2008)))
 west.by.cohort  <-  subset(west.by.cohort,!is.na(west.by.cohort$data))
