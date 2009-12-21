@@ -524,9 +524,9 @@ check.versions("FLEDA","2.0")
 check.versions("FLBRP","2.0")
 check.versions("FLash","2.0",ISOdatetime(2009,03,24,09,11,00))
 #Check R version too!
-required.version <- "2.8.0"
-if(compareVersion(paste(version$major,version$minor,sep="."),required.version)==-1) {
- stop(paste("ERROR: Current R version is",paste(version$major,version$minor,sep="."),"This code requires at least R",required.version))
+required.version <- "2.8.1"
+if(compareVersion(paste(version$major,version$minor,sep="."),required.version)!=0) {
+ stop(paste("ERROR: Current R version is",paste(version$major,version$minor,sep="."),"The HAWG repository currently only supports R",required.version))
 }
 
 #Add in other functions
