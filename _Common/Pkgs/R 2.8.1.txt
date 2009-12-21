@@ -1,0 +1,2 @@
+This code is based around R 2.8.1. An installable version for use with Windows is available here:
+http://cran.r-project.org/bin/windows/base/old/2.8.1/
