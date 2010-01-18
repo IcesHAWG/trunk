@@ -112,8 +112,8 @@ for(nme in names(WBSS.tun.in)) { #Most indices have the same characteristics
 WBSS.tun.in[["HERAS 0-8+ wr"]]@range["plusgroup"] <- 8
 
 #Generate two new indices by truncating current indices etc
-WBSS.tun.in[["HERAS 3-6 wr"]]      <-  trim(WBSS.tun.in[["HERAS 0-8+ wr"]],age=3:6,year=1993:2008)           #HERAS 3-6 wr
-WBSS.tun.in[["GerAS 1-3 wr"]]      <-  trim(WBSS.tun.in[["GerAS 0-8 wr (SD 21-24)"]],age=1:3,year=1994:2008) #GerAS 1-3 wr
+WBSS.tun.in[["HERAS 3-6 wr"]]      <-  window(trim(WBSS.tun.in[["HERAS 0-8+ wr"]],age=3:6),start=1993)           #HERAS 3-6 wr
+WBSS.tun.in[["GerAS 1-3 wr"]]      <-  window(trim(WBSS.tun.in[["GerAS 0-8 wr (SD 21-24)"]],age=1:3),start=1994) #GerAS 1-3 wr
 WBSS.tun.in[["GerAS 1-3 wr"]]@index[,"2001"] <- -1     #2001 is excluded from GerAS due to lack of coverage in SD23
 
 #Only use the relevant data sets in the assessment
