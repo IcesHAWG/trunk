@@ -4,18 +4,11 @@
 # $Rev$
 # $Date$
 #
-# Author: Mark Payne
+# Author: Mark Payne, Teunis Jansen
 # DTU Aqua, Charlottenlund, DK
 #
 # Performs an assessment of Western Baltic Spring Spawning Herring (WBSS) in IIIa using the
 # FLICA package.
-#
-# Developed with:
-#   - R version 2.8.0
-#   - FLCore 1.99-111
-#   - FLICA, version 1.4-3
-#   - FLAssess, version 1.99-102
-#   - FLSTF, version 1.99-1
 #
 # Changes:
 # V 5.10 - Reflects modifications to Common Module to work as functions, rather than as a single script
