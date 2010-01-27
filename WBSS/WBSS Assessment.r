@@ -5,7 +5,7 @@
 # $Date$
 #
 # Author: Mark Payne
-# DIFRES, Charlottenlund, DK
+# DTU Aqua, Charlottenlund, DK
 #
 # Performs an assessment of Western Baltic Spring Spawning Herring (WBSS) in IIIa using the
 # FLICA package.
