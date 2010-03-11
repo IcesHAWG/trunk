@@ -39,7 +39,8 @@ FnPrint     <-  function(string) {
 	flush.console()
 }
 FnPrint("\nWoS FLICA Assessment\n=====================\n")
-
+path <- "C:/Documents and Settings/hatfielde/My Documents/hawgVIaN/2010/hawg/WoS/"
+try(setwd(path))
 ### ======================================================================================================
 ### Incorporate Common modules
 ### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
