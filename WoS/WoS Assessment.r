@@ -173,18 +173,18 @@ writeFLStock(WoS.orig,output.file=output.base)
 ### ======================================================================================================
 # FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
-gm.recs         <- exp(mean(log(rec(trim(WoS.orig,year=1989:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
-stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=21760,f.rescale=TRUE,rec=gm.recs)
-WoS.orig@catch.n[1,52,,,,]=1
-WoS.stf        <- FLSTF(stock=WoS.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
-writeFLStock(WoS.stf,output.file="WoSaddyr")
+#gm.recs         <- exp(mean(log(rec(trim(WoS.orig,year=1989:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
+#stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=21760,f.rescale=TRUE,rec=gm.recs)
+#WoS.orig@catch.n[1,52,,,,]=1
+#WoS.stf        <- FLSTF(stock=WoS.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
+#writeFLStock(WoS.stf,output.file="WoSaddyr")
 ## use the rounder version so report and quality control database have same values
-writeFLStock(WoS,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
+#writeFLStock(WoS,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
 # project one year in order to get a single year holding means for YPR output
-WoS.proj=stf(WoS.orig,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
-writeFLStock(WoS.proj,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
+#WoS.proj=stf(WoS.orig,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
+#writeFLStock(WoS.proj,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
 
-#Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
+# Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
 # writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
 
 ### ======================================================================================================
