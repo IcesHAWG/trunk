@@ -1,6 +1,6 @@
 Herring in Division VIa (North)(runname:ICAPGF08)
 101
-FLT01:West Scotland Summer Acoustic Survey (Catch:Thousands)(Effort:Unknown)
+FLT01:West Scotland Summer Acoustic Survey (Catch:Number)(Effort:Unknown)
 1991 2009
 1 1 0.52 0.57
 1 9
