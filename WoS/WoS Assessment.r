@@ -105,6 +105,8 @@ WoS.tun[[1]]@index.var[] <- 1
 WoS.tun[[1]]@index.var["1",] <- 10
 WoS.tun[[1]]@type <- "number"
 names(WoS.tun) <- "WoS Summer Acoustic Survey"  #MPA: Added so that your graphs are a bit prettier
+#Set units
+units(WoS.tun[[1]])[1:7] <- as.list("number","NA","number","Kg","NA","NA","NA")
 
 ### ======================================================================================================
 ### Perform the assessment
