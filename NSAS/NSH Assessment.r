@@ -179,8 +179,8 @@ LNV.rec(NSH,NSH.ica)
 NSH.sr <- fmle(as.FLSR(transform(NSH,stock.n=NSH@stock.n/100000),model="bevholt")); 
 plot(NSH.sr)
 NSH.sr@params <- NSH.sr@params*100000
-plot(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],type="b",xlab="SSB",ylab="Rec",main="Yearly stock recruitment relationship")
-text(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
+plot(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:49],type="b",xlab="SSB",ylab="Rec",main="Yearly stock recruitment relationship")
+text(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:49],labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
 
 #Time series of west
 west.ts  <- xyplot(data~year,data=window(NSH@stock.wt,1975,2009),
@@ -199,10 +199,10 @@ anom.plot(trim(NSH@stock.wt,year=1983:dims(NSH)$maxyear,age=3:6),xlab="Year",yla
     main=paste(NSH@name,"Weight in the Stock Anomaly (Age 3-6)"),ylim=c(-3,3))
 
 #Time series of west by cohort
-west.by.cohort  <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,2009)))
-west.by.cohort  <-  subset(west.by.cohort,!is.na(west.by.cohort$data))
+west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,2009)))
+west.by.cohort      <-  subset(west.by.cohort,!is.na(west.by.cohort$data))
 west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
-west.cohort.plot  <- xyplot(data~year,data=west.by.cohort,
+west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
               groups=cohort,
               auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
               type="b",
@@ -222,9 +222,9 @@ print(west.cohort.plot)
 ### ======================================================================================================
 FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
-old.opt <- options("width","scipen")
+old.opt           <- options("width","scipen")
 options("width"=80,"scipen"=1000)
-ica.out.file <- ica.out(NSH,NSH.tun,NSH.ica,format="TABLE 3.6.%i NSH HERRING.")
+ica.out.file      <- ica.out(NSH,NSH.tun,NSH.ica,format="TABLE 3.6.%i NSH HERRING.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
@@ -237,11 +237,11 @@ writeFLStock(NSH,output.file=output.base)
 ### ======================================================================================================
 FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 REC               <- NSH.ica@param["Recruitment prediction","Value"]
-TAC               <- 194233 #overshoot = approximately 13% every year + 1000 tons of transfer
+TAC               <- 165000 #overshoot = approximately 13% every year + 1000 tons of transfer             #194233 in 2009
 NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,fbar.nyrs=1,f.rescale=TRUE,rec=REC,catch.constraint=TAC)
-NSH.stock09       <- as.FLStock(FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE))
+NSH.stock10       <- as.FLStock(FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE))
 
-#A plot on the agreed management plan with the estimated Fbar in 2009
+#A plot on the agreed management plan with the estimated Fbar in 2010
 plot(x=c(0,0.8,1.5,2),y=c(0.1,0.1,0.25,0.25),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tonnes",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
 abline(v=0.8,col="red",lwd=2,lty=2)
 abline(v=1.3,col="blue",lwd=2,lty=2)
@@ -250,12 +250,12 @@ text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
 text(1.3,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
 text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
 
-points(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6),pch=19)
-lines(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6))
-text(y=fbar(NSH.stock09[,ac(2002:2009)]),x=(ssb(NSH.stock09[,ac(2002:2009)])/1e6),labels=ac(2002:2009),pos=3,cex=0.7)
+points(y=fbar(NSH.stock10[,ac(2002:2010)]), x=(ssb(NSH.stock10[,ac(2002:2010)])/1e6),pch=19)
+lines(y=fbar(NSH.stock10[,ac(2002:2010)]),  x=(ssb(NSH.stock10[,ac(2002:2010)])/1e6))
+text(y=fbar(NSH.stock10[,ac(2002:2010)]),   x=(ssb(NSH.stock10[,ac(2002:2010)])/1e6),labels=ac(2002:2010),pos=3,cex=0.7)
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(NSH.stock09,output.file=paste(output.base,"with STF"))
+writeFLStock(NSH.stock10,output.file=paste(output.base,"with STF"))
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
