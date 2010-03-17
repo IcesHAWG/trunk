@@ -455,8 +455,8 @@ ref.pts <- function(stk,model.,factor.){
                 if(model.=="bevholt"){ stk.sr@params<-stk.sr@params * bevholtfactor   
                 } else {
                   stk.sr@params[2]<-stk.sr@params[2] * bevholtfactor; }
-                rpts<-refpts()[4:5,]
-                dimnames(rpts)[[1]][2]<-"crash"
+                rpts<-refpts()[c(1,2,4:5),]
+                dimnames(rpts)[[1]][4]<-"crash"
                 stk.brp    <- brp(FLBRP(stk,sr=stk.sr,fbar=seq(0,1,length.out=100),nyrs=3,refpts=rpts))
                 print(refpts(stk.brp)[,1:5])
                 plot(stk.brp)
