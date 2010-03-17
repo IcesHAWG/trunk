@@ -33,7 +33,7 @@
 ### ======================================================================================================
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 
-path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2010/assessment/NSAS/"
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2010/assessment2/NSAS/"
 try(setwd(path))
 
 #in need of something extra
@@ -54,10 +54,10 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
-data.source         <-  file.path(".","data")      #Data source, not code or package source!!!
-output.dir          <-  file.path(".","results")       #Output directory
-output.base         <-  file.path(output.dir,"NSH Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  8                          #Number of years for which to run the retrospective
+data.source         <-  file.path(".","data")                   #Data source, not code or package source!!!
+output.dir          <-  file.path(".","results")                #Output directory
+output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
+n.retro.years       <-  10                                      #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Output setup
@@ -89,52 +89,58 @@ NSH.ctrl@index.model <- rev(NSH.ctrl@index.model)
 ### Prepare stock object for assessment
 ### ======================================================================================================
 FnPrint("PREPARING STOCK OBJECT...\n")
-NSH                        <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE)
-#Set no discards
-NSH@catch.n                <- NSH@landings.n
-NSH@catch                  <- NSH@landings
-NSH@catch.wt               <- NSH@landings.wt
-units(NSH)[1:17]           <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
-#Set fbar
-range(NSH)[c("minfbar","maxfbar")] <- c(2,6)
-#Set plus group
-NSH                        <- setPlusGroup(NSH,NSH@range["max"])
-#Strange thing going on: setting the plus group sets the stock.wt in 1977 to 0
-NSH@stock.wt[10,"1977"]    <- NSH@stock.wt[10,"1976"]
-#Set stock object name - this is propagated through into the figure titles
-NSH@name                   <- "NSH Herring"
+NSH                               <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE)
+
+#- Catch is calculated from: catch.wt * catch.n, however, the reported landings are
+#   normally different (due to SoP corrections). Hence we overwrite the calculate landings
+NSH@catch                         <- NSH@landings
+units(NSH)[1:17]                  <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
+
+#- Set fbar ages
+range(NSH)[c("minfbar","maxfbar")]<- c(2,6)
+
+#- Set stock object name - this is propagated through into the figure titles
+NSH@name                          <- "Autumn spawning herring in IV, VIId, IIIa"
+
+#- Set plus group
+NSH                               <- setPlusGroup(NSH,NSH@range["max"])
+
+#- No catches of age 10 in 1977 s0 stock.wt does not get filled there.
+#   Hence, we copy the stock weight for that age from the previous year
+NSH@stock.wt[10,"1977"]           <- NSH@stock.wt[10,"1976"]
+
 
 ### ======================================================================================================
 ### Prepare index object for assessment
 ### ======================================================================================================
 FnPrint("PREPARING INDEX OBJECT...\n")
 #Load and modify all index data
-NSH.tun   <- readFLIndices(file.path(data.source,"/fleet.txt"),file.path(data.source,"/ssb.txt"),type="ICA")
+NSH.tun                         <- readFLIndices(file.path(data.source,"/fleet.txt"),file.path(data.source,"/ssb.txt"),type="ICA")
 
 #Set names, and parameters etc
-NSH.tun[[1]]@type <- "number"
-NSH.tun[[2]]@type <- "number"
-NSH.tun[[3]]@type <- "number"
+NSH.tun[[1]]@type               <- "number"
+NSH.tun[[2]]@type               <- "number"
+NSH.tun[[3]]@type               <- "number"
 NSH.tun[[3]]@range["plusgroup"] <- NA
 
-NSH.tun <- rev(NSH.tun)
+NSH.tun                         <- rev(NSH.tun)
 if (NSH.tun[[1]]@name != "MLAI") print("Error - MLAI not as the first index")
 ### give 1/weighting factors as variance
-NSH.tun[[4]]@index.var[] <- 1.0/FLQuant(c(0.63,0.62,0.17,0.10,0.09,0.08,0.07,0.07,0.05),dimnames=dimnames(NSH.tun[[4]]@index)) #Acoustic
-NSH.tun[[3]]@index.var[] <- 1.0/FLQuant(c(0.47,0.28,0.01,0.01,0.01),dimnames=dimnames(NSH.tun[[3]]@index)) #IBTS
-NSH.tun[[2]]@index.var[] <- 1.0/FLQuant(0.63,dimnames=dimnames(NSH.tun[[2]]@index)) #MIK
-NSH.tun[[1]]@index.var[] <- 1.0/FLQuant(0.60,dimnames=dimnames(NSH.tun[[1]]@index)) #MLAI
+NSH.tun[[4]]@index.var[]        <- 1.0/FLQuant(c(0.63,0.62,0.17,0.10,0.09,0.08,0.07,0.07,0.05),dimnames=dimnames(NSH.tun[[4]]@index)) #Acoustic
+NSH.tun[[3]]@index.var[]        <- 1.0/FLQuant(c(0.47,0.28,0.01,0.01,0.01),dimnames=dimnames(NSH.tun[[3]]@index)) #IBTS
+NSH.tun[[2]]@index.var[]        <- 1.0/FLQuant(0.63,dimnames=dimnames(NSH.tun[[2]]@index)) #MIK
+NSH.tun[[1]]@index.var[]        <- 1.0/FLQuant(0.60,dimnames=dimnames(NSH.tun[[1]]@index)) #MLAI
 #Set names
-names(NSH.tun) <- lapply(NSH.tun,name)
+names(NSH.tun)                  <- lapply(NSH.tun,name)
 ### ======================================================================================================
 ### Perform the assessment
 ### ======================================================================================================
 FnPrint("PERFORMING ASSESSMENT...\n")
 #Now perform the asssessment
-NSH.ica         <-  FLICA(NSH,NSH.tun,NSH.ctrl)
-NSH             <-  NSH + NSH.ica
-range(NSH.ica)  <-  range(NSH)[1:5]
-NSH@stock       <-  computeStock(NSH)
+NSH.ica                         <-  FLICA(NSH,NSH.tun,NSH.ctrl)
+NSH                             <-  NSH + NSH.ica
+range(NSH.ica)                  <-  range(NSH)[1:5]
+NSH@stock                       <-  computeStock(NSH)
 
 
 ### ======================================================================================================
@@ -160,7 +166,7 @@ print(stacked.area.plot(data~age| unit, as.data.frame(pay(NSH@catch.n)),groups="
 print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[[3]]@index)),groups="age",main="Proportion of IBTS index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[[4]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
-catch.curves(NSH,1990,2007)
+catch.curves(NSH,1990,2009)
 NSH.sr <- ref.pts(NSH,"bevholt",100000)
 cor.tun(NSH.tun)
 
@@ -177,7 +183,7 @@ plot(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],type="b",xlab="SSB",ylab="Rec",main="Year
 text(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:48],labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
 
 #Time series of west
-west.ts  <- xyplot(data~year,data=window(NSH@stock.wt,1975,2008),
+west.ts  <- xyplot(data~year,data=window(NSH@stock.wt,1975,2009),
               groups=age,
               auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
               type="b",
@@ -193,7 +199,7 @@ anom.plot(trim(NSH@stock.wt,year=1983:dims(NSH)$maxyear,age=3:6),xlab="Year",yla
     main=paste(NSH@name,"Weight in the Stock Anomaly (Age 3-6)"),ylim=c(-3,3))
 
 #Time series of west by cohort
-west.by.cohort  <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,2008)))
+west.by.cohort  <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,2009)))
 west.by.cohort  <-  subset(west.by.cohort,!is.na(west.by.cohort$data))
 west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
 west.cohort.plot  <- xyplot(data~year,data=west.by.cohort,
