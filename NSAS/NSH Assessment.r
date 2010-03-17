@@ -117,6 +117,9 @@ FnPrint("PREPARING INDEX OBJECT...\n")
 #Load and modify all index data
 NSH.tun                         <- readFLIndices(file.path(data.source,"/fleet.txt"),file.path(data.source,"/ssb.txt"),type="ICA")
 
+#Load the NSH.tun with the scai rather than the MLAI (exploratory in 2010)
+NSH.tun                         <- readFLIndices(file.path(data.source,"/fleet.txt"),file.path(data.source,"/scai.txt"),type="ICA")
+
 #Set names, and parameters etc
 NSH.tun[[1]]@type               <- "number"
 NSH.tun[[2]]@type               <- "number"
