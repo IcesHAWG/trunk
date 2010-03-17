@@ -33,8 +33,10 @@
 ### ======================================================================================================
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 
-path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2009/assessment/googlecode/NSAS/"
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2010/assessment/NSAS/"
 try(setwd(path))
+
+#in need of something extra
 
 options(stringsAsFactors=FALSE)
 FnPrint     <-  function(string) {
