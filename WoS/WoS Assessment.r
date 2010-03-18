@@ -106,7 +106,7 @@ WoS.tun[[1]]@index.var["1",] <- 10
 WoS.tun[[1]]@type <- "number"
 names(WoS.tun) <- "WoS Summer Acoustic Survey"  #MPA: Added so that your graphs are a bit prettier
 #Set units
-units(WoS.tun[[1]])[1:7] <- as.list("number","NA","number","Kg","NA","NA","NA")
+units(WoS.tun[[1]])[1:7] <- as.list(c("number","NA","number","Kg","NA","NA","NA"))
 
 ### ======================================================================================================
 ### Perform the assessment
@@ -140,7 +140,6 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     return(stcks)
 }
 WoS.retro <- do.retrospective.plots(WoS,WoS.tun,WoS.ctrl,n.retro.years)
-WoS.retro[[9]]@stock.n[1,ac(2009)] <- NA
 do.SRR.plot(WoS)
 
 ### ======================================================================================================
