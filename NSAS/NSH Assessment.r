@@ -246,6 +246,9 @@ box()
 title(main=paste(NSH@name,"Catch and TAC"))
 mtext("Working group estimate",side=1,outer=F,line=5,cex=ca)
 
+# Write the standard graph output and create the figures, and write the reference points to file
+writeStandardOutput(stck.=NSH,stck.sr=NSH.sr,nyrs.=3,Blim=0.8e6,Bpa=1.3e6,Flim=NULL,Fpa=0.25)
+
 
 ### ======================================================================================================
 ### Document Assessment
