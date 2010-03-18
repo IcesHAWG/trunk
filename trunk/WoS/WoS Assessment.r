@@ -143,22 +143,22 @@ print(stacked.area.plot(data~year| unit, as.data.frame(pay(WoS@catch.wt)),groups
 print(stacked.area.plot(data~year,as.data.frame(pay(WoS@stock.n*WoS@stock.wt)),groups="age",main="Proportion by weight in the stock",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 print(stacked.area.plot(data~year| unit, as.data.frame(pay(WoS.tun[[1]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
-catch.curves(NSH,1990,2009)
-NSH.sr <- ref.pts(NSH,"bevholt",100000)
+catch.curves(WoS,1990,2009)
+WoS.sr <- ref.pts(WoS,"bevholt",100000)
 cor.tun(WoS.tun)
 
 #Time series of west
-west.ts  <- xyplot(data~year,data=window(NSH@stock.wt,1975,2009),
+west.ts  <- xyplot(data~year,data=window(WoS@stock.wt,1991,2009),
               groups=age,
               auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
               type="b",
               xlab="Year",ylab="Weight in the stock (kg)",
-              main=paste(NSH@name,"Weight in the Stock"),
+              main=paste(WoS@name,"Weight in the Stock"),
               par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25)))
 print(west.ts)
 
 #Time series of west by cohort
-west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,2009)))
+west.by.cohort      <- as.data.frame(FLCohort(window(WoS@stock.wt,1992,2009)))
 west.by.cohort      <-  subset(west.by.cohort,!is.na(west.by.cohort$data))
 west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
 west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
@@ -166,7 +166,7 @@ west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
               auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
               type="b",
               xlab="Year",ylab="Weight in the stock (kg)",
-              main=paste(NSH@name,"Weight in the stock by cohort"),
+              main=paste(WoS@name,"Weight in the stock by cohort"),
               par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1.25)),
               panel=function(...) {
                 panel.grid(h=-1,v=-1)
