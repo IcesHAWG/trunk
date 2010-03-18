@@ -120,8 +120,25 @@ WoS@stock=computeStock(WoS) # to get TSB in stock slot
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
 ### ======================================================================================================
+#WoS@stock.n[1,ac(2009)] <- NA
 do.summary.plots(WoS,WoS.ica)
+
+do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
+    cat("GENERATING RETROSPECTIVE ANALYSES...\n");flush.console()
+
+    #Generate a retrospective analysis
+    icas <- retro(stck,idxs,ctrl,retro=n.retro.yrs,return.FLStocks=FALSE)
+    stcks <- do.call(FLStocks,lapply(icas,function(ica) {ica + trim(stck, year=dims(ica@stock.n)$minyear:dims(ica@stock.n)$maxyear)}))
+# this line to get rid of the last recruitment value
+    stcks[[9]]@stock.n[1,ac(2009)] <- NA
+    #Now call the retro plotting functions
+    retro.plots(stcks,icas,ctrl)
+
+    #Return retrospective object
+    return(stcks)
+}
 WoS.retro <- do.retrospective.plots(WoS,WoS.tun,WoS.ctrl,n.retro.years)
+WoS.retro[[9]]@stock.n[1,ac(2009)] <- NA
 do.SRR.plot(WoS)
 
 ### ======================================================================================================
