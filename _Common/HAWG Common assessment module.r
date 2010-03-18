@@ -467,7 +467,7 @@ an <- function(x){ return(as.numeric(x))}
 
 # Plot time series of any slot in a stock or ica object (added 18-03-2010 by NTH)
 timeseries <- function(stck.,slot.){
-                assign("stck.",stck.,envir=.GlobalEnv);assign("slot.",slot.,envir=.GlobalEnv);
+                #assign("stck.",stck.,envir=.GlobalEnv);assign("slot.",slot.,envir=.GlobalEnv);
                 print(xyplot(data~year,data=slot(stck.,slot.),
                 groups=age,
                 auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
@@ -509,6 +509,75 @@ growth.anom.plot <- function(y,...) {
     #Plot anomaly
     anom.plot(flq,...)
 }
+
+# Code to produce the standard graph output, as well as creating the standard graphs and writing everyting to file (added by NTH at 18-03-2010)
+writeStandardOutput <- function(stck.,stck.sr,nyrs.=3,Blim=NULL,Bpa=NULL,Flim=NULL,Fpa=NULL){
+                          an                                <- function(x){return(as.numeric(x))}
+                          rpts<-refpts()
+                          dimnames(rpts)[[1]][5]            <-"crash"
+                          stck.brp                          <- brp(FLBRP(stck.,sr=stck.sr,fbar=seq(0,1,length.out=100),nyrs=nyrs.,refpts=rpts))
+                          # Calculate the spawners in number
+                          spawners                          <- colSums(stck.brp@stock.n * sweep(exp(sweep(-sweep(stck.brp@harvest,c(1,3:6),stck.brp@harvest.spwn,"*"),
+                                                                       c(1,3:6),stck.brp@m*stck.brp@m.spwn,"-")),c(1,3:6),stck.brp@mat,"*"))
+                          # Put all the standard input in a dataframe in columns
+                          standardGraphTable                <- cbind(stck.brp@fbar,yield(stck.brp),ssb(stck.brp),rec(stck.brp),yield(stck.brp)/rec(stck.brp),ssb(stck.brp)/rec(stck.brp),spawners)
+                          standardGraphTable                <- data.frame(standardGraphTable)
+                          colnames(standardGraphTable)      <- c("Fbar","Yield","SSB","Recruits","Yield.Recruit","SSB.Recruit","Spawners")
+                          # Round some values
+                          standardGraphTable$Fbar           <- round(an(ac(standardGraphTable$Fbar)),3)
+                          standardGraphTable$Yield          <- round(an(ac(standardGraphTable$Yield)))
+                          standardGraphTable$SSB            <- round(an(ac(standardGraphTable$SSB)))
+                          standardGraphTable$Recruits       <- round(an(ac(standardGraphTable$Recruits)))
+                          standardGraphTable$Yield.Recruit  <- round(an(ac(standardGraphTable$Yield.Recruit)),4)
+                          standardGraphTable$SSB.Recruit    <- round(an(ac(standardGraphTable$SSB.Recruit)),3)
+                          standardGraphTable$Spawners       <- round(an(ac(standardGraphTable$Spawners)))
+
+                          # Give it the right units
+                          standardGraphTable                <- rbind(c(paste("Ages ",range(stck.)["minfbar"],"-",range(stck.)["maxfbar"],sep=""),
+                                                                     "Tonnes","Tonnes","Number","","","Number"),standardGraphTable)
+                          # Write the standard graph to file and the reference points as well
+                          write.table(standardGraphTable,file=paste(output.base,"standardGraphTable.csv",sep=""),col.names=T,row.names=F,append=F,sep=",")
+                          write.table(refpts(stck.brp)@.Data[,1:5,1],file=paste(output.base,"referencePoints.csv",sep=""),col.names=T,row.names=T,append=F,sep=",")
+
+                          # Create the standard graphs for the advice sheet
+                          par(mfrow=c(3,1),oma=c(0.2,1,0.2,4))
+                          plot(rec(stck.)~ssb(stck.),pch=19,xlab="SSB in 1000 t",ylab="Recruits (age 0) in thousands",main="Stock - Recruitment")
+                          abline(v=c(Blim,Bpa),lty=c(2,3),lwd=2)
+
+                          managementPoints <- which(c(is.null(Blim),is.null(Bpa),is.null(Flim),is.null(Fpa))==F)
+                          managementPlots  <- c(expression(B[lim]),expression(B[pa]),expression(F[lim]),expression(F[pa]))
+
+                          legend("topright",legend=c("SSB",managementPlots[managementPoints[managementPoints<=2]]),
+                                 lwd=c(0,rep(2,length(managementPoints[managementPoints<=2]))),lty=c(0,c(2,3)[managementPoints[managementPoints<=2]]),box.lty=0,
+                                 pch=c(19,rep(-1,length(managementPoints[managementPoints<=2]))))
+
+                          plot(colSums(sweep(stck.brp@landings.n,1,stck.brp@landings.wt,"*"))~c(stck.brp@fbar),
+                               type="l",lwd=2,xlab="Fbar",ylab="Yield",main="Yield and Spawning Stock Biomass per Recruit")
+                          par(new=T)
+                          plot(c(ssb(stck.brp))~c(stck.brp@fbar),type="l",lwd=2,lty=2,yaxt="n",ylab="",xlab="")
+                          axis(4)
+                          mtext("SSB per recruit",4,line=2,cex=0.7)
+                          legend("topright",legend=c("Yield","SSB / Recruit"),lwd=c(2,2),lty=c(1,2),box.lty=0)
+
+                          plot(c(ssb(stck.))~c(fbar(stck.)),type="l",lwd=2,xlab="Fbar",ylab="SSB in 1000 t",main=" Precautionary Approach Plot")
+                          points(c(ssb(stck.[,ac(range(stck.)["maxyear"])]))~c(fbar(stck.[,ac(range(stck.)["maxyear"])])),pch=19,cex=2,col="grey")
+                          points(c(ssb(stck.[,ac(range(stck.)["maxyear"])]))~c(fbar(stck.[,ac(range(stck.)["maxyear"])])),cex=2,lwd=1)
+                          abline(v=c(Flim,Fpa),lty=2,lwd=2)
+                          abline(h=c(Blim,Bpa),lty=c(3,4),lwd=2)
+
+
+
+                          legend("topright",legend=c("F-SSB",ac(range(stck.)["maxyear"]),managementPlots[managementPoints]),
+                            pch=c(-1,19,rep(-1,length(managementPoints))),
+                            col=c("black","grey",c("black","black","black","black")[managementPoints]),
+                            lty=c(1,0,c(2,3,4,5)[managementPoints]),
+                            lwd=c(2,0,rep(2,length(managementPoints))),ncol=2,box.lty=0)
+                      }
+
+
+
+
+
 
 
 
