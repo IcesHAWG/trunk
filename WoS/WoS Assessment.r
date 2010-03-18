@@ -120,6 +120,8 @@ WoS@stock=computeStock(WoS) # to get TSB in stock slot
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
 ### ======================================================================================================
+#this only needs to be left in for the stock summary plot so run everything 
+#without the line below but then run line below to produce the picture that I want for the stock summary
 #WoS@stock.n[1,ac(2009)] <- NA
 do.summary.plots(WoS,WoS.ica)
 
