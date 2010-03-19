@@ -467,7 +467,7 @@ an <- function(x){ return(as.numeric(x))}
 
 # Plot time series of any slot in a stock or ica object (added 18-03-2010 by NTH)
 timeseries <- function(stck.,slot.){
-                #assign("stck.",stck.,envir=.GlobalEnv);assign("slot.",slot.,envir=.GlobalEnv);
+                assign("stck.",stck.,envir=.GlobalEnv);assign("slot.",slot.,envir=.GlobalEnv);
                 print(xyplot(data~year,data=slot(stck.,slot.),
                 groups=age,
                 auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
@@ -540,7 +540,7 @@ writeStandardOutput <- function(stck.,stck.sr,nyrs.=3,Blim=NULL,Bpa=NULL,Flim=NU
                           write.table(refpts(stck.brp)@.Data[,1:5,1],file=paste(output.base,"referencePoints.csv",sep=""),col.names=T,row.names=T,append=F,sep=",")
 
                           # Create the standard graphs for the advice sheet
-                          par(mfrow=c(3,1),oma=c(0.2,1,0.2,4))
+                          par(mfrow=c(3,1),oma=c(0.2,1,0.2,4),mar=c(2,0,2,0))
                           plot(rec(stck.)~ssb(stck.),pch=19,xlab="SSB in 1000 t",ylab="Recruits (age 0) in thousands",main="Stock - Recruitment")
                           abline(v=c(Blim,Bpa),lty=c(2,3),lwd=2)
 
@@ -572,6 +572,7 @@ writeStandardOutput <- function(stck.,stck.sr,nyrs.=3,Blim=NULL,Bpa=NULL,Flim=NU
                             col=c("black","grey",c("black","black","black","black")[managementPoints]),
                             lty=c(1,0,c(2,3,4,5)[managementPoints]),
                             lwd=c(2,0,rep(2,length(managementPoints))),ncol=2,box.lty=0)
+                          par(mfrow=c(1,1))
                       }
 
 
