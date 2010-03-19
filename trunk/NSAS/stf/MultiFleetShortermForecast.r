@@ -24,6 +24,16 @@ FcY   <- ac(2010) #Forecast year
 CtY   <- ac(2011) #Continuation year
 source("./data/readStfData.r")
 
+#- For the TAC's there is some special things going on. The A-fleet, you can get the TAC from the agreed management plan between Norway-EU. However, there might be catches from Norway from the C-fleet
+#  which they are allowed to take in the North Sea. So, substract these catches (which are a percentage of their total C-fleet quota) from the total C-fleet quota and move that into the North Sea
+#  Then split the C-fleet and D-fleet into parts from the WBSS and NSH
+#  The B-fleet is the bycatch in the North Sea
+#  Where to find the information: TAC A-Fleet: Agreement EU-Norway North Sea --> table
+#                                 TAC B-Fleet: Agreement EU-Norway North Sea --> in text
+#                                 TAC C-Fleet: Agreement EU-Norway Kattegat - Skaggerak --> table
+#                                 TAC D-Fleet: Agreement EU-Norway Kattegat - Skaggerak --> in text
+#                                 Transfer C-Fleet to A-fleet: Agreement EU-Norway Kattegat - Skaggerak --> in text, and combination with TAC of C-Fleet of Norway
+
 TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,5400,5400),"D"=c(2701,2200,2200)); TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
 #In case the C and D fleet catch a bit more
 #TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,7600,7600),"D"=c(2701,3100,3100)); TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
