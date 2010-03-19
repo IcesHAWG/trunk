@@ -22,8 +22,8 @@
                             panel.xyplot(tmp$year,tmp$data/1e6,col="black",lwd=2,type="l")
                             panel.xyplot(...,col="black",lwd=2,lty=2,pch=19)
                             panel.abline(h=c(0.8,1.3),lty=c(2,3))
-                            panel.text(1959,0.8,labels=expression(B[lim]),cex=0.7)
-                            panel.text(1959,1.3,labels=expression(B[pa]),cex=0.7)
+                            panel.text(1959,0.6,labels=expression(B[lim]),cex=0.7)
+                            panel.text(1959,1.6,labels=expression(B[pa]),cex=0.7)
                             draw.key(list(text=list(lab='TSB',cex=0.8),lines=list(lty=2,lwd=c(2)),
                                           text=list(lab='SSB',cex=0.8),lines=list(lty=1,lwd=c(2))),
                                       vp = viewport(x = unit(0.8, "npc"), y = unit(0.9, "npc")), draw=TRUE)
@@ -33,8 +33,8 @@
                             tmp <- as.data.frame(apply(stck@harvest[1:2],2,mean))
                             panel.xyplot(tmp$year,tmp$data,lty=2,lwd=2,col="black",type="l")
                             panel.abline(h=c(0.12,0.25),lty=c(2,3))
-                            panel.text(1959,0.12,labels=expression(F[pa][0-1]),cex=0.7)
-                            panel.text(1959,0.25,labels=expression(F[pa][2-6]),cex=0.7)
+                            panel.text(1959,0.09,labels=expression(F[pa][0-1]),cex=0.7)
+                            panel.text(1959,0.28,labels=expression(F[pa][2-6]),cex=0.7)
                             draw.key(list(text=list(lab=expression(F[2-6]),cex=0.8),lines=list(lty=1,lwd=c(2)),
                                           text=list(lab=expression(F[0-1]),cex=0.8),lines=list(lty=2,lwd=c(2))),
                                       vp = viewport(x = unit(0.8, "npc"), y = unit(0.9, "npc")), draw=TRUE)
