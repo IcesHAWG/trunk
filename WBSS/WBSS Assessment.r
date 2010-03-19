@@ -325,7 +325,7 @@ tbl.yrs     <- as.character(c(ImY,AdY,CtY))   #Years to report in the output tab
 
 #Deal with recruitment - a geometric mean of the five years prior to the terminal assessment year
 rec.years <- (TaY-5):(TaY-1)
-gm.recs  <- exp(mean(log(rec(WBSS)[,as.character(rec.years)])))
+gm.recs  <- exp(mean(log(rec(WBSS)[,as.character(rec.years)]))) # = (prod(rec(WBSS)[,as.character(rec.years)]))^(1/(length(rec.years)))
 WBSS.srr <- list(model="geomean",params=FLPar(gm.recs))
 
 #Expand stock object
@@ -349,7 +349,7 @@ options.l <- list(#Zero catch
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,AdY.catch*0.85,1))),
-                  #2009 Catch is 45087, followed by +15% Catch increase => 2010 Catch 51850
+                  #2009 Catch is 45087, followed by +0% Catch increase => 2010 Catch 51850
                   "Catch(2010) = 2009 TACs (56 627 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
