@@ -33,6 +33,10 @@ source("./data/readStfData.r")
 #                                 TAC C-Fleet: Agreement EU-Norway Kattegat - Skaggerak --> table
 #                                 TAC D-Fleet: Agreement EU-Norway Kattegat - Skaggerak --> in text
 #                                 Transfer C-Fleet to A-fleet: Agreement EU-Norway Kattegat - Skaggerak --> in text, and combination with TAC of C-Fleet of Norway
+#  Split the C-Fleet and D-Fleet into the WBSS and NSH fraction of the TAC (after taking the transfer from Norway from the C-Fleet)
+#  Split information comes from the 'Wonderful Table'
+#  Split is based on parts taken in the history
+#  TAC's for the C and D fleet for the Forecast and Continuation year come from the Danish
 
 TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,5400,5400),"D"=c(2701,2200,2200)); TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
 #In case the C and D fleet catch a bit more
