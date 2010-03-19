@@ -540,7 +540,7 @@ writeStandardOutput <- function(stck.,stck.sr,nyrs.=3,Blim=NULL,Bpa=NULL,Flim=NU
                           write.table(refpts(stck.brp)@.Data[,1:5,1],file=paste(output.base,"referencePoints.csv",sep=""),col.names=T,row.names=T,append=F,sep=",")
 
                           # Create the standard graphs for the advice sheet
-                          par(mfrow=c(3,1),oma=c(0.2,1,0.2,4),mar=c(2,0,2,0))
+                          par(mfrow=c(3,1),oma=c(0.2,4,0.2,4),mar=c(2,0,2,0))
                           plot(rec(stck.)~ssb(stck.),pch=19,xlab="SSB in 1000 t",ylab="Recruits (age 0) in thousands",main="Stock - Recruitment")
                           abline(v=c(Blim,Bpa),lty=c(2,3),lwd=2)
 
@@ -558,12 +558,14 @@ writeStandardOutput <- function(stck.,stck.sr,nyrs.=3,Blim=NULL,Bpa=NULL,Flim=NU
                           axis(4)
                           mtext("SSB per recruit",4,line=2,cex=0.7)
                           legend("topright",legend=c("Yield","SSB / Recruit"),lwd=c(2,2),lty=c(1,2),box.lty=0)
+                          box()
 
                           plot(c(ssb(stck.))~c(fbar(stck.)),type="l",lwd=2,xlab="Fbar",ylab="SSB in 1000 t",main=" Precautionary Approach Plot")
                           points(c(ssb(stck.[,ac(range(stck.)["maxyear"])]))~c(fbar(stck.[,ac(range(stck.)["maxyear"])])),pch=19,cex=2,col="grey")
                           points(c(ssb(stck.[,ac(range(stck.)["maxyear"])]))~c(fbar(stck.[,ac(range(stck.)["maxyear"])])),cex=2,lwd=1)
                           abline(v=c(Flim,Fpa),lty=2,lwd=2)
                           abline(h=c(Blim,Bpa),lty=c(3,4),lwd=2)
+                          box()
 
 
 
@@ -572,6 +574,7 @@ writeStandardOutput <- function(stck.,stck.sr,nyrs.=3,Blim=NULL,Bpa=NULL,Flim=NU
                             col=c("black","grey",c("black","black","black","black")[managementPoints]),
                             lty=c(1,0,c(2,3,4,5)[managementPoints]),
                             lwd=c(2,0,rep(2,length(managementPoints))),ncol=2,box.lty=0)
+                            box()
                           par(mfrow=c(1,1))
                       }
 
