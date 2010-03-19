@@ -223,26 +223,26 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(WoS.orig,output.file=output.base)
-
-
+ 
 ### ======================================================================================================
 ### Short Term Forecast
 ### ======================================================================================================
-# FnPrint("PERFORMING SHORT TERM FORECAST...\n")
+FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
-#gm.recs         <- exp(mean(log(rec(trim(WoS.orig,year=1989:2006)))))  #WBSS recruitment is based on a geometric mean of the last few years
-#stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=21760,f.rescale=TRUE,rec=gm.recs)
-#WoS.orig@catch.n[1,52,,,,]=1
-#WoS.stf        <- FLSTF(stock=WoS.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
-#writeFLStock(WoS.stf,output.file="WoSaddyr")
+gm.recs         <- exp(mean(log(rec(trim(WoS.orig,year=1989:2006)))))  #WoS recruitment is based on a geometric mean of 1989-2006
+stf.ctrl        <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=24420,f.rescale=TRUE,rec=gm.recs)
+WoS.orig@stock.n["1",ac(2009)] <- gm.recs
+WoS.orig@catch.n[1,52,,,,]=1
+WoS.stf        <- FLSTF(stock=WoS.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
+writeFLStock(WoS.stf,output.file="WoSaddyr")
 ## use the rounder version so report and quality control database have same values
-#writeFLStock(WoS,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
+writeFLStock(WoS,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
 # project one year in order to get a single year holding means for YPR output
-#WoS.proj=stf(WoS.orig,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
-#writeFLStock(WoS.proj,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
+WoS.proj=stf(WoS.orig,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
+writeFLStock(WoS.proj,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
 
 # Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-# writeFLStock(WBSS.stf,output.file=paste(output.base,"with STF"))
+writeFLStock(WoS.stf,output.file=paste(output.base,"with STF"))
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
@@ -252,3 +252,17 @@ save(WoS.orig,WoS.tun,WoS.ctrl,file=paste(output.base,"Assessment.RData"))
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
+
+
+
+### ======================================================================================================
+### Short Term Forecast data preparation - not used as John has code above
+### ======================================================================================================
+#gm.recs <- exp(mean(log(rec(trim(WoS,year=1989:2006)))))
+#WoS.orig@stock.n["1",ac(2009)] <- gm.recs
+#stf.ctrl        <- FLSTF.control(fbar.min=3,fbar.max=6,fbar.nyrs=1,nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec=gm.recs)
+#WoS.stf  <- FLSTF(stock=WoS.orig,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
+
+# Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
+#writeFLStock(WoS.stf,output.file=paste(output.base,"with STF"))
+
