@@ -1,9 +1,9 @@
-#Agreed TACS according to EU times over- or underfishing
+#Agreed TACS according to EU times over- or underfishing in the intermediate year
 OOF   <- read.csv(paste("./data/over_underfishing",DtY,".csv",sep=""),header=T); dims.OOF <- dim(OOF)
-TAC.A <- (171000 +1000)   * mean(OOF[(dims.OOF[1]-2):dims.OOF[1],"A"])  #transfer for Norwegian fleet to transfer quota
-TAC.B <- 15985            * mean(OOF[dims.OOF[1],"B"]) #only last years fractions
-TAC.C <- (37722 -1000)    * mean(OOF[dims.OOF[1],"C"]) #only last years fractions     #1000 tons transfer in agreed EU-Norway paper
-TAC.D <- 8373             * mean(OOF[dims.OOF[1],"D"]) #only last years fractions
+#TAC.A <- (171000 +1000)   * mean(OOF[(dims.OOF[1]-2):dims.OOF[1],"A"])  #transfer for Norwegian fleet to transfer quota
+#TAC.B <- 15985            * mean(OOF[dims.OOF[1],"B"]) #only last years fractions
+#TAC.C <- (37722 -1000)    * mean(OOF[dims.OOF[1],"C"]) #only last years fractions     #1000 tons transfer in agreed EU-Norway paper
+#TAC.D <- 8373             * mean(OOF[dims.OOF[1],"D"]) #only last years fractions
 
 #Partial Fs per fleet
 #Fs            <- read.csv(paste("./data/partial_fs",ac(an(ImY)-1),".csv",sep=""),header=T)
@@ -74,6 +74,7 @@ find.FAB      <- function(mult,stk,f01,f26,mp.options){
                     
 find.Bpa <- function(mult,stk,rec,bpa){
               bigF <- unitSums(stk@harvest[,1]) * mult
-              stk@stock.n[,2] <- c(rec,(stk@stock.n[,1,1]*exp(-bigF-stk@m[,1,1]))[ac(range(stk)["min"]:(range(stk)["max"]-2)),1],sum((stk@stock.n[,1,1]*exp(-bigF-stk@m[,1,1]))[ac((range(stk)["max"]-1):range(stk)["max"]),1]))
+              stk@stock.n[,2] <- c(rec,(stk@stock.n[,1,1]*exp(-bigF-stk@m[,1,1]))[ac(range(stk)["min"]:(range(stk)["max"]-2)),1],
+                                sum((stk@stock.n[,1,1]*exp(-bigF-stk@m[,1,1]))[ac((range(stk)["max"]-1):range(stk)["max"]),1]))
               ssb <- sum(stk@stock.n[,2,1]*stk@stock.wt[,2,1]*stk@mat[,2,1]*exp(-bigF*stk@harvest.spwn[,2,1]-stk@m[,2,1]*stk@m.spwn[,2,1]))
               return((bpa-ssb)^2)}
