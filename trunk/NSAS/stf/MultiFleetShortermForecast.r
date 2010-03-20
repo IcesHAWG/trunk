@@ -42,12 +42,13 @@ CtY   <- ac(an(DtY)+3) #Continuation year
 source("./data/readStfData.r")
 source("./data/writeSTF.out.r")
 
-
+#2009 retrospect: TACS      <- list("A"=c(168400,NA,NA),"B"=c(9800,NA,NA),"C"=c(5100,4300,4300),"D"=c(1500,980,980));
+#                 TACS.orig <- list("A"=c(168400,NA,NA),"B"=c(9800,NA,NA),"C"=c(5100,4300,4300),"D"=c(1500,980,980))
 #2009: TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,5400,5400),"D"=c(2701,2200,2200));
 #      TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
 #2010:
-       TACS  <- list("A"=c(164300+905,NA,NA),     "B"=c(13587,NA,NA),"C"=c(4300,2460,2460),"D"=c(980,720,720));
-       TACS.orig <- list("A"=c(164300+905,NA,NA), "B"=c(13587,NA,NA),"C"=c(4300,2460,2460),"D"=c(980,720,720))
+       TACS  <- list("A"=c(164300+903,NA,NA), "B"=c(13587,NA,NA),"C"=c(4300,2460,2460),"D"=c(980,720,720));
+       TACS.orig <- list("A"=c(164300,NA,NA), "B"=c(13587,NA,NA),"C"=c(4300,2460,2460),"D"=c(980,720,720))
 
 RECS  <- list("ImY"=NSH.ica@param["Recruitment prediction","Value"],"FcY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-7):(range(NSH)["maxyear"]))]))),
               "CtY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-7):(range(NSH)["maxyear"]))]))))
@@ -241,7 +242,7 @@ for(i in c("catch","catch.n","stock.n","harvest")){
   slot(stf,i)[,FcY] <- ""
   slot(stf,i)[,CtY] <- ""
 }
-  
+
 options("width"=80,"scipen"=1000)
 stf.out.file <- stf.out(stf,RECS,format="TABLE 3.7.%i NSH HERRING.")
 write(stf.out.file,file=paste(output.base,"stf.out",sep="."))
