@@ -2,8 +2,8 @@
 # Code to do the multifleet short term forecast for North Sea Herring
 #
 # By: Niels Hintzen
-# Wageningen IMARES
-# 22 March 2009
+# IMARES
+# 20 March 2010
 #
 ################################################################################
 rm(list=ls());
@@ -40,6 +40,7 @@ CtY   <- ac(an(DtY)+3) #Continuation year
 
 #- Source the code to read in the weights at age and numbers at age by fleet, to compute partial F's and partial weights
 source("./data/readStfData.r")
+source("./data/writeSTF.out.r")
 
 
 #2009: TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,5400,5400),"D"=c(2701,2200,2200));
@@ -231,4 +232,20 @@ if("bpa" %in% stf.options){
 if("fmsy" %in% stf.options){
   stf.table["fmsy",] <- stf.table["bpa",]
 }
-TACS
+
+
+#- Writing the STF to file
+for(i in c("catch","catch.n","stock.n","harvest")){
+  slot(stf,i)[,FcY] <- ""
+  slot(stf,i)[,CtY] <- ""
+}
+  
+options("width"=80,"scipen"=1000)
+stf.out.file <- stf.out(stf,RECS,format="TABLE 3.7.%i NSH HERRING.")
+write(stf.out.file,file=paste(output.base,"stf.out",sep="."))
+
+#- Write the stf.table to file
+write.table(stf.table,file=paste(output.base,"stf.table",sep="."),append=F,col.names=T,row.names=T)
+
+#- Save the output to an RData file
+save.image(file=paste(output.base,"ShortTermForecast Workspace.RData"))
