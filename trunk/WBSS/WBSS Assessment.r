@@ -334,8 +334,8 @@ WBSS.proj@stock.n[,ac(ImY)]  <- WBSS.ica@survivors
 WBSS.proj@stock.n[1,as.character(c(ImY,AdY,CtY))] <- gm.recs
 
 #Define some constants
-ImY.catch <- 62129
-AdY.catch <- 62129   #Rollover, see stock annex
+ImY.catch <- 61820
+AdY.catch <- 61820   #Rollover, see stock annex
 numFmsy <- 0.25 
 
 #Setup options
@@ -374,11 +374,11 @@ options.l <- list(#Zero catch
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,numFmsy,1))),
                   #Intermediate year catch equal TAC, followed Fbar = (SSB_2011/110,000 * Fmsy (0.25)
-                  "Fbar(2010) = 0.209"=
+                  "Fbar(2010) = 0.167"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,0.209,1)))
+                                          val=c(ImY.catch,0.167,1)))
 ) #End options list
 
 #Multi-options table
