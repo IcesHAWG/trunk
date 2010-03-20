@@ -27,13 +27,14 @@ WC            <- apply(Ws[,paste("C",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T
 WD            <- apply(Ws[,paste("D",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
 
 fleet.harvest <- function(stk,fleet,yr,TAC){
-                    res <- optimize(rescale.F,c(0,2),stk=stk,fleet=fleet,yr=yr,TAC=TAC)$minimum
+                    res <- optimize(rescale.F,c(0,10),stk=stk,fleet=fleet,yr=yr,TAC=TAC,tol=0.000001)$minimum
                     stk@harvest[,yr,fleet] <- stk@harvest[,yr,fleet]*res
                     return(stk@harvest[,yr,fleet])}
 
 rescale.F     <- function(mult,stk,fleet,yr,TAC){
                     stk@harvest[,yr,fleet] <- stk@harvest[,yr,fleet]*mult
-                    return(c(TAC - sum(stk@stock.n[,yr,fleet]*(1-exp(-stk@harvest[,yr,fleet]-stk@m[,yr,fleet]))*stk@catch.wt[,yr,fleet]*(stk@harvest[,yr,fleet]/(stk@harvest[,yr,fleet]+stk@m[,yr,fleet]))))^2)}
+                    return(c(TAC - sum(stk@stock.n[,yr,fleet]*(1-exp(-stk@harvest[,yr,fleet]-stk@m[,yr,fleet]))*stk@catch.wt[,yr,fleet]*
+                                      (stk@harvest[,yr,fleet]/(stk@harvest[,yr,fleet]+stk@m[,yr,fleet]))))^2)}
 
 
 find.F        <- function(mult,stk,fleet,f26,flim){
@@ -72,9 +73,11 @@ find.FAB      <- function(mult,stk,f01,f26,mp.options){
                       }
                     return(ret)}                    
                     
-find.Bpa <- function(mult,stk,rec,bpa){
-              bigF <- unitSums(stk@harvest[,1]) * mult
+find.Bpa <- function(mult,stk,rec,bpa,fpa,f26){
+              bigF <- unitSums(stk@harvest[,1,1:2]) * mult + unitSums(stk@harvest[,1,3:4])
               stk@stock.n[,2] <- c(rec,(stk@stock.n[,1,1]*exp(-bigF-stk@m[,1,1]))[ac(range(stk)["min"]:(range(stk)["max"]-2)),1],
                                 sum((stk@stock.n[,1,1]*exp(-bigF-stk@m[,1,1]))[ac((range(stk)["max"]-1):range(stk)["max"]),1]))
               ssb <- sum(stk@stock.n[,2,1]*stk@stock.wt[,2,1]*stk@mat[,2,1]*exp(-bigF*stk@harvest.spwn[,2,1]-stk@m[,2,1]*stk@m.spwn[,2,1]))
-              return((bpa-ssb)^2)}
+              fbar <- mean(bigF[f26,1])
+              return(ifelse(fbar>0.25,(fbar-fpa)^2,(bpa-ssb)^2))}
+              
