@@ -246,8 +246,6 @@ box()
 title(main=paste(NSH@name,"Catch and TAC"))
 mtext("Working group estimate",side=1,outer=F,line=5,cex=ca)
 
-# Write the standard graph output and create the figures, and write the reference points to file
-writeStandardOutput(stck.=NSH,stck.sr=NSH.sr,nyrs.=3,Blim=0.8e6,Bpa=1.3e6,Flim=NULL,Fpa=0.25)
 
 
 ### ======================================================================================================
@@ -263,7 +261,6 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(NSH,output.file=output.base)
-
 
 ### ======================================================================================================
 ### Short Term Forecast
@@ -300,3 +297,9 @@ save(NSH,NSH.stock10,NSH.tun,NSH.ctrl,file=paste(output.base,"Assessment.RData")
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
+
+### ======================================================================================================
+### Create the figures for the advice sheet and the summary table and reference points
+### ======================================================================================================
+
+writeStandardOutput(NSH,NSH.sr,NSH.retro,nyrs.=3,output.base,Blim=0.8e6,Bpa=1.3e6,Flim=NULL,Fpa=0.25,Bmsy=NULL,Fmsy=NULL)
