@@ -51,6 +51,8 @@ source("./data/writeSTF.out.r")
 
 RECS  <- list("ImY"=NSH.ica@param["Recruitment prediction","Value"],"FcY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-7):(range(NSH)["maxyear"]))]))),
               "CtY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-7):(range(NSH)["maxyear"]))]))))
+#2010 extra:
+#RECS <- list("ImY"=34135668.24,"FcY"=38770600.39,"CtY"=38770600.39 )
 FS    <- list("A"=FA,"B"=FB,"C"=FC,"D"=FD)
 WS    <- list("A"=WA,"B"=WB,"C"=WC,"D"=WD)   
 
