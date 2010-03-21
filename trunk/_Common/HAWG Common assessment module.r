@@ -577,8 +577,8 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           abline(h=c(Bpa/1000),lty=4,lwd=2.5,col="blue")
                           abline(h=c(Bmsy/1000),lty=2,lwd=3.5,col="green")
                           abline(h=c(Fmsy),lty=2,lwd=3.5,col="green")
-                          points(c(ssb(stck.[,ac(range(stck.)["maxyear"])]))/1000~c(fbar(stck.[,ac(range(stck.)["maxyear"])])),pch=19,cex=2,col="black")
-                          legend("topright",legend=c(range(stck.)["maxyear"]),pch=19,cex=1.2,col="black",lty=0,box.lty=0)
+                          points(c(ssb(stck.[,ac(range(stck.)["maxyear"])]))/1000~c(fbar(stck.[,ac(range(stck.)["maxyear"])])),pch=19,cex=1,col="black")
+                          legend("topright",legend=c(range(stck.)["maxyear"]),pch=19,cex=1,col="black",lty=0,box.lty=0)
                           box()
                           dev.off()
 
@@ -589,12 +589,23 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           #-----------------------------------------------------
                           png(paste(output.base,"HistoricalTrendsplot.png"),units = "px", height=880,width=1800,pointsize = 24, bg = "white",res=72)
                           par(mfrow=c(2,2),yaxs="i",las=1,mar=c(3.1,4.1,2.1,2.1))
+                          
+                          yrange <- range(landings(stck.)/1000,na.rm=T) *c(0,1.05)
+                          xrange <- range(pretty(dimnames(stck.@landings)$year))
                           #-Plot the landings
-                          barplot(c(landings(stck.)/1000),names.arg=c(dimnames(stck.@landings)$year),space=1,main="Landings",xlab="",ylab="Landings in 1000 t",
-                                  cex.lab=1.1,font.lab=2)
+                          
+                          landings <- data.frame(year=an(c(dimnames(landings(stck.))$year)),catch=an(c(landings(stck.)/1000)))
+                          plot(0,0,pch=NA,main="Landings",xlab="",ylab="Landings in 1000 t",
+                                  cex.lab=1.1,font.lab=2,ylim=yrange,xlim=xrange)
+                          rect(landings$year-0.5,0,landings$year+0.5,landings$catch,col="grey")
+
                           #-Plot the Recruitment
-                          barplot(c(rec(stck.)/1000),names.arg=c(dimnames(stck.@landings)$year),space=1,main=paste("Recruitment (age ",dimnames(rec(stck.))$age,")",sep=""),
-                                   xlab="",ylab="", cex.lab=1.1,font.lab=2)
+                          yrange <- range(rec(stck.)/1000,na.rm=T) *c(0,1.05)
+                          xrange <- range(pretty(dimnames(rec(stck.))$year))
+                          recruits <- data.frame(year=an(c(dimnames(rec(stck.))$year)),recruits=an(c(rec(stck.)/1000)))
+                          plot(0,0,pch=NA,main=paste("Recruitment (age ",dimnames(rec(stck.))$age,")",sep=""),xlab="",ylab="",
+                                  cex.lab=1.1,font.lab=2,ylim=yrange,xlim=xrange)
+                          rect(recruits$year-0.5,0,recruits$year+0.5,recruits$recruits,col="grey")
                           par(las=0)
                           mtext("Recruitment in millions",side=2,line=4,cex=1,font=2)
                           #-Plot the Fishing mortality
