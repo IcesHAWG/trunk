@@ -566,7 +566,7 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           png(paste(output.base,"PAplot.png"),units = "px", height=540,width=540,pointsize = 24, bg = "white",res=72)
                           par(yaxs="i",las=1,oma=c(0,1,0,0),mar=c(5.1,4.1,2.1,2.1))
                           yrange <- range(c(ssb(stck.))/1000,na.rm=T)*c(0,1.05)
-                          xrange <- range(c(fbar(stck.)),na.rm=T)*c(0.95,1.05)
+                          xrange <- range(c(Fmsy,Fpa,Flim),c(fbar(stck.)),na.rm=T)*c(0.95,1.05)
                           plot(c(ssb(stck.))/1000~c(fbar(stck.)),type="l",lwd=2,xlab=paste("Fishing Mortality (ages ",range(stck.)["minfbar"],"-",range(stck.)["maxfbar"],")",sep=""),
                                ylab="",ylim=yrange,xlim=xrange,font.lab=2,cex.lab=1)
                           par(las=0)
