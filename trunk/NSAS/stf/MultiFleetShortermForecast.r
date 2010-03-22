@@ -47,8 +47,8 @@ source("./data/writeSTF.out.r")
 #2009: TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,5400,5400),"D"=c(2701,2200,2200));
 #      TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
 #2010:
-       TACS  <- list("A"=c(164300+903,NA,NA), "B"=c(13587,NA,NA),"C"=c(4300,2460,2460),"D"=c(980,720,720));
-       TACS.orig <- list("A"=c(164300,NA,NA), "B"=c(13587,NA,NA),"C"=c(4300,2460,2460),"D"=c(980,720,720))
+       TACS  <- list("A"=c(164300+903,NA,NA), "B"=c(13587,NA,NA),"C"=c(4300,1680,1680),"D"=c(980,490,490));
+       TACS.orig <- list("A"=c(164300,NA,NA), "B"=c(13587,NA,NA),"C"=c(4300,1680,1680),"D"=c(980,490,490))
 
 RECS  <- list("ImY"=NSH.ica@param["Recruitment prediction","Value"],"FcY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-7):(range(NSH)["maxyear"]))]))),
               "CtY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-7):(range(NSH)["maxyear"]))]))))
@@ -244,7 +244,7 @@ for(i in c("catch","catch.n","stock.n","harvest")){
 }
 
 options("width"=80,"scipen"=1000)
-stf.out.file <- stf.out(stf,RECS,format="TABLE 3.7.%i NSH HERRING.")
+stf.out.file <- stf.out(stf,RECS,format="TABLE 3.7.%i NORTH SEA HERRING.")
 write(stf.out.file,file=paste(output.base,"stf.out",sep="."))
 
 #- Write the stf.table to file
