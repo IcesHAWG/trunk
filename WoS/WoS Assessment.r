@@ -254,6 +254,19 @@ save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
 
+### ======================================================================================================
+### Create the figures for the advice sheet and the summary table and reference points
+### ======================================================================================================
+WoS.sr <- fmle(FLSR(rec=rec(WoS),ssb=ssb(WoS),model="bevholt"),control=list(parscale=c(0.001,1,0.001)))
+WoS.sr <- fmle(as.FLSR(transform(WoS,stock.n=WoS@stock.n/100000),model="bevholt"));
+WoS.sr@params <- WoS.sr@params*100000
+
+# Or, for Hockey-Stick
+# WoS.sr <- fmle(as.FLSR(transform(WoS,stock.n=WoS@stock.n/100000),model="segreg"));
+# WoS.sr@params <- WoS.sr@params*100000
+
+writeStandardOutput(WoS,WoS.sr,WoS.retro,nyrs.=3,output.base,Blim=5e4,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25)
+
 
 
 ### ======================================================================================================
