@@ -576,7 +576,7 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           abline(h=c(Blim/1000),lty=2,lwd=2.5,col="blue")
                           abline(h=c(Bpa/1000),lty=4,lwd=2.5,col="blue")
                           abline(h=c(Bmsy/1000),lty=2,lwd=3.5,col="green")
-                          abline(h=c(Fmsy),lty=2,lwd=3.5,col="green")
+                          abline(v=c(Fmsy),lty=2,lwd=3.5,col="green")
                           points(c(ssb(stck.[,ac(range(stck.)["maxyear"])]))/1000~c(fbar(stck.[,ac(range(stck.)["maxyear"])])),pch=19,cex=1,col="black")
                           legend("topright",legend=c(range(stck.)["maxyear"]),pch=19,cex=1,col="black",lty=0,box.lty=0)
                           box()
