@@ -345,25 +345,25 @@ options.l <- list(#Zero catch
                                           quantity="catch",
                                           val=c(ImY.catch,0,0))),
                   #Intermediate year catch equal TAC, followed by -15% Catch reduction
-                  "Catch(2010) = 2009 TACs -15% (48 756 t)"=
+                  "Catch(2010) = 2009 IMC -15% (52 547 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,AdY.catch*0.85,1))),
                   #Intermediate year catch equal TAC, followed by +0% Catch increase
-                  "Catch(2010) = 2009 TACs (57 360 t)"=
+                  "Catch(2010) = 2009 IMC (61 820 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,AdY.catch*1,1))),
                   #Intermediate year catch equal TAC, followed by +15% Catch increase
-                  "Catch(2010) = 2009 TACs +15% (65 964 t)"=
+                  "Catch(2010) = 2009 IMC +15% (71 093 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,AdY.catch*1.15,1))),
-                  #Intermediate year catch equal TAC
-                  "Catch(2010) = 2009 Catch (57 360 t)"=
+                  #Intermediate year catch 
+                  "Catch(2010) = 2009 IMC (61 820 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity="catch",
                                           val=ImY.catch)),
@@ -497,3 +497,11 @@ save.image(file=paste(output.base,"- Complete Workspace.RData"))
 ### ======================================================================================================
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
+
+### ======================================================================================================
+### Create the figures for the advice sheet and the summary table and reference points
+### ======================================================================================================
+
+WBSS.sr <- fmle(as.FLSR(transform(WBSS,stock.n=WBSS@stock.n/100000),model="bevholt"));
+WBSS.sr@params <- WBSS.sr@params*100000
+writeStandardOutput(WBSS,WBSS.sr,WBSS.retro,nyrs.=3,output.base,Blim=NULL,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25)
