@@ -611,8 +611,9 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           #-Plot the Fishing mortality
                           par(yaxs="i",las=1)
                           yrange <- range(fbar(stck.),na.rm=T) * c(0,1.05)
+                          xrange <- range(pretty(dimnames(fbar(stck.))$year))
                           plot(c(fbar(stck.))~c(dimnames(fbar(stck.))$year),type="l",ylim=yrange,lwd=2,main="Fishing Mortality",
-                               xlab="",ylab=paste("F (ages ",range(stck.)["minfbar"],"-",range(stck.)["maxfbar"],")",sep=""), cex.lab=1.1,font.lab=2)
+                               xlab="",ylab=paste("F (ages ",range(stck.)["minfbar"],"-",range(stck.)["maxfbar"],")",sep=""), cex.lab=1.1,font.lab=2,xlim=xrange)
                           abline(h=c(Flim),lty=2,lwd=2.5,col="blue")
                           abline(h=c(Fpa),lty=4,lwd=2.5,col="blue")
                           abline(h=c(Fmsy),lty=2,lwd=3.5,col="green")
@@ -620,27 +621,32 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           managementPoints <- which(c(is.null(Blim),is.null(Bpa),is.null(Bmsy),is.null(Flim),is.null(Fpa),is.null(Fmsy))==F)
                           managementPlots  <- c(expression(B[lim]),expression(B[pa]),expression(B[MSY]),expression(F[lim]),expression(F[pa]),expression(F[MSY]))
                           
-                          legend("topright",legend=c(managementPlots[managementPoints[managementPoints>3]]),
+                          if(length(managementPlots[managementPoints[managementPoints>3]])>0){
+                            legend("topright",legend=c(managementPlots[managementPoints[managementPoints>3]]),
                                  lty=na.omit(c(ifelse(is.null(Flim)==F,2,numeric()),ifelse(is.null(Fpa)==F,4,numeric()),ifelse(is.null(Fmsy)==F,2,numeric()))),
                                  lwd=na.omit(c(ifelse(is.null(Flim)==F,2.5,numeric()),ifelse(is.null(Fpa)==F,2.5,numeric()),ifelse(is.null(Fmsy)==F,3.5,numeric()))),
                                  col=na.omit(c(ifelse(is.null(Flim)==F,"blue",numeric()),ifelse(is.null(Fpa)==F,"blue",numeric()),ifelse(is.null(Fmsy)==F,"green",numeric()))),
                                  box.lty=0)
+                          }
                           lines(c(fbar(stck.))~c(dimnames(fbar(stck.))$year),lwd=2)
                           box()
                                  
                           #-Plot SSB
                           yrange <- range(ssb(stck.)/1000,na.rm=T) * c(0,1.05)
+                          xrange <- range(pretty(dimnames(ssb(stck.))$year))
                           plot(c(ssb(stck.)/1000)~c(dimnames(ssb(stck.))$year),type="l",ylim=yrange,lwd=2,
-                               xlab="",ylab="SSB in 1000 t", cex.lab=1.1,font.lab=2,main="Spawning Stock Biomass")
+                               xlab="",ylab="SSB in 1000 t", cex.lab=1.1,font.lab=2,main="Spawning Stock Biomass",xlim=xrange)
                                
                           abline(h=c(Blim)/1000,lty=2,lwd=2.5,col="blue")
                           abline(h=c(Bpa)/1000,lty=4,lwd=2.5,col="blue")
                           abline(h=c(Bmsy)/1000,lty=2,lwd=3.5,col="green")
+                          if(length(managementPlots[managementPoints[managementPoints<=3]])>0){
                           legend("topright",legend=c(managementPlots[managementPoints[managementPoints<=3]]),
                                  lty=na.omit(c(ifelse(is.null(Blim)==F,2,numeric()),ifelse(is.null(Bpa)==F,4,numeric()),ifelse(is.null(Bmsy)==F,2,numeric()))),
                                  lwd=na.omit(c(ifelse(is.null(Blim)==F,2.5,numeric()),ifelse(is.null(Bpa)==F,2.5,numeric()),ifelse(is.null(Bmsy)==F,3.5,numeric()))),
                                  col=na.omit(c(ifelse(is.null(Blim)==F,"blue",numeric()),ifelse(is.null(Bpa)==F,"blue",numeric()),ifelse(is.null(Bmsy)==F,"green",numeric()))),
                                  box.lty=0)
+                          }
                           lines(c(ssb(stck.)/1000)~c(dimnames(ssb(stck.))$year),lwd=2)
                           box()
                           dev.off()
@@ -662,11 +668,13 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           abline(v=c(Blim)/1000,lty=2,lwd=2.5,col="blue")
                           abline(v=c(Bpa)/1000,lty=4,lwd=2.5,col="blue")
                           abline(v=c(Bmsy)/1000,lty=2,lwd=3.5,col="green")
+                          if(length(managementPlots[managementPoints[managementPoints<=3]])>0){
                           legend("topright",legend=c(managementPlots[managementPoints[managementPoints<=3]]),
                                  lty=na.omit(c(ifelse(is.null(Blim)==F,2,numeric()),ifelse(is.null(Bpa)==F,4,numeric()),ifelse(is.null(Bmsy)==F,2,numeric()))),
                                  lwd=na.omit(c(ifelse(is.null(Blim)==F,2.5,numeric()),ifelse(is.null(Bpa)==F,2.5,numeric()),ifelse(is.null(Bmsy)==F,3.5,numeric()))),
                                  col=na.omit(c(ifelse(is.null(Blim)==F,"blue",numeric()),ifelse(is.null(Bpa)==F,"blue",numeric()),ifelse(is.null(Bmsy)==F,"green",numeric()))),
                                  box.lty=0)
+                          }
                           points(c(rec(stck.)/1000)~c(ssb(stck.)/1000),pch=19)
                           box()
                           
