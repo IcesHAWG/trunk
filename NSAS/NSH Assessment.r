@@ -56,13 +56,13 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 data.source         <-  file.path(".","data")                   #Data source, not code or package source!!!
 output.dir          <-  file.path(".","results")                #Output directory
-output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
+output.base         <-  file.path(output.dir,"NSH Assessment SCAI")  #Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  10                                      #Number of years for which to run the retrospective
 
 ### ======================================================================================================
 ### Output setup
 ### ======================================================================================================
-png(paste(output.base,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
+png(paste(output.base,"figures SCAI - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
 #png(paste(output.base,"figures - 64.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
 
 
@@ -255,7 +255,7 @@ FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
 old.opt           <- options("width","scipen")
 options("width"=80,"scipen"=1000)
-ica.out.file      <- ica.out(NSH,NSH.tun,NSH.ica,format="TABLE 3.6.%i NSH HERRING.")
+ica.out.file      <- ica.out(NSH,NSH.tun,NSH.ica,format="TABLE 3.6.%i North Sea Herring HERRING.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
