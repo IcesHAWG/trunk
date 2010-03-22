@@ -378,7 +378,13 @@ options.l <- list(#Zero catch
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,0.167,1)))
+                                          val=c(ImY.catch,0.167,1))),
+                  #Intermediate year catch equal TAC, followed Fbar = (SSB_2011/170,000 * Fmsy (0.25)
+                  "Fbar(2010) = 0.109"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","f","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,0.109,1)))
 ) #End options list
 
 #Multi-options table
