@@ -288,23 +288,6 @@ west.ts  <- xyplot(data~year,data=window(cs.herring@stock.wt,1991,2009),
               par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25)))
 print(west.ts)
 
-#Time series of west by cohort
-west.by.cohort      <- as.data.frame(FLCohort(window(cs.herring@stock.wt,1992,2009)))
-west.by.cohort      <-  subset(west.by.cohort,!is.na(west.by.cohort$data))
-west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
-west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
-              groups=cohort,
-              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
-              type="b",
-              xlab="Year",ylab="Weight in the stock (kg)",
-              main=paste(cs.herring@name,"Weight in the stock by cohort"),
-              par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1.25)),
-              panel=function(...) {
-                panel.grid(h=-1,v=-1)
-                panel.xyplot(...)
-              })
-print(west.cohort.plot)
-
 
 #Time series of west by cohort
 west.by.cohort      <- as.data.frame(FLCohort(window(cs.herring@stock.wt,1992,2009)))
