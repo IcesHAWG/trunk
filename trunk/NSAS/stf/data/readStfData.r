@@ -73,11 +73,38 @@ find.FAB      <- function(mult,stk,f01,f26,mp.options){
                       }
                     return(ret)}                    
                     
-find.Bpa <- function(mult,stk,rec,bpa,fpa,f26){
-              bigF <- unitSums(stk@harvest[,1,1:2]) * mult + unitSums(stk@harvest[,1,3:4])
+find.Bpa <- function(mult,stk,rec,bpa,fpa,f26,f01){
+              stk@harvest[,1,1] <- stk@harvest[,1,1] * mult[1]
+              stk@harvest[,1,2] <- stk@harvest[,1,2] * mult[2]
+              bigF <- unitSums(stk@harvest[,1])
               stk@stock.n[,2] <- c(rec,(stk@stock.n[,1,1]*exp(-bigF-stk@m[,1,1]))[ac(range(stk)["min"]:(range(stk)["max"]-2)),1],
                                 sum((stk@stock.n[,1,1]*exp(-bigF-stk@m[,1,1]))[ac((range(stk)["max"]-1):range(stk)["max"]),1]))
               ssb <- sum(stk@stock.n[,2,1]*stk@stock.wt[,2,1]*stk@mat[,2,1]*exp(-bigF*stk@harvest.spwn[,2,1]-stk@m[,2,1]*stk@m.spwn[,2,1]))
-              fbar <- mean(bigF[f26,1])
-              return(ifelse(fbar>0.25,(fbar-fpa)^2,(bpa-ssb)^2))}
+              fbar26 <- mean(bigF[f26,1])
+              fbar01 <- mean(bigF[f01,1])
+              return(ifelse(fbar26>0.25|fbar01>0.05,(fbar26-fpa)^2+(fbar01-0.05)^2,(bpa-ssb)^2))}
               
+find.FB      <- function(mult,stk,f01,f26){
+                    stk@harvest[,,1]  <- stk@harvest[,,1]
+                    stk@harvest[,,2]  <- stk@harvest[,,2]*mult
+                    bigF              <- apply(stk@harvest,1,sum)
+                    ssb               <- sum(stk@stock.n[,,1]*stk@stock.wt[,,1]*exp(-bigF*stk@harvest.spwn[,,1]-stk@m[,,1]*stk@m.spwn[,,1])*stk@mat[,,1])
+
+                      if(ssb < 0.8e6){
+                        resA <- 0.1
+                        resB <- 0.04
+                      }
+                      if(ssb >= 0.8e6 & ssb <= 1.5e6){
+                        resA <- 0.15/0.7*((ssb-0.8e6)/1e6)+0.1
+                        resB <- 0.05
+                      }
+                      if(ssb > 1.5e6){
+                        resA <- 0.25
+                        resB <- 0.05
+                      }
+
+                      fbarB <- mean(bigF[f01,])
+                      ret <- (fbarB-resB)^2
+
+                    return(ret)}
+                    
