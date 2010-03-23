@@ -340,47 +340,47 @@ numFmsy <- 0.25
 
 #Setup options
 options.l <- list(#Zero catch
-                  "Catch(2010) = Zero"=
+                  "Catch(2011) = Zero"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity="catch",
                                           val=c(ImY.catch,0,0))),
                   #Intermediate year catch equal TAC, followed by -15% Catch reduction
-                  "Catch(2010) = 2009 IMC -15% (52 547 t)"=
+                  "Catch(2011) = 2009 IMC -15% (52 547 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,AdY.catch*0.85,1))),
                   #Intermediate year catch equal TAC, followed by +0% Catch increase
-                  "Catch(2010) = 2009 IMC (61 820 t)"=
+                  "Catch(2011) = 2009 IMC (61 820 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,AdY.catch*1,1))),
                   #Intermediate year catch equal TAC, followed by +15% Catch increase
-                  "Catch(2010) = 2009 IMC +15% (71 093 t)"=
+                  "Catch(2011) = 2009 IMC +15% (71 093 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,AdY.catch*1.15,1))),
                   #Intermediate year catch 
-                  "Catch(2010) = 2009 IMC (61 820 t)"=
+                  "Catch(2011) = 2009 IMC (61 820 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity="catch",
                                           val=ImY.catch)),
                   #Intermediate year catch equal TAC, followed Fbar = Fmsy (0.25)
-                  "Fbar(2010) = 0.25"=
+                  "Fbar(2011) = 0.25"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,numFmsy,1))),
                   #Intermediate year catch equal TAC, followed Fbar = (SSB_2011/110,000 * Fmsy (0.25)
-                  "Fbar(2010) = 0.167"=
+                  "Fbar(2011) = 0.167"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,0.167,1))),
                   #Intermediate year catch equal TAC, followed Fbar = (SSB_2011/170,000 * Fmsy (0.25)
-                  "Fbar(2010) = 0.109"=
+                  "Fbar(2011) = 0.109"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
