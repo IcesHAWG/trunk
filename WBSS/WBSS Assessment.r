@@ -491,6 +491,16 @@ writeFLStock(WBSS,file.path(output.dir,"hawg_her-3a22.sum"),type="ICAsum")
 #The YPR curves based on the same values as the projection - therefore use WBSS.proj
 writeFLStock(WBSS.proj,file.path(output.dir,"hawg_her-3a22.ypr"),type="YPR")
 
+
+### ======================================================================================================
+### Create the figures for the advice sheet and the summary table and reference points
+### ======================================================================================================
+
+WBSS.sr <- fmle(as.FLSR(transform(WBSS,stock.n=WBSS@stock.n/100000),model="bevholt"));
+WBSS.sr@params <- WBSS.sr@params*100000          
+WBSS@stock.n["0",as.character(TaY)] <- gm.recs
+writeStandardOutput(WBSS,WBSS.sr,WBSS.retro,nyrs.=3,output.base,Blim=NULL,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25,recImY=0) 
+
 ### ======================================================================================================
 ### Save workspaces
 ### ======================================================================================================
@@ -503,11 +513,3 @@ save.image(file=paste(output.base,"- Complete Workspace.RData"))
 ### ======================================================================================================
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
-
-### ======================================================================================================
-### Create the figures for the advice sheet and the summary table and reference points
-### ======================================================================================================
-
-WBSS.sr <- fmle(as.FLSR(transform(WBSS,stock.n=WBSS@stock.n/100000),model="bevholt"));
-WBSS.sr@params <- WBSS.sr@params*100000
-writeStandardOutput(WBSS,WBSS.sr,WBSS.retro,nyrs.=3,output.base,Blim=NULL,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25)
