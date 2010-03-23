@@ -308,4 +308,4 @@ FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),
 ### Create the figures for the advice sheet and the summary table and reference points
 ### ======================================================================================================
 
-writeStandardOutput(NSH,NSH.sr,NSH.retro,nyrs.=3,output.base,Blim=0.8e6,Bpa=1.3e6,Flim=NULL,Fpa=0.25,Bmsy=NULL,Fmsy=NULL)
+writeStandardOutput(NSH,NSH.sr,NSH.retro,recImY=NSH.ica@survivors[1,1],nyrs.=3,output.base,Blim=0.8e6,Bpa=1.3e6,Flim=NULL,Fpa=0.25,Bmsy=NULL,Fmsy=NULL)
