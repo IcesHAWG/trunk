@@ -515,6 +515,8 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           an                                <- function(x){return(as.numeric(x))}
                           rpts<-refpts()
                           dimnames(rpts)[[1]][5]            <-"crash"
+                          dimnames(rpts)[[1]][3]            <-"spr.35"
+                          dimnames(rpts)[[1]][2]            <-"fmed"
                           stck.brp                          <- brp(FLBRP(stck.,sr=stck.sr,fbar=seq(0,1,length.out=100),nyrs=nyrs.,refpts=rpts))
                           # Calculate the spawners in number
                           spawners                          <- colSums(stck.brp@stock.n * sweep(exp(sweep(-sweep(stck.brp@harvest,c(1,3:6),stck.brp@harvest.spwn,"*"),
@@ -552,7 +554,7 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                                                          yield(stck.brp)[,resfmed]/rec(stck.brp)[,resfmed],
                                                          ssb(stck.brp)[,resfmed]/rec(stck.brp)[,resfmed]))
                           colnames(refpoints) <- c(colnames(refpoints)[-c(6,7)],"yield/R","SSB/R")
-                          rownames(refpoints) <- c(rownames(refpoints)[-c(6)],"fmed")
+                          rownames(refpoints) <- c(rownames(refpoints)[-c(6)],"3y_aver")
                           
                           #- Write the refpoints to file
                           write.table(refpoints,file=paste(output.base,"referencePoints.csv",sep=""),col.names=T,row.names=T,append=F,sep=",")
