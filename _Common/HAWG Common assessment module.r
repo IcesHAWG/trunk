@@ -511,7 +511,7 @@ growth.anom.plot <- function(y,...) {
 }
 
 # Code to produce the standard graph output, as well as creating the standard graphs and writing everyting to file (added by NTH at 18-03-2010)
-writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Blim=NULL,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=NULL){
+writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,recImY=NULL,output.base="./",Blim=NULL,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=NULL){
                           an                                <- function(x){return(as.numeric(x))}
                           rpts<-refpts()
                           dimnames(rpts)[[1]][5]            <-"crash"
@@ -593,7 +593,13 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           par(mfrow=c(2,2),yaxs="i",las=1,mar=c(3.1,4.1,2.1,2.1))
                           
                           yrange <- range(landings(stck.)/1000,na.rm=T) *c(0,1.05)
-                          xrange <- range(pretty(dimnames(stck.@landings)$year))
+                          if(is.null(recImY)==F){
+                            xrange <- range(pretty(unique(c(dimnames(stck.@landings)$year,dimnames(ssb(stck.))$year,dimnames(rec(stck.))$year,
+                                                     dimnames(fbar(stck.))$year,ac(an(rev(dimnames(stck.@landings)$year)[1])+1)))))
+                          } else {
+                              xrange <- range(pretty(c(dimnames(stck.@landings)$year)))
+                          }
+
                           #-Plot the landings
                           
                           landings <- data.frame(year=an(c(dimnames(landings(stck.))$year)),catch=an(c(landings(stck.)/1000)))
@@ -602,9 +608,15 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           rect(landings$year-0.5,0,landings$year+0.5,landings$catch,col="grey")
 
                           #-Plot the Recruitment
-                          yrange <- range(rec(stck.)/1000,na.rm=T) *c(0,1.05)
-                          xrange <- range(pretty(dimnames(rec(stck.))$year))
-                          recruits <- data.frame(year=an(c(dimnames(rec(stck.))$year)),recruits=an(c(rec(stck.)/1000)))
+                          if(is.null(recImY)==F){
+                            yrange <- range(rec(stck.)/1000,recImY/1000,na.rm=T) *c(0,1.05)
+                          } else {
+                              yrange <- range(rec(stck.)/1000,na.rm=T) *c(0,1.05)
+                            }
+
+                          if(is.null(recImY)==T)  recruits <- data.frame(year=an(c(dimnames(rec(stck.))$year)),recruits=an(c(rec(stck.)/1000)))
+                          if(is.null(recImY)==F){ recruits <- data.frame(year=an(c(dimnames(rec(stck.))$year,ac(an(rev(dimnames(rec(stck.))$year)[1])+1))),
+                                                                        recruits=an(c(rec(stck.)/1000,an(recImY)/1000)))}
                           plot(0,0,pch=NA,main=paste("Recruitment (age ",dimnames(rec(stck.))$age,")",sep=""),xlab="",ylab="",
                                   cex.lab=1.1,font.lab=2,ylim=yrange,xlim=xrange)
                           rect(recruits$year-0.5,0,recruits$year+0.5,recruits$recruits,col="grey")
@@ -613,7 +625,7 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                           #-Plot the Fishing mortality
                           par(yaxs="i",las=1)
                           yrange <- range(fbar(stck.),na.rm=T) * c(0,1.05)
-                          xrange <- range(pretty(dimnames(fbar(stck.))$year))
+
                           plot(c(fbar(stck.))~c(dimnames(fbar(stck.))$year),type="l",ylim=yrange,lwd=2,main="Fishing Mortality",
                                xlab="",ylab=paste("F (ages ",range(stck.)["minfbar"],"-",range(stck.)["maxfbar"],")",sep=""), cex.lab=1.1,font.lab=2,xlim=xrange)
                           abline(h=c(Flim),lty=2,lwd=2.5,col="blue")
@@ -635,7 +647,6 @@ writeStandardOutput <- function(stck.,stck.sr,retro.,nyrs.=3,output.base="./",Bl
                                  
                           #-Plot SSB
                           yrange <- range(ssb(stck.)/1000,na.rm=T) * c(0,1.05)
-                          xrange <- range(pretty(dimnames(ssb(stck.))$year))
                           plot(c(ssb(stck.)/1000)~c(dimnames(ssb(stck.))$year),type="l",ylim=yrange,lwd=2,
                                xlab="",ylab="SSB in 1000 t", cex.lab=1.1,font.lab=2,main="Spawning Stock Biomass",xlim=xrange)
                                
