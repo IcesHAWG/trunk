@@ -1,3 +1,37 @@
+####################################################################################################
+
+### ======================================================================================================
+### Initialise system, including convenience functions and title display
+### ======================================================================================================
+rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
+options(stringsAsFactors=FALSE)
+FnPrint     <-  function(string) {
+	cat(string)
+	flush.console()
+}
+FnPrint("\nIrish Sea Herring FLICA Assessment\n===================================\n")
+### ======================================================================================================
+
+### ======================================================================================================
+### Define parameters for use in the assessment code here
+### ======================================================================================================
+data.source         <-  file.path("data")      #Data source, not code or package source!!!
+output.dir          <-  file.path("res")       #Output directory
+output.base         <-  file.path(output.dir,"nirs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
+n.retro.yrs         <-  5
+             #Specify specific years to do the retrospective over
+
+### ======================================================================================================
+### Output setup
+### ======================================================================================================
+png(paste(output.base,"figures - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
+#Set default lattice fontsize, so that things are actually readible!
+trellis.par.set(fontsize=list(text=24,points=20))
+
+### ======================================================================================================
+### ======================================================================================================
+
+
 library(FLCore)
 library(FLAssess)
 #library(FLash)
@@ -43,7 +77,7 @@ names(Pop4.tun) <- c("NINEL","Northern Ireland Acoustic Surveys")
 units(Pop4)[1:17]               <-as.list(c(rep(c("Tonnes","Thousands","Kg"),4),"NA","NA","f","NA","NA"))
 
 Pop4.ctrl<-FLICA.control(sep.nyr=6,sep.age=4,sep.sel=1.0,sr=FALSE,
-                                lambda.yr=c(1,1,1,1,1,1),
+                                lambda.yr=c(1,1,1,1,1,0.01),
                                 lambda.age =c(0.1, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
                                 lambda.sr=0.01, index.model=c("l","l"), index.cor=F)
 
