@@ -1,5 +1,8 @@
 #Make stock summary plots (ie SSB, Fbar, recs)
-    stck <- NSH
+    stck <- NSH.stock10
+    stock(stck)[,ac(2010)]     <- NA
+    harvest(stck)[,ac(2010)]   <- NA
+    landings(stck)[,ac(2010)]  <- NA
     summary.data <- as.data.frame(FLQuants(Biomass=stock(stck),"Catches"=landings(stck),"Mean F"=fbar(stck),"Recruits age 0"=rec(stck)))
     scaling.factors <- tapply(summary.data$data,summary.data$qname,function(x) trunc(log10(max(pretty(c(0,x))))/3)*3)
     summary.data$data <- summary.data$data/10^scaling.factors[summary.data$qname]
