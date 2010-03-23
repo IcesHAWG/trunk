@@ -1,6 +1,6 @@
 #Make stock summary plots (ie SSB, Fbar, recs)
     stck <- NSH
-    summary.data <- as.data.frame(FLQuants(Biomass=stock(stck),"Catches"=landings(stck),"Mean F"=fbar(stck),Recruits=rec(stck)))
+    summary.data <- as.data.frame(FLQuants(Biomass=stock(stck),"Catches"=landings(stck),"Mean F"=fbar(stck),"Recruits age 0"=rec(stck)))
     scaling.factors <- tapply(summary.data$data,summary.data$qname,function(x) trunc(log10(max(pretty(c(0,x))))/3)*3)
     summary.data$data <- summary.data$data/10^scaling.factors[summary.data$qname]
     ylabels <- apply(cbind(lbl=names(scaling.factors),fctr=scaling.factors),1,function(x) {

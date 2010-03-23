@@ -62,7 +62,7 @@ n.retro.years       <-  10                                      #Number of years
 ### ======================================================================================================
 ### Output setup
 ### ======================================================================================================
-png(paste(output.base,"figures SCAI - %02d.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
+png(paste(output.base,"figures - %02d.png"),units = "px", height=1200,width=900,pointsize = 24, bg = "white")
 #png(paste(output.base,"figures - 64.png"),units = "px", height=1200,width=800,pointsize = 24, bg = "white")
 
 
@@ -136,6 +136,12 @@ NSH.tun[[4]]@index.var[]        <- 1.0/FLQuant(c(0.63,0.62,0.17,0.10,0.09,0.08,0
 NSH.tun[[3]]@index.var[]        <- 1.0/FLQuant(c(0.47,0.28,0.01,0.01,0.01),dimnames=dimnames(NSH.tun[[3]]@index)) #IBTS
 NSH.tun[[2]]@index.var[]        <- 1.0/FLQuant(0.63,dimnames=dimnames(NSH.tun[[2]]@index)) #MIK
 NSH.tun[[1]]@index.var[]        <- 1.0/FLQuant(0.60,dimnames=dimnames(NSH.tun[[1]]@index)) #MLAI
+
+NSH.tun[[1]]@name               <- "MLAI"
+NSH.tun[[2]]@name               <- "IBTS0"
+NSH.tun[[3]]@name               <- "IBTS-Q1: 1-5+ wr"
+NSH.tun[[4]]@name               <- "Acoustic survey (HERAS): 1-9+ wr"
+
 #Set names
 names(NSH.tun)                  <- lapply(NSH.tun,name)
 ### ======================================================================================================
