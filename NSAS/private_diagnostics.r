@@ -23,6 +23,41 @@ LNV.ssb <- function(stk,btrigger,blim){
               if(is.na(btrigger) == F) mtext(expression(B[trigger]),4,at=btrigger,cex=ltextcex,col="darkgreen",outer=F,line=0.2,las=2,font=fonts)
               if(is.na(blim) == F)     mtext(expression(B[lim]),    4,at=blim,    cex=ltextcex,col="red",      outer=F,line=0.2,las=2,font=fonts)
               }
+              
+LNV.retro <- function(stk,slot.){
+                xrange <- range(unlist(lapply(stk,function(x){return(range(x)[c("minyear","maxyear")])})),na.rm=T)
+
+                if(slot. == "ssb"){
+                  yrange <- range(unlist(lapply(stk,function(x){return(ssb(x))})),na.rm=T)
+                  plot(c(ssb(stk[[1]])@.Data)~seq(range(stk[[1]])[c("minyear")],range(stk[[1]])[c("maxyear")],1),
+                    type="l",cex.lab=cl,cex.axis=ca,main=paste("SSB retrospective",stk[[1]]@name),font=fonts,family=fam,
+                    ylim=yrange,xlim=xrange,xlab="Years",ylab="SSB",lwd=1)
+                  for(iYr in 2:length(stk)){
+                    lines(c(ssb(stk[[iYr]])@.Data)~seq(range(stk[[iYr]])[c("minyear")],range(stk[[iYr]])[c("maxyear")],1),lwd=1)
+                    if(iYr == length(stk)) lines(c(ssb(stk[[iYr]])@.Data)~seq(range(stk[[iYr]])[c("minyear")],range(stk[[iYr]])[c("maxyear")],1),lwd=3)
+                  }
+                }
+                if(slot. == "rec"){
+                  yrange <- range(unlist(lapply(stk,function(x){return(rec(x))})),na.rm=T)
+                  plot(c(rec(stk[[1]])@.Data)~seq(range(stk[[1]])[c("minyear")],range(stk[[1]])[c("maxyear")],1),
+                    type="l",cex.lab=cl,cex.axis=ca,main=paste("Recruitment retrospective",stk[[1]]@name),font=fonts,family=fam,
+                    ylim=yrange,xlim=xrange,xlab="Years",ylab="SSB",lwd=1)
+                  for(iYr in 2:length(stk)){
+                    lines(c(rec(stk[[iYr]])@.Data)~seq(range(stk[[iYr]])[c("minyear")],range(stk[[iYr]])[c("maxyear")],1))
+                    if(iYr == length(stk)) lines(c(rec(stk[[iYr]])@.Data)~seq(range(stk[[iYr]])[c("minyear")],range(stk[[iYr]])[c("maxyear")],1),lwd=3)
+                  }
+                }
+                if(slot. == "fbar"){
+                  yrange <- range(unlist(lapply(stk,function(x){return(fbar(x))})),na.rm=T)
+                  plot(c(fbar(stk[[1]])@.Data)~seq(range(stk[[1]])[c("minyear")],range(stk[[1]])[c("maxyear")],1),
+                    type="l",cex.lab=cl,cex.axis=ca,main=paste("F retrospective",stk[[1]]@name),font=fonts,family=fam,
+                    ylim=yrange,xlim=xrange,xlab="Years",ylab="SSB",lwd=1)
+                  for(iYr in 2:length(stk)){
+                    lines(c(fbar(stk[[iYr]])@.Data)~seq(range(stk[[iYr]])[c("minyear")],range(stk[[iYr]])[c("maxyear")],1))
+                    if(iYr == length(stk)) lines(c(fbar(stk[[iYr]])@.Data)~seq(range(stk[[iYr]])[c("minyear")],range(stk[[iYr]])[c("maxyear")],1),lwd=3)
+                  }
+                }
+              }
 #LNV.ssb(NSH,1.3e6,0.8e6)
 
 LNV.fbar <- function(stk,ftarget,flim,range.){
