@@ -204,11 +204,22 @@ source("./private_diagnostics.r")
 #LNV.rec(NSH,NSH.ica)
 
 # Calculate the stock recruitment fit, and plot it, and also add years to the plot
-NSH.sr <- fmle(as.FLSR(transform(NSH,stock.n=NSH@stock.n/100000),model="bevholt")); 
+VIaN.segreg <- FLSR(
+	rec = rec(stocks[[1]])[,ac(rec.incl.years)],
+	ssb = ssb(stocks[[1]])[,ac(ssb.incl.years)],
+	model='segreg')
+VIaN.segreg <- fmle(VIaN.segreg,control=list(parscale=c(0.001,1,0.001)))
+
+NSH.srcontrol <- FLSR(
+  rec = rec(transform(NSH,stock.n=NSH@stock.n/100000))[,-1],
+  ssb = ssb(transform(NSH,stock.n=NSH@stock.n/100000))[,1:(length(dimnames(ssb(NSH))$year)-1)],
+  model = 'bevholt')
+NSH.sr <- fmle(NSH.srcontrol,control=list(parscale=c(0.001,1,0.001)))
+
 plot(NSH.sr)
 NSH.sr@params <- NSH.sr@params*100000
-plot(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:c(length(dimnames(NSH.sr@ssb)$year)-1)],type="b",xlab="SSB",ylab="Rec",main="Yearly stock recruitment relationship")
-text(NSH.sr@rec[,-1]~NSH.sr@ssb[,1:c(length(dimnames(NSH.sr@ssb)$year)-1)],labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
+plot(NSH.sr@rec~NSH.sr@ssb,type="b",xlab="SSB",ylab="Rec",main="Yearly stock recruitment relationship")
+text(NSH.sr@rec~NSH.sr@ssb,labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
 
 # Plot the time series of weight in the stock and catch in the stock
 timeseries(window(NSH,1975,2009),slot="stock.wt")
