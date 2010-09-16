@@ -48,7 +48,6 @@ ver.datetime   <- "18/01/2010 14:51:22"
 cat(paste("\n",ver,"\n",sep=""));cat(paste(ver.datetime,"\n\n",sep=""))
 start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
-library(RColorBrewer)
 
 ### ======================================================================================================
 ### Parameters
@@ -301,7 +300,7 @@ legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),bg="white")
 
 
 #And  on a log scale
-matplot(SCAIs$Year,log(dat.to.plot),lwd=2,lty=1,type="b",xlab="Year",ylab="logSCAI",main="SCAI indices for each component")
+matplot(SCAIs$Year,log10(dat.to.plot),lwd=2,lty=1,type="b",xlab="Year",ylab="log10(SCAI)",main="SCAI indices for each component")
 legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),pch=as.character(1:4),bg="white")
 
 
