@@ -122,7 +122,7 @@ fit <- lapply(as.list(areas),function(area.code) {
     obs$SCAI_hat.ub <- exp(logSCAI_hat$value+logSCAI_hat$std.dev*1.96)
     obs$SCAI_hat.lb <- exp(logSCAI_hat$value-logSCAI_hat$std.dev*1.96)
     obs$SCAI  <- logSCAI[as.numeric(obs$Year)-1971,c("SCAI","lb","ub")]
-    obs$resid <- log(obs$SCAI$SCAI/obs$SCAI_hat)
+    obs$resid <- log(obs$SCAI_hat)-log(obs$SCAI$SCAI)       #Observation (SCAI_hat) - model (SCAI$SCAI)
 
     res2 <- readLines(file.path(wkdir,"scai.par"),n=1)
     jnll.line <- strsplit(res2,"  ")
@@ -202,7 +202,7 @@ par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(5,5,4,2),las=1,mgp=c(4,1,0))
 lapply(names(fit),function(a) {
   d <- fit[[a]]
   n.units <- nlevels(d$obs$ind)
-  plot(0,0,xlim=xlims,ylim=c(0.5,n.units+0.5),
+  plot(0,0,xlim=xlims,ylim=rev(c(0.5,n.units+0.5)),
       xlab="",ylab=a,xaxt="n",yaxt="n",xpd=NA)
   axis(2,labels=levels(d$obs$ind),at=1:nlevels(d$obs$ind))
   points(d$obs$Year,as.numeric(d$obs$ind),pch=21,col=as.numeric(d$obs$ind),
@@ -219,11 +219,11 @@ par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(5,5,4,2),las=1,mgp=c(4,1,0))
 lapply(names(fit),function(a) {
   d <- fit[[a]]
   n.units <- nlevels(d$obs$ind)
-  plot(0,0,xlim=xlims,ylim=c(0.5,n.units+0.5),
+  plot(0,0,xlim=xlims,ylim=rev(c(0.5,n.units+0.5)),
       xlab="",ylab=a,xaxt="n",yaxt="n",xpd=NA)
   axis(2,labels=levels(d$obs$ind),at=1:nlevels(d$obs$ind))
-  segments(as.numeric(d$obs$Year),as.numeric(d$obs$ind),as.numeric(d$obs$Year),
-      as.numeric(d$obs$ind)+d$obs$resid*0.2,lwd=10,lend=1)
+  rect(as.numeric(d$obs$Year)-0.5,as.numeric(d$obs$ind),as.numeric(d$obs$Year)+0.5,
+      as.numeric(d$obs$ind)-d$obs$resid*0.2,col="black")   #A positive residual should be up
   box(lwd=2)
   abline(h=1:n.units)
 })
@@ -268,7 +268,7 @@ title(main="SCAI model parameters",xlab="Spawning Component",outer=TRUE)
 #plot the time series of standard deviations in the SCAI
 par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 dat.to.plot <- sapply(names(fit),function(a) fit[[a]]$fit$std.dev)
-matplot(as.numeric(rownames(dat)),dat.to.plot,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),
+matplot(as.numeric(rownames(dat)),dat.to.plot,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
       xlab="Year",ylab="Standard Deviation",type="b",
       main="Standard Deviation of SCAI indices by area and year")
 legend("topleft",legend=names(areas),pch=as.character(1:n.areas),col=1:6,lty=1,bg="white")
@@ -293,7 +293,7 @@ par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 SCAIs <- sapply(fit,function(d) d$fit$SCAI)
 SCAIs <- data.frame(Year=as.numeric(rownames(dat)),Total=rowSums(SCAIs),SCAIs)
 dat.to.plot <- SCAIs[,-c(1:2)]
-plot(NA,NA,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),
+plot(NA,NA,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
   xlab="Year",ylab="SCAI",main="SCAI indices for each component")
 matlines(SCAIs$Year,dat.to.plot,lwd=2,lty=1)
 legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),bg="white")
