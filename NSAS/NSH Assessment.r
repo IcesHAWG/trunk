@@ -56,7 +56,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### ======================================================================================================
 data.source         <-  file.path(".","data")                   #Data source, not code or package source!!!
 output.dir          <-  file.path(".","results")                #Output directory
-output.base         <-  file.path(output.dir,"NSH Assessment SCAI")  #Output base filename, including directory. Other output filenames are built by appending onto this one
+output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  10                                      #Number of years for which to run the retrospective
 
 ### ======================================================================================================
@@ -204,12 +204,6 @@ source("./private_diagnostics.r")
 #LNV.rec(NSH,NSH.ica)
 
 # Calculate the stock recruitment fit, and plot it, and also add years to the plot
-VIaN.segreg <- FLSR(
-	rec = rec(stocks[[1]])[,ac(rec.incl.years)],
-	ssb = ssb(stocks[[1]])[,ac(ssb.incl.years)],
-	model='segreg')
-VIaN.segreg <- fmle(VIaN.segreg,control=list(parscale=c(0.001,1,0.001)))
-
 NSH.srcontrol <- FLSR(
   rec = rec(transform(NSH,stock.n=NSH@stock.n/100000))[,-1],
   ssb = ssb(transform(NSH,stock.n=NSH@stock.n/100000))[,1:(length(dimnames(ssb(NSH))$year)-1)],
@@ -305,6 +299,14 @@ text(y=fbar(NSH.stock10[,ac(2002:2010)]),   x=(ssb(NSH.stock10[,ac(2002:2010)])/
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(NSH.stock10,output.file=paste(output.base,"with STF"))
+
+### ======================================================================================================
+### Write summary table for use with State Space Framework
+### ======================================================================================================
+tbl <- merge(as.data.frame(rec(NSH))[,c("year","data")],as.data.frame(ssb(NSH))[,c("year","data")],by="year")
+tbl <- merge(tbl,as.data.frame(fbar(NSH))[,c("year","data")],by="year")
+colnames(tbl) <- c("year","rec","ssb","fbar")
+write.table(tbl,file=paste(output.base,"Summary Table.txt"),row.names=FALSE,quote=FALSE)
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
