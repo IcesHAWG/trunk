@@ -1,7 +1,7 @@
 ######################################################################################################
 # SCAI model
 #
-# Version 2.00 18/01/2010 14:51:22
+# Version 2.01 14/12/2010 9:19:49 a.m.
 #
 # Author: Mark Payne, mpa@aqua.dtu.dk
 # DTU-Aqua, Charlottenlund, DK
@@ -13,6 +13,7 @@
 #   - ADMB v 9.0
 #
 # Changes:
+#   V 2.01 - Tweaks to output figures
 #   V 2.00 - Simplifed for inclusion in HAWG repository
 #   V 1.42 - Tweaks to figures for paper
 #   V 1.41 - Fitting process figures for presentation
@@ -26,8 +27,8 @@
 #
 # Notes:
 #   This work is described in more detail in the publication
-#   Payne, M.R. (2010) "Mind the gaps: a model robust to missing observations gives insight into the
-#   dynamics of the North Sea herring spawning components" ICES Journal of Marine Science. In press.
+#   Payne, M. R. 2010. Mind the gaps: a state-space model for analysing the dynamics
+#   of North Sea herring spawning components. – ICES Journal of Marine Science, 67: 1939–1947.
 #
 # ----------------------------------------------------------------------------
 # "THE BEER-WARE LICENSE" (Revision 42):
@@ -43,8 +44,8 @@
 ### ======================================================================================================
 # Start with house cleaning
 rm(list = ls(all.names=TRUE)); gc(); graphics.off()
-ver <- "SCAI Model v2.00"
-ver.datetime   <- "18/01/2010 14:51:22"
+ver <- "SCAI Model v2.01"
+ver.datetime   <- "14/12/2010 9:19:49 a.m."
 cat(paste("\n",ver,"\n",sep=""));cat(paste(ver.datetime,"\n\n",sep=""))
 start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
@@ -303,6 +304,14 @@ legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),bg="white")
 matplot(SCAIs$Year,log10(dat.to.plot),lwd=2,lty=1,type="b",xlab="Year",ylab="log10(SCAI)",main="SCAI indices for each component")
 legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),pch=as.character(1:4),bg="white")
 
+#Interannual changes per component
+diffs <- apply(log(SCAIs[,-1]),2,diff)
+mid.yrs   <- rev(rev(SCAIs$Year+0.5)[-1])
+matplot(mid.yrs,diffs[,-1],lwd=2,lty=1,type="b",xlab="Year",ylab="Growth rate (.yr-1)",
+  main="Annual growth rates for each component")
+lines(mid.yrs,diffs[,1],lwd=4,lty=1,col="black")
+abline(h=0,lty=3,col="grey")
+legend("topright",col=c(1,1:6),lty=1,lwd=c(4,rep(2,4)),legend=colnames(diffs),pch=c("",as.character(1:4)),bg="white")
 
 #Proportion of total by each area - area plot
 par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
