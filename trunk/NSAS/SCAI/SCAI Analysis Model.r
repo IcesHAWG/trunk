@@ -1,7 +1,8 @@
 ######################################################################################################
 # SCAI model
 #
-# Version 2.01 14/12/2010 9:19:49 a.m.
+# $Rev$
+# $Date$
 #
 # Author: Mark Payne, mpa@aqua.dtu.dk
 # DTU-Aqua, Charlottenlund, DK
@@ -13,6 +14,7 @@
 #   - ADMB v 9.0
 #
 # Changes:
+#   r404   - Added retrospective analysis
 #   V 2.01 - Tweaks to output figures
 #   V 2.00 - Simplifed for inclusion in HAWG repository
 #   V 1.42 - Tweaks to figures for paper
@@ -44,8 +46,8 @@
 ### ======================================================================================================
 # Start with house cleaning
 rm(list = ls(all.names=TRUE)); gc(); graphics.off()
-ver <- "SCAI Model v2.01"
-ver.datetime   <- "14/12/2010 9:19:49 a.m."
+ver <- "SCAI Model $Rev$"
+ver.datetime   <- "$Date$"
 cat(paste("\n",ver,"\n",sep=""));cat(paste(ver.datetime,"\n\n",sep=""))
 start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
@@ -54,10 +56,14 @@ options(stringsAsFactors=FALSE)
 ### Parameters
 ### ======================================================================================================
 #Load data
-dat <- read.csv(file.path(".","LAI Time Series.csv"),header=TRUE,row.names=1)
+LAI.dat <- read.csv(file.path(".","LAI Time Series.csv"),header=TRUE)
 
-#Area abbreviations
+#Abbreviations
 areas <- c("OrkShe"="OS",Buchan="B",Banks="CNS",Downs="SNS")
+samp.unit.names <- colnames(LAI.dat)[-1]
+
+#Retrospective analysis
+retro.yrs <- 1  #Set to null to switch off retro
 
 #Working dirs
 wkdir <- file.path(".","ADMBwkdir")
@@ -68,20 +74,20 @@ png(file.path(output.dir,"SCAI outputs - %02i.png"),width=200/25.4,height=200/25
 
 
 ### ======================================================================================================
-### Fit model
+### Model fitting function
 ### ======================================================================================================
-fit <- lapply(as.list(areas),function(area.code) {
+fit.SCAI <- function(area.code,dat) {
     ### Write input to ADMB
     ### ====================
     #setup list object containing data
     opt <- list()
     opt$n.years <- nrow(dat)
-    opt$start.yr <- min(as.numeric(rownames(dat)))
-    opt$end.yr   <- max(as.numeric(rownames(dat)))
+    opt$start.yr <- min(dat$year)
+    opt$end.yr   <- max(dat$year)
 
     #Extract data and reshape
     cols <- grep(area.code,colnames(dat))
-    obs <- data.frame(stack(dat[,cols]),Year=as.numeric(rownames(dat)))
+    obs <- data.frame(stack(dat[,cols]),Year=dat$year)
     obs <- obs[!is.na(obs$values),]
     obs$ind <-factor(obs$ind)
 
@@ -106,13 +112,13 @@ fit <- lapply(as.list(areas),function(area.code) {
     setwd(olddir)
 
 
-    ### Load and plot results
-    ### =====================
+    ### Load results
+    ### ============
     #Load results
     res <- read.table(file.path(wkdir,"scai.std"),skip=1,sep="",strip.white=TRUE,
               col.names=c("index","name","value","std.dev"))
     logSCAI <- subset(res,res$name=="logSCAI")
-    logSCAI$year <- as.numeric(rownames(dat))
+    logSCAI$year <- dat$year
     logSCAI$SCAI   <- exp(logSCAI$value)
     logSCAI$lb    <- exp(logSCAI$value-1.96*logSCAI$std.dev)
     logSCAI$ub    <- exp(logSCAI$value+1.96*logSCAI$std.dev)
@@ -132,7 +138,12 @@ fit <- lapply(as.list(areas),function(area.code) {
     #Return results
     opt <- list(fit=logSCAI,res=res,obs=obs,jnll=jnll)
     return(opt)
-})
+}
+
+### ======================================================================================================
+### Fit model
+### ======================================================================================================
+fit <- lapply(as.list(areas),fit.SCAI,LAI.dat)
 
 ### ======================================================================================================
 ### Analysis of residuals
@@ -165,11 +176,39 @@ for(a in names(areas)) {
 print(sapply(fit,function(d) d$jnll))
 
 ### ======================================================================================================
+### Retrospective analysis
+### ======================================================================================================
+#Strip results of a fit down to bare basis for use in retro
+strip.results <- function(ft) {
+  res<- lapply(ft,function(b) {b$fit[,c("year","value")]})
+  for(r in names(res)) {
+    res[[r]]$comp <- r
+  }
+  res <- do.call(rbind,res)
+  return(res)
+}
+
+#Setup baseline
+base.res <- strip.results(fit)
+base.res$retro <- 0   #Indicates that it is the base
+
+#Now perform retros
+retro.res <- list()
+for(i in retro.yrs) {
+  retro.dat <- LAI.dat[seq(1,nrow(LAI.dat)-i),]
+  retro.fit <- lapply(as.list(areas),fit.SCAI,retro.dat)
+  retro.res[[i]] <- strip.results(retro.fit)
+  retro.res[[i]]$retro <- i
+}
+retro.res <- do.call(rbind,c(list(base.res),retro.res))
+
+
+### ======================================================================================================
 ### Plot results
 ### ======================================================================================================
 #Setup figures
 par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(3.5,5,4,0.5),las=1,mgp=c(4,1,0))
-xlims <- range(pretty(as.numeric(rownames(dat))))
+xlims <- range(pretty(LAI.dat$year))
 n.areas <- length(areas)
 
 #First plot the time series for each component, with observations
@@ -269,7 +308,7 @@ title(main="SCAI model parameters",xlab="Spawning Component",outer=TRUE)
 #plot the time series of standard deviations in the SCAI
 par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 dat.to.plot <- sapply(names(fit),function(a) fit[[a]]$fit$std.dev)
-matplot(as.numeric(rownames(dat)),dat.to.plot,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
+matplot(LAI.dat$year,dat.to.plot,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
       xlab="Year",ylab="Standard Deviation",type="b",
       main="Standard Deviation of SCAI indices by area and year")
 legend("topleft",legend=names(areas),pch=as.character(1:n.areas),col=1:6,lty=1,bg="white")
@@ -285,19 +324,32 @@ plot(NA,NA,xlim=c(0.5,0.5+nrow(props)),ylim=c(0,1),yaxs="i",xaxs="i",
     xlab="Sampling Units",ylab="Proportion",main="Proportion of component covered by each unit",xaxt="n")
 points(1:nrow(props),props$value,pch=19,col="black")
 arrows(1:nrow(props),props$lb,1:nrow(props),props$ub,angle=90,code=3,length=0.1)
-axis(1,at=1:nrow(props),labels=colnames(dat),las=2)
+axis(1,at=1:nrow(props),labels=samp.unit.names, las=2)
 abline(v= cumsum(table(factor(props$component,levels=unique(props$component)))[-n.areas])+0.5,lwd=4)
 
 
 #SCAIs plotted on one figure
 par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 SCAIs <- sapply(fit,function(d) d$fit$SCAI)
-SCAIs <- data.frame(Year=as.numeric(rownames(dat)),Total=rowSums(SCAIs),SCAIs)
+SCAIs <- data.frame(Year=LAI.dat$year,Total=rowSums(SCAIs),SCAIs)
 dat.to.plot <- SCAIs[,-c(1:2)]
 plot(NA,NA,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
   xlab="Year",ylab="SCAI",main="SCAI indices for each component")
 matlines(SCAIs$Year,dat.to.plot,lwd=2,lty=1)
 legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),bg="white")
+
+#Retrospective analysis - individual values
+retro.res$SCAI <- exp(retro.res$value)
+retro.res$comp <- factor(retro.res$comp,names(areas))
+retro.mat <- xtabs(SCAI ~ year + comp + retro, retro.res)
+retro.mat[retro.mat==0] <- NA
+plot(NA,NA,xlim=xlims,ylim=range(pretty(c(0,retro.res$SCAI))),yaxs="i",
+  xlab="Year",ylab="SCAI",main="SCAI retrospective analysis")
+for(i in 1:dim(retro.mat)[3]) {
+  matlines(LAI.dat$year,retro.mat[,,i],lwd=0.5,lty=1)
+}
+matlines(LAI.dat$year,retro.mat[,,"0"],lwd=2,lty=1)
+legend("topleft",col=1:6,lty=1,legend=dimnames(retro.mat)$comp,bg="white")
 
 
 #And  on a log scale
@@ -331,6 +383,18 @@ plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fra
   main="Proportion of North Sea stock by component")
 matlines(SCAIs$Year,dat.to.plot/rowSums(dat.to.plot),lwd=2,lty=1)
 legend("topright",bg="white",legend=colnames(dat.to.plot),lwd=2,lty=1,col=1:6)
+
+#Retrospective analysis - by proportion
+retro.fracs <- apply(retro.mat,c(1,3),function(x) x/sum(x))
+retro.fracs <- aperm(retro.fracs,c(2,1,3))
+plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fraction",
+  main="Proportion of stock by component - retrospective")
+for(i in 1:dim(retro.fracs)[3]) {
+  matlines(LAI.dat$year,retro.fracs[,,i],lwd=0.5,lty=1)
+}
+matlines(LAI.dat$year,retro.fracs[,,"0"],lwd=2,lty=1)
+legend("topleft",col=1:6,lty=1,legend=dimnames(retro.fracs)[[2]],bg="white")
+
 
 #Close output
 if(length(grep("pdf|png|wmf",names(dev.cur())))!=0) dev.off()
