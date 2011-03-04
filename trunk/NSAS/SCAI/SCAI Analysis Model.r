@@ -70,7 +70,7 @@ wkdir <- file.path(".","ADMBwkdir")
 output.dir <- file.path(".","SCAIoutputs")
 
 #output device
-png(file.path(output.dir,"SCAI outputs - %02i.png"),width=200/25.4,height=200/25.4,units="in",res=96,pointsize=16)
+pdf(file.path(output.dir,"SCAI_outputs.pdf"),width=200/25.4,height=200/25.4,pointsize=16,onefile=TRUE)
 
 
 ### ======================================================================================================
@@ -206,12 +206,22 @@ retro.res <- do.call(rbind,c(list(base.res),retro.res))
 ### ======================================================================================================
 ### Plot results
 ### ======================================================================================================
-#Setup figures
-par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(3.5,5,4,0.5),las=1,mgp=c(4,1,0))
 xlims <- range(pretty(LAI.dat$year))
 n.areas <- length(areas)
 
+#First plot available data
+image(seq(colnames(LAI.dat)[-1]),LAI.dat$year,is.na(t(as.matrix(LAI.dat[,-1]))),
+    col=c("black","grey90"),xaxt="n",xlab="",ylab="",las=1)
+axis(1,at=seq(colnames(LAI.dat)[-1]),labels=colnames(LAI.dat)[-1],las=3)
+abline(v=c(2.5,4.5,8.5),lwd=4,col="red")
+box()
+
+#Plot comparison of SNS1 vs SNS3 to show systematic biases
+plot(LAI.dat$SNS1,LAI.dat$SNS3,log="xy",pch=19,xlab="SNS1 Survey",ylab="SNS3 Survey")
+abline(a=0,b=1,lwd=2)
+
 #First plot the time series for each component, with observations
+par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(3.5,5,4,0.5),las=1,mgp=c(4,1,0))
 pchs <- c(19,2,3,8)
 for(i in 1:n.areas){
   a <- names(areas)[i]
