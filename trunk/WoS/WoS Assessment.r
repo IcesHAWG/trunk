@@ -117,7 +117,7 @@ WoS.ica   <- FLICA(WoS,WoS.tun,WoS.ctrl)
 WoS       <- WoS + WoS.ica
 WoS@stock <- computeStock(WoS) # to get TSB in stock slot
 
-WoS@stock.n[1,ac(2009)] <- NA #Take this recruitment out because it is not well estimated in ICA as there is no information to support it
+WoS@stock.n[1,ac(2010)] <- NA #Take this recruitment out because it is not well estimated in ICA as there is no information to support it
 
 #-Replace the recruitment value in 2010 with a geometric mean recruitment over the years 1986 to 2007
 WoS@stock.n[1,ac(2010)] <- exp(mean(log(rec(WoS[,ac(1989:2007)])),na.rm=T))
