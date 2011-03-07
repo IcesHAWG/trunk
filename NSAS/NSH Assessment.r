@@ -33,7 +33,7 @@
 ### ======================================================================================================
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 
-path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2010/assessment2/NSAS/"
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2011/assessment/NSAS/"
 try(setwd(path))
 
 #in need of something extra
@@ -120,9 +120,6 @@ FnPrint("PREPARING INDEX OBJECT...\n")
 #Load and modify all index data
 NSH.tun                         <- readFLIndices(file.path(data.source,"/fleet.txt"),file.path(data.source,"/ssb.txt"),type="ICA")
 
-#Load the NSH.tun with the scai rather than the MLAI (exploratory in 2010)
-#NSH.tun                         <- readFLIndices(file.path(data.source,"/fleet.txt"),file.path(data.source,"/scai.txt"),type="ICA")
-
 #Set names, and parameters etc
 NSH.tun[[1]]@type               <- "number"
 NSH.tun[[2]]@type               <- "number"
@@ -197,11 +194,6 @@ NSH.sr <- ref.pts(NSH,"bevholt",100000)
 cor.tun(NSH.tun)
 
 # Plot the historic indices updated with new values against each other to see if similar patterns are coming through
-source("./private_diagnostics.r")
-#LNV.fbar(NSH,0.25,0.1,c(2,6))
-#LNV.fbar(NSH,0.1,0.04,c(0,1))
-#LNV.ssb(NSH,1.5e6,0.8e6)
-#LNV.rec(NSH,NSH.ica)
 
 # Calculate the stock recruitment fit, and plot it, and also add years to the plot
 NSH.srcontrol <- FLSR(
@@ -246,16 +238,16 @@ print(west.cohort.plot)
 
 # Plot the TAC's versus the realized catches. The TAC's have to be added manually
 par(oma=c(rep(2,4)))
-TACs          <- data.frame(year=1987:2009,TAC=c(600,530,514,415,420,430,430,440,440, 156+44,159+24,254+22,265+30,265+36,265+36,265+36,400+52,460+38,535+50,455+43,341+32,201+19,171))
-TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(TACs$TAC,each=2))
+TACs          <- read.csv("data/historic data/TAC-historic.csv")
+TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("Agreed_A","Bycatch_B")],na.rm=T),each=2))
 catch         <- as.data.frame(NSH@catch[,ac(1987:2009)]/1e3)
-plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(c(catch$year,TAC.plot.dat$year)),ylim=range(c(0,TAC.plot.dat$TAC,catch$data)),cex.lab=cl,cex.axis=ca,family=fam,font=fonts)
+plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(c(catch$year,TAC.plot.dat$year)),ylim=range(c(0,TAC.plot.dat$TAC,catch$data)),cex.lab=1.2,cex.axis=1.1,font=2)
 rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
 lines(TAC.plot.dat,lwd=3)
 legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2),box.lty=0)
 box()
 title(main=paste(NSH@name,"Catch and TAC"))
-mtext("Working group estimate",side=1,outer=F,line=5,cex=ca)
+mtext("Working group estimate",side=1,outer=F,line=5,cex=1.1)
 
 
 
@@ -274,13 +266,17 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 writeFLStock(NSH,output.file=output.base)
 
 ### ======================================================================================================
-### Short Term Forecast
+### Intermediate year
 ### ======================================================================================================
-FnPrint("PERFORMING SHORT TERM FORECAST...\n")
+FnPrint("PERFORMING INTERMEDIATE YEAR CALCULATION...\n")
 REC               <- NSH.ica@param["Recruitment prediction","Value"]
 TAC               <- 164300 #overshoot = approximately 13% every year + 1000 tons of transfer             #194233 in 2009  #It does not matter what you fill out here as it only computes the suvivors
 NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,fbar.nyrs=1,f.rescale=TRUE,rec=REC,catch.constraint=TAC)
 NSH.stock10       <- as.FLStock(FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE))
+
+#New style complement Intermediate year
+#target            <- fwdTarget(list(year=2010,value=TAC,quantity="catch"))
+#NSH.stock10       <- fwd(NSH,target,sr=list(model="geomean",params=FLPar(NSH.ica@param["Recruitment prediction","Value"])))
 
 #A plot on the agreed management plan with the estimated Fbar in 2010
 plot(x=c(0,0.8,1.5,2),y=c(0.1,0.1,0.25,0.25),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tonnes",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
@@ -295,9 +291,7 @@ points(y=fbar(NSH.stock10[,ac(2002:2010)]), x=(ssb(NSH.stock10[,ac(2002:2010)])/
 lines(y=fbar(NSH.stock10[,ac(2002:2010)]),  x=(ssb(NSH.stock10[,ac(2002:2010)])/1e6))
 text(y=fbar(NSH.stock10[,ac(2002:2010)]),   x=(ssb(NSH.stock10[,ac(2002:2010)])/1e6),labels=ac(2002:2010),pos=3,cex=0.7)
 
-
-
-#Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
+#Write the results out in the lowestoft VPA format
 writeFLStock(NSH.stock10,output.file=paste(output.base,"with STF"))
 
 ### ======================================================================================================
