@@ -203,6 +203,9 @@ do.summary.plots <- function(stck,ica.obj) {
     title(main=paste(stck@name,"Otolith Plot"),outer=TRUE)
     par(oldpar[-which(names(oldpar)%in%c("cin","cra","csi","cxy","din"))])   #Some parameters cannot be set
     invisible(NULL)
+    
+    #Taylor diagram
+    taylor.diagram(ica.obj)
 }
 
 ### ======================================================================================================
@@ -551,6 +554,7 @@ source(file.path("..","_Common","HAWG Retro func.r"))
 source(file.path("..","_Common","Stacked Area plot.r"))
 source(file.path("..","_Common","WriteIcaSum.r"))
 source(file.path("..","_Common","writeStandardOutput.r"))
+source(file.path("..","_Common","Taylor_diagram.r"))
 
 #Set penality function so that we don't get any scientific notation
 options("warn.FPU"=FALSE)
