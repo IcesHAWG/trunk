@@ -127,11 +127,12 @@ WBSS.ica   <-  FLICA(WBSS,WBSS.tun,WBSS.ctrl)
 WBSS       <-  WBSS + WBSS.ica
 #Update the stock total biomass
 WBSS@stock <- computeStock(WBSS)
-packageDescription("FLICA")
+
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
 ### ======================================================================================================
 do.summary.plots(WBSS,WBSS.ica)
+taylor.diagram(WBSS.ica,common.basis=FALSE)
 WBSS.retro <- do.retrospective.plots(WBSS,WBSS.tun,WBSS.ctrl,n.retro.years)
 do.SRR.plot(WBSS)
 ref.pts(WBSS,"bevholt",1e6)
