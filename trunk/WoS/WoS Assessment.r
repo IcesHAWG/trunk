@@ -39,7 +39,7 @@ FnPrint     <-  function(string) {
 	flush.console()
 }
 FnPrint("\nWoS FLICA Assessment\n=====================\n")
-path <- "C:/Documents and Settings/hatfielde/My Documents/hawgVIaN/2010/hawg/WoS/"
+path <- "C:/Documents and Settings/hatfielde/My Documents/A1 Post Virtualisation/hawgVIaN/2011/hawg/WoS/"
 try(setwd(path))
 ### ======================================================================================================
 ### Incorporate Common modules
