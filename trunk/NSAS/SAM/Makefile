@@ -1,40 +1,47 @@
-DD = ../data
-SD = src
-RD = run
-BR = baserun
-PD = res
-CD = conf
+#Directories
+SrcDir = src
+RunDir = run
+BaseDir = baserun
+OutDir = outputs
+ConfigDir = conf
 
-.PHONY = all compile clean testrun plots updatebase
+#Files
+ADMB = ssass
+DATASCRIPT = $(SrcDir)/datascript.R
+PLOTSCRIPT = $(SrcDir)/plotscript.R
+COMMONSCRIPT = $(SrcDir)/common.R
 
-all: compile 
+.PHONY = all admb clean run plots updatebase
+
+all: admb 
 
 clean: 
-	rm -f $(RD)/*
-	rm -f $(BR)/*
-	rm -f $(PD)/*
-	rm -f $(SD)/*~ 	*~ $(CD)/*~
+	rm -f $(RunDir)/*
+	rm -f $(BaseDir)/*
+	rm -f $(OutDir)/*
+	rm -f $(SrcDir)/*~ 	*~ $(ConfigDir)/*~
 	rm -f Rplots.ps
 
-compile: $(RD)/ssass
+admb: $(RunDir)/$(ADMB)
 
-$(RD)/ssass: $(SD)/ssass.tpl
-	cd $(SD); admb -r -s ssass; rm ssass.cpp ssass.o ssass.htp; 
-	mv $(SD)/ssass $(RD)/
+$(RunDir)/ssass: $(SrcDir)/$(ADMB).tpl
+	cd $(RunDir); ln -sf ../$(SrcDir)/$(ADMB).tpl . 
+	cd $(RunDir); admb -r -s $(ADMB); rm $(ADMB).cpp $(ADMB).o $(ADMB).htp; 
 
-testrun: $(RD)/ssass.std
+run: $(RunDir)/$(ADMB).std
 
-updatebase: $(RD)/ssass.std
-	cp $(RD)/* $(BR)/
+updatebase: $(RunDir)/$(ADMB).std
+	cp $(RunDir)/* $(BaseDir)/
 
-$(RD)/ssass.std: $(RD)/ssass $(CD)/model.init $(CD)/model.cfg $(CD)/reduced.cfg $(SD)/datascript.R
-	cp $(CD)/model.* $(RD)/
-	cp $(CD)/reduced.cfg $(RD)/
-	cd $(SD); echo 'source("datascript.R")' | R --vanilla --slave; cd -; 
-	cd $(RD); ./ssass -nr 2 -noinit -iprint 1; cd -;
+$(RunDir)/$(ADMB).std: $(RunDir)/$(ADMB) $(ConfigDir)/model.init $(ConfigDir)/model.cfg $(ConfigDir)/reduced.cfg $(DATASCRIPT)
+	cp $(ConfigDir)/model.* $(RunDir)/
+	cp $(ConfigDir)/reduced.cfg $(RunDir)/
+	cd $(RunDir);  R --vanilla --slave < ../$(DATASCRIPT); cd -; 
+	cd $(RunDir); ./$(ADMB) -nr 2 -noinit -iprint 1 ; cd -;
+	@echo "=====Fit Complete====="
 
 
-plots: $(PD)/Rplot001.png
+plots: $(OutDir)/Rplots.pdf
 
-$(PD)/Rplot001.png: $(RD)/ssass.std $(BR)/ssass.std $(CD)/plotscript.R $(CD)/common.R
-	echo 'source("$(CD)/plotscript.R")' | R --vanilla --slave;
+$(OutDir)/Rplots.pdf: $(RunDir)/ssass.std $(BaseDir)/ssass.std $(PLOTSCRIPT) $(COMMONSCRIPT)
+	R --vanilla --slave < $(PLOTSCRIPT)

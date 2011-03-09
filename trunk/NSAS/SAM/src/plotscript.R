@@ -3,14 +3,13 @@
 # Anders Nielsen <anders@nielsensweb.org> Oct. 2008
 oldwd<-getwd()
 
-source('conf/common.R')
+source('src/common.R')
 
 ############################## read data ##############################
 
 fit.base<-read.fit('baserun/ssass')
 fit.current<-read.fit('run/ssass')
-
-setwd('../data')
+data.dir <- file.path("..","data")
 
 read.ices<-function(filen){
   # Function to read ices data files 
@@ -30,8 +29,8 @@ read.ices<-function(filen){
 # Read in data 
 
 # Read in data 
-catch.no<-read.ices('canum.txt')
-catch.mean.weight<-read.ices('west.txt')
+catch.no<-read.ices(file.path(data.dir,'canum.txt'))
+catch.mean.weight<-read.ices(file.path(data.dir,'west.txt'))
 #stock.mean.weight<-read.ices('west.txt')
 #prop.mature<-read.ices('matprop.txt')
 #natural.mortality<-read.ices('natmor.txt')
@@ -39,7 +38,7 @@ catch.mean.weight<-read.ices('west.txt')
 #fprop<-matrix(0,nrow=nrow(prop.mature), ncol=ncol(prop.mature))
 #mprop<-matrix(0,nrow=nrow(prop.mature), ncol=ncol(prop.mature))
 #land.frac<-matrix(1,nrow=nrow(prop.mature), ncol=ncol(prop.mature))
-setwd(oldwd)
+ICA.results <- read.table("../results/NSH Assessment Summary Table.txt",header=TRUE)
 
 ############################## plots ##############################
 
@@ -55,19 +54,19 @@ if(RETRO.OK){
 
 plots<-function(){
   # SSB plot
-  baseplot(fit.base, 'ssb', trans=function(x)x/1000, ylab='SSB (tounsand tonnes)', las=1)
-  addlines(fit.current, 'ssb', col='red', trans=function(x)x/1000)
-  #lines(old$Year, old$SSB/1000, col='blue')
+  baseplot(fit.base, 'ssb', trans=function(x)x/1000, ylab='SSB (kt)', las=1)
+  #addlines(fit.current, 'ssb', col='red', trans=function(x)x/1000)
+  lines(ICA.results$year, ICA.results$ssb/1000, col='blue')
 
   # Fbar plot
-  baseplot(fit.base, 'fbar', ylab=expression(bar(F)[3-6]), las=1, drop=1)
-  addlines(fit.current, 'fbar', col='red', drop=1)
-  #lines(old$Year, old$Fbar, col='blue')
+  baseplot(fit.base, 'fbar', ylab=expression(bar(F)[2-6]), las=1, drop=1)
+  #addlines(fit.current, 'fbar', col='red', drop=1)
+  lines(ICA.results$year, ICA.results$fbar, col='blue')
 
   # Recruit plot
   baseplot(fit.base, 'R', ylab='Recruits (millions)', trans=function(x)x/1000, las=1)
-  addlines(fit.current, 'R', col='red', trans=function(x)x/1000)
-  #lines(old$Year, old$Recruitment/1000, col='blue')
+  #addlines(fit.current, 'R', col='red', trans=function(x)x/1000)
+  lines(ICA.results$year, ICA.results$rec/1000, col='blue')
 
   # Residual plot 
   op<-par(mfrow=c(2,3), mar=c(4,4,1,2), mgp=c(2,1,0))
@@ -135,7 +134,7 @@ plots<-function(){
   }
 }
 
-setwd('res')
+setwd('outputs')
 file.remove(dir(pattern='png$'))
 stamp<-gsub('-[[:digit:]]{4}$','',gsub(':','.',gsub(' ','-',gsub('^[[:alpha:]]{3} ','',date()))))
 png(filename = paste(stamp,"_%03d.png", sep=''), width = 480, height = 480, 
@@ -148,7 +147,7 @@ png(filename = paste("big_",stamp,"_%03d.png", sep=''), width = 1200, height = 1
   plots()    
 dev.off()
 
-pdf(onefile=FALSE, width = 8, height = 8)
+pdf(onefile=TRUE, width = 8, height = 8)
   plots()    
 dev.off()
 
