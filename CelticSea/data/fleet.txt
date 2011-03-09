@@ -1,7 +1,7 @@
 Celtic Sea   and   Division  VIIj herring
 101
 FLT02: Celtic  revised   acoustic   (Catch:   Millions)   (Effort:Unknown)
-2002  2009
+2002  2010
 1   1   1   1
 2   5
 1   185.2   150.6   29.7   6.6
@@ -12,3 +12,4 @@ FLT02: Celtic  revised   acoustic   (Catch:   Millions)   (Effort:Unknown)
 1   70      220    31     9
 1   295     111    162    27
 1   112     210    57     125
+1   549     156    193    65
