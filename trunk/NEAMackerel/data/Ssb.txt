@@ -1,5 +1,5 @@
 NEA Mackerel  EGG PROD. SSB
-1 38 2
+1 36 2
 'YEAR' 'VPA' 'INDEX1'
 1972   1          0
 1973   1          0
@@ -39,3 +39,4 @@ NEA Mackerel  EGG PROD. SSB
 2007   1    3260000
 2008   1          0
 2009   1          0
+2010   1    4133000
