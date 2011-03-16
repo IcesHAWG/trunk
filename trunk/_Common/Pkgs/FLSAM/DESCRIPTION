@@ -1,0 +1,10 @@
+Package: FLSAM
+Type: Package
+Title: State Space Stock Assessment Package 
+Version: 0.01
+Date: 2011-03-16
+Author: M.R. Payne, N.T. Hintzen
+Maintainer: niels.hintzen@wur.nl, mpa@aqua.dtu.dk
+Description: Does nothing much yet
+License: GPL 
+LazyLoad: yes
