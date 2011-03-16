@@ -184,7 +184,7 @@ print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[[3]]@index)),
 print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[[4]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
 # Plot the catch curves to see if there is a change in the selectivity of the fleet (seperable period) or the age which is targetted the most (seperable age)
-catch.curves(NSH,1990,2009)
+catch.curves(NSH,1990,2010)
 
 # Plot the reference points on yield - F curves, and print the reference points
 NSH.sr <- ref.pts(NSH,"bevholt",100000)
@@ -208,10 +208,10 @@ plot(NSH.sr@rec~NSH.sr@ssb,type="b",xlab="SSB",ylab="Rec",main="Yearly stock rec
 text(NSH.sr@rec~NSH.sr@ssb,labels=dimnames(NSH.sr@rec)$year[-1],pos=1,cex=0.7)
 
 # Plot the time series of weight in the stock and catch in the stock
-timeseries(window(NSH,1975,2009),slot="stock.wt")
-timeseries(window(NSH,1975,2009),slot="catch.wt")
-timeseries(window(NSH,2000,2009),slot="harvest")
-timeseries(window(NSH,1990,2009),slot="mat")
+timeseries(window(NSH,1975,2010),slot="stock.wt")
+timeseries(window(NSH,1975,2010),slot="catch.wt")
+timeseries(window(NSH,2000,2010),slot="harvest")
+timeseries(window(NSH,1990,2010),slot="mat")
 
 #Time series of weigth of the stock anomalies
 anom.plot(trim(NSH@stock.wt,year=1983:dims(NSH)$maxyear,age=0:1),xlab="Year",ylab="Anomaly (std. devs)",
@@ -220,7 +220,7 @@ anom.plot(trim(NSH@stock.wt,year=1983:dims(NSH)$maxyear,age=3:6),xlab="Year",yla
     main=paste(NSH@name,"Weight in the Stock Anomaly (Age 3-6)"),ylim=c(-3,3))
 
 #Time series of west by cohort
-west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,2009)))
+west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,2010)))
 west.by.cohort      <- subset(west.by.cohort,!is.na(west.by.cohort$data))
 west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
 west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
@@ -240,7 +240,7 @@ print(west.cohort.plot)
 par(oma=c(rep(2,4)))
 TACs          <- read.csv("data/historic data/TAC-historic.csv")
 TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("Agreed_A","Bycatch_B")],na.rm=T),each=2))
-catch         <- as.data.frame(NSH@catch[,ac(1987:2009)]/1e3)
+catch         <- as.data.frame(NSH@catch[,ac(1987:2010)]/1e3)
 plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(c(catch$year,TAC.plot.dat$year)),ylim=range(c(0,TAC.plot.dat$TAC,catch$data)),cex.lab=1.2,cex.axis=1.1,font=2)
 rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
 lines(TAC.plot.dat,lwd=3)
