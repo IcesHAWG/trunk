@@ -249,6 +249,16 @@ box()
 title(main=paste(NSH@name,"Catch and TAC"))
 mtext("Working group estimate",side=1,outer=F,line=5,cex=1.1)
 
+# Plot MIK versus IBTS 1wr
+  IBTS0 <- NSH.tun[[2]]@index[,ac(1992:(range(NSH.tun[[2]])["maxyear"]-1))]@.Data
+  IBTS1 <- NSH.tun[[3]]@index[ac(1),ac(1993:range(NSH.tun[[3]])["maxyear"])]@.Data
+plot(IBTS1 ~ IBTS0,pch=19,ylab="IBTS 1wr",xlab="MIK 0wr")
+lines(predict(lm(IBTS1~IBTS0),newdata=data.frame(IBTS0=range(IBTS0)))~range(IBTS0),lwd=2)
+mtext(bquote(R^2 [(.(round(summary(lm(IBTS1~IBTS0))$r.squared,2)))]),side=3,line=-2,outer=F,at=40,font=2,cex=1.2)
+points(rev(IBTS0)[1],rev(IBTS1)[1],col="red",pch=19); text(rev(IBTS0)[1],rev(IBTS1)[1],labels=c(range(NSH.tun[[2]])["maxyear"]-1),col="red",pos=3)
+lines(x=c(rep(rev(IBTS0)[1],2)),y=c(0,max(IBTS1,na.rm=T)/5),col="darkgreen",lwd=2); text(rev(IBTS0)[1],max(IBTS1,na.rm=T)/8,labels=range(NSH.tun[[2]])["maxyear"],col="darkgreen",pos=2)
+legend("bottomright",c("MIK 0wr vs. IBTS 1wr",paste(range(NSH.tun[[2]])["maxyear"]-1,"yearclass"),paste(range(NSH.tun[[2]])["maxyear"],"yearclass")),col=c("black","red","darkgreen"),lty=c(0,0,1),pch=c(19,19,-1),lwd=3,box.lty=0)
+
 
 
 ### ======================================================================================================
@@ -270,9 +280,9 @@ writeFLStock(NSH,output.file=output.base)
 ### ======================================================================================================
 FnPrint("PERFORMING INTERMEDIATE YEAR CALCULATION...\n")
 REC               <- NSH.ica@param["Recruitment prediction","Value"]
-TAC               <- 164300 #overshoot = approximately 13% every year + 1000 tons of transfer             #194233 in 2009  #It does not matter what you fill out here as it only computes the suvivors
+TAC               <- 200000 #overshoot = approximately 13% every year + 1000 tons of transfer             #194233 in 2009  #It does not matter what you fill out here as it only computes the suvivors
 NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,fbar.nyrs=1,f.rescale=TRUE,rec=REC,catch.constraint=TAC)
-NSH.stock10       <- as.FLStock(FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE))
+NSH.stock11       <- as.FLStock(FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE))
 
 #New style complement Intermediate year
 #target            <- fwdTarget(list(year=2010,value=TAC,quantity="catch"))
@@ -287,12 +297,12 @@ text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
 text(1.3,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
 text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
 
-points(y=fbar(NSH.stock10[,ac(2002:2010)]), x=(ssb(NSH.stock10[,ac(2002:2010)])/1e6),pch=19)
-lines(y=fbar(NSH.stock10[,ac(2002:2010)]),  x=(ssb(NSH.stock10[,ac(2002:2010)])/1e6))
-text(y=fbar(NSH.stock10[,ac(2002:2010)]),   x=(ssb(NSH.stock10[,ac(2002:2010)])/1e6),labels=ac(2002:2010),pos=3,cex=0.7)
+points(y=fbar(NSH.stock11[,ac(2002:2011)]), x=(ssb(NSH.stock11[,ac(2002:2011)])/1e6),pch=19)
+lines(y=fbar(NSH.stock11[,ac(2002:2011)]),  x=(ssb(NSH.stock11[,ac(2002:2011)])/1e6))
+text(y=fbar(NSH.stock11[,ac(2002:2011)]),   x=(ssb(NSH.stock11[,ac(2002:2011)])/1e6),labels=ac(2002:2011),pos=3,cex=0.7)
 
 #Write the results out in the lowestoft VPA format
-writeFLStock(NSH.stock10,output.file=paste(output.base,"with STF"))
+writeFLStock(NSH.stock11,output.file=paste(output.base,"with STF"))
 
 ### ======================================================================================================
 ### Write summary table for use with State Space Framework
@@ -306,7 +316,7 @@ write.table(tbl,file=paste(output.base,"Summary Table.txt"),row.names=FALSE,quot
 ### Save workspace and Finish Up
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(NSH,NSH.stock10,NSH.tun,NSH.ctrl,file=paste(output.base,"Assessment.RData"))
+save(NSH,NSH.stock11,NSH.tun,NSH.ctrl,file=paste(output.base,"Assessment.RData"))
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
