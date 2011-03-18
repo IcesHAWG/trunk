@@ -45,7 +45,7 @@
 ### Initialise system
 ### ======================================================================================================
 # Start with house cleaning
-rm(list = ls(all.names=TRUE)); gc(); graphics.off()
+rm(list = ls()); gc(); graphics.off()
 ver <- "SCAI Model $Rev$"
 ver.datetime   <- "$Date$"
 cat(paste("\n",ver,"\n",sep=""));cat(paste(ver.datetime,"\n\n",sep=""))
@@ -56,11 +56,11 @@ options(stringsAsFactors=FALSE)
 ### Parameters
 ### ======================================================================================================
 #Load data
-LAI.dat <- read.csv(file.path(".","LAI Time Series.csv"),header=TRUE)
+LAI.in <- read.table(file.path("..","data","lai.txt"),header=TRUE)
 
 #Abbreviations
-areas <- c("OrkShe"="OS",Buchan="B",Banks="CNS",Downs="SNS")
-samp.unit.names <- colnames(LAI.dat)[-1]
+areas <- c("OrkShe"="B",Buchan="C",Banks="D",Downs="E")
+samp.unit.names <- unique(LAI.in$LAIUnit)
 
 #Retrospective analysis
 retro.yrs <- 1  #Set to null to switch off retro
@@ -72,6 +72,18 @@ output.dir <- file.path(".","SCAIoutputs")
 #output device
 pdf(file.path(output.dir,"SCAI_outputs.pdf"),width=200/25.4,height=200/25.4,pointsize=16,onefile=TRUE)
 
+### ======================================================================================================
+### Prepare input data
+### ======================================================================================================
+#Filter "dot" years and zero years - this is not the ideal approach, but is probably
+#the best that we can do at the moment.
+LAI.dat <- subset(LAI.in,LAI.in$L..9!="." | LAI.in$L..9=="0")
+
+#Prepare
+LAI.dat$year <- LAI.dat$Year+1900
+LAI.dat$LAI  <- as.numeric(LAI.dat$L..9)
+LAI.tbl <- xtabs(as.numeric(LAI) ~  year + LAIUnit,LAI.dat)
+LAI.tbl[LAI.tbl==0] <- NA
 
 ### ======================================================================================================
 ### Model fitting function
@@ -81,21 +93,21 @@ fit.SCAI <- function(area.code,dat) {
     ### ====================
     #setup list object containing data
     opt <- list()
-    opt$n.years <- nrow(dat)
+    opt$n.years <- length(unique(dat$year))
     opt$start.yr <- min(dat$year)
     opt$end.yr   <- max(dat$year)
 
     #Extract data and reshape
-    cols <- grep(area.code,colnames(dat))
-    obs <- data.frame(stack(dat[,cols]),Year=dat$year)
-    obs <- obs[!is.na(obs$values),]
-    obs$ind <-factor(obs$ind)
+    cols <- grep(area.code,dat$LAIUnit)
+    obs <- dat[cols,c("LAI","LAIUnit","year")]
+    obs$LAIUnit <-factor(obs$LAIUnit)
 
     #Add to output list
-    opt$n.surv <- nlevels(obs$ind)
+    opt$n.surv <- nlevels(obs$LAIUnit)
     opt$n.obs <- nrow(obs)
     opt$obs   <- obs
-    opt$obs$ind <- as.numeric(opt$obs$ind)
+    opt$obs$LAIUnit <- as.numeric(opt$obs$LAIUnit)
+    opt$checksum <- c(42,42)
 
     #Write .dat file
     opt.file <- file.path(wkdir,"SCAI.dat")
@@ -118,7 +130,9 @@ fit.SCAI <- function(area.code,dat) {
     res <- read.table(file.path(wkdir,"scai.std"),skip=1,sep="",strip.white=TRUE,
               col.names=c("index","name","value","std.dev"))
     logSCAI <- subset(res,res$name=="logSCAI")
-    logSCAI$year <- dat$year
+    logSCAI$year <-   seq(opt$start.yr,opt$end.yr)
+    rownames(logSCAI) <- logSCAI$year
+
     logSCAI$SCAI   <- exp(logSCAI$value)
     logSCAI$lb    <- exp(logSCAI$value-1.96*logSCAI$std.dev)
     logSCAI$ub    <- exp(logSCAI$value+1.96*logSCAI$std.dev)
@@ -128,7 +142,7 @@ fit.SCAI <- function(area.code,dat) {
     obs$SCAI_hat <- exp(logSCAI_hat$value)
     obs$SCAI_hat.ub <- exp(logSCAI_hat$value+logSCAI_hat$std.dev*1.96)
     obs$SCAI_hat.lb <- exp(logSCAI_hat$value-logSCAI_hat$std.dev*1.96)
-    obs$SCAI  <- logSCAI[as.numeric(obs$Year)-1971,c("SCAI","lb","ub")]
+    obs$SCAI  <- logSCAI[as.character(obs$year),c("SCAI","lb","ub")]
     obs$resid <- log(obs$SCAI_hat)-log(obs$SCAI$SCAI)       #Observation (SCAI_hat) - model (SCAI$SCAI)
 
     res2 <- readLines(file.path(wkdir,"scai.par"),n=1)
@@ -151,7 +165,7 @@ fit <- lapply(as.list(areas),fit.SCAI,LAI.dat)
 #Test residuals for randomness
 cat("\nTests for normally distributed residuals by sampling unit\n")
 for(a in names(areas)) {
-  d <- split(fit[[a]]$obs$resid,fit[[a]]$obs$ind)
+  d <- split(fit[[a]]$obs$resid,fit[[a]]$obs$LAIUnit)
   fit.mean  <- 0
   fit.sd  <- exp(subset(fit[[a]]$res,name=="logSdObsErr")$value)
 #  print(ks.test(re.diffs)$p.value)
@@ -210,14 +224,15 @@ xlims <- range(pretty(LAI.dat$year))
 n.areas <- length(areas)
 
 #First plot available data
-image(seq(colnames(LAI.dat)[-1]),LAI.dat$year,is.na(t(as.matrix(LAI.dat[,-1]))),
-    col=c("black","grey90"),xaxt="n",xlab="",ylab="",las=1)
-axis(1,at=seq(colnames(LAI.dat)[-1]),labels=colnames(LAI.dat)[-1],las=3)
+yrs <- as.numeric(rownames(LAI.tbl))
+image(seq(colnames(LAI.tbl)),yrs,is.na(t(LAI.tbl)),
+    col=c("black","grey90"),xaxt="n",xlab="Survey",ylab="",las=1)
+axis(1,at=seq(colnames(LAI.tbl)),labels=colnames(LAI.tbl),las=3)
 abline(v=c(2.5,4.5,8.5),lwd=4,col="red")
 box()
 
 #Plot comparison of SNS1 vs SNS3 to show systematic biases
-plot(LAI.dat$SNS1,LAI.dat$SNS3,log="xy",pch=19,xlab="SNS1 Survey",ylab="SNS3 Survey")
+plot(LAI.tbl[,"E6"],LAI.tbl[,"E8"],log="xy",pch=19,xlab="Survey E6",ylab="Survey E8")
 abline(a=0,b=1,lwd=2)
 
 #First plot the time series for each component, with observations
@@ -234,12 +249,11 @@ for(i in 1:n.areas){
   lines(d$fit$year,d$fit$SCAI,lwd=2)
   #If a point is outside confidence region, plot its error bars -otherwise just the points
   pts.outside <- d$obs[d$obs$SCAI_hat< d$obs$SCAI$lb | d$obs$SCAI_hat >d$obs$SCAI$ub,]
-  arrows(pts.outside$Year,pts.outside$SCAI_hat.lb,pts.outside$Year,pts.outside$SCAI_hat.ub,angle=90,code=3,length=0.1)
-  points(d$obs$Year,d$obs$SCAI_hat,pch=pchs[as.numeric(d$obs$ind)],col="black")
-  lvls <- 1:nlevels(d$obs$ind)
-  legend("bottomright",col="black",pch=pchs[lvls],legend=levels(d$obs$ind),bg="white",horiz=TRUE)
+  arrows(pts.outside$year,pts.outside$SCAI_hat.lb,pts.outside$year,pts.outside$SCAI_hat.ub,angle=90,code=3,length=0.1)
+  points(d$obs$year,d$obs$SCAI_hat,pch=pchs[as.numeric(d$obs$ind)],col="black")
+  lvls <- 1:nlevels(d$obs$LAIUnit)
+  legend("bottomright",col="black",pch=pchs[lvls],legend=levels(d$obs$LAIUnit),bg="white",horiz=TRUE)
   legend("topleft",legend=NA,title=sprintf("%s) %s",letters[i],a),bty="n")
-
 }
 #Add axis at the bottom
 axis(1)
@@ -251,13 +265,13 @@ title(xlab="Year",outer=TRUE,mgp=c(2.5,1,0))
 par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(5,5,4,2),las=1,mgp=c(4,1,0))
 lapply(names(fit),function(a) {
   d <- fit[[a]]
-  n.units <- nlevels(d$obs$ind)
+  n.units <- nlevels(d$obs$LAIUnit)
   plot(0,0,xlim=xlims,ylim=rev(c(0.5,n.units+0.5)),
       xlab="",ylab=a,xaxt="n",yaxt="n",xpd=NA)
-  axis(2,labels=levels(d$obs$ind),at=1:nlevels(d$obs$ind))
-  points(d$obs$Year,as.numeric(d$obs$ind),pch=21,col=as.numeric(d$obs$ind),
+  axis(2,labels=levels(d$obs$LAIUnit),at=1:nlevels(d$obs$LAIUnit))
+  points(d$obs$year,as.numeric(d$obs$LAIUnit),pch=21,col=as.numeric(d$obs$LAIUnit),
       bg=ifelse(d$obs$resid<0,"black","white"),cex=2*sqrt(abs(d$obs$resid)))
-  lvls <- 1:nlevels(d$obs$ind)
+  lvls <- 1:nlevels(d$obs$LAIUnit)
   box(lwd=2)
 })
 axis(1)
@@ -268,12 +282,12 @@ title(main="Residuals",xlab="Year",outer=TRUE)
 par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(5,5,4,2),las=1,mgp=c(4,1,0))
 lapply(names(fit),function(a) {
   d <- fit[[a]]
-  n.units <- nlevels(d$obs$ind)
+  n.units <- nlevels(d$obs$LAIUnit)
   plot(0,0,xlim=xlims,ylim=rev(c(0.5,n.units+0.5)),
       xlab="",ylab=a,xaxt="n",yaxt="n",xpd=NA)
-  axis(2,labels=levels(d$obs$ind),at=1:nlevels(d$obs$ind))
-  rect(as.numeric(d$obs$Year)-0.5,as.numeric(d$obs$ind),as.numeric(d$obs$Year)+0.5,
-      as.numeric(d$obs$ind)-d$obs$resid*0.2,col="black")   #A positive residual should be up
+  axis(2,labels=levels(d$obs$LAIUnit),at=1:nlevels(d$obs$LAIUnit))
+  rect(as.numeric(d$obs$year)-0.5,as.numeric(d$obs$LAIUnit),as.numeric(d$obs$year)+0.5,
+      as.numeric(d$obs$LAIUnit)-d$obs$resid*0.2,col="black")   #A positive residual should be up
   box(lwd=2)
   abline(h=1:n.units)
 })
@@ -318,7 +332,7 @@ title(main="SCAI model parameters",xlab="Spawning Component",outer=TRUE)
 #plot the time series of standard deviations in the SCAI
 par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 dat.to.plot <- sapply(names(fit),function(a) fit[[a]]$fit$std.dev)
-matplot(LAI.dat$year,dat.to.plot,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
+matplot(yrs,dat.to.plot,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
       xlab="Year",ylab="Standard Deviation",type="b",
       main="Standard Deviation of SCAI indices by area and year")
 legend("topleft",legend=names(areas),pch=as.character(1:n.areas),col=1:6,lty=1,bg="white")
@@ -341,7 +355,7 @@ abline(v= cumsum(table(factor(props$component,levels=unique(props$component)))[-
 #SCAIs plotted on one figure
 par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 SCAIs <- sapply(fit,function(d) d$fit$SCAI)
-SCAIs <- data.frame(Year=LAI.dat$year,Total=rowSums(SCAIs),SCAIs)
+SCAIs <- data.frame(Year=yrs,Total=rowSums(SCAIs),SCAIs)
 dat.to.plot <- SCAIs[,-c(1:2)]
 plot(NA,NA,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
   xlab="Year",ylab="SCAI",main="SCAI indices for each component")
@@ -356,9 +370,9 @@ retro.mat[retro.mat==0] <- NA
 plot(NA,NA,xlim=xlims,ylim=range(pretty(c(0,retro.res$SCAI))),yaxs="i",
   xlab="Year",ylab="SCAI",main="SCAI retrospective analysis")
 for(i in 1:dim(retro.mat)[3]) {
-  matlines(LAI.dat$year,retro.mat[,,i],lwd=0.5,lty=1)
+  matlines(as.numeric(rownames(retro.mat)),retro.mat[,,i],lwd=0.5,lty=1)
 }
-matlines(LAI.dat$year,retro.mat[,,"0"],lwd=2,lty=1)
+matlines(as.numeric(rownames(retro.mat)),retro.mat[,,"0"],lwd=2,lty=1)
 legend("topleft",col=1:6,lty=1,legend=dimnames(retro.mat)$comp,bg="white")
 
 
@@ -400,9 +414,9 @@ retro.fracs <- aperm(retro.fracs,c(2,1,3))
 plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fraction",
   main="Proportion of stock by component - retrospective")
 for(i in 1:dim(retro.fracs)[3]) {
-  matlines(LAI.dat$year,retro.fracs[,,i],lwd=0.5,lty=1)
+  matlines(as.numeric(rownames(retro.fracs)),retro.fracs[,,i],lwd=0.5,lty=1)
 }
-matlines(LAI.dat$year,retro.fracs[,,"0"],lwd=2,lty=1)
+matlines(as.numeric(rownames(retro.fracs)),retro.fracs[,,"0"],lwd=2,lty=1)
 legend("topleft",col=1:6,lty=1,legend=dimnames(retro.fracs)[[2]],bg="white")
 
 
@@ -412,7 +426,8 @@ if(length(grep("pdf|png|wmf",names(dev.cur())))!=0) dev.off()
 ### ======================================================================================================
 ### Write out results
 ### ======================================================================================================
-write.out <- cbind(Year=fit[[1]]$fit$year,sapply(fit,function(d) d$fit$SCAI),sapply(fit,function(d) d$fit$std.dev))
-write.csv(write.out,file=file.path(output.dir,"SCAI indices.csv"),row.names=FALSE)
+write.out <- data.frame(Year=fit[[1]]$fit$year,SCAI=sapply(fit,function(d) d$fit$SCAI),SE=sapply(fit,function(d) d$fit$std.dev))
+write.csv(write.out,file=file.path(output.dir,"SCAI_indices.csv"),row.names=FALSE)
+cat("Complete.\n")
 
 

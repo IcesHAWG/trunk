@@ -3,7 +3,9 @@ GLOBALS_SECTION
  ###################################################################################################
  # Spawning Component Abundance Index (SCAI)
  #
- # Version 2.00 18/01/2010 14:51:22
+ # Version 2.01 
+ # $Rev$
+ # $Date$
  #
  # Author: Mark Payne, mpa@aqua.dtu.dk
  # DTU-Aqua, Charlottenlund, DK 
@@ -14,6 +16,7 @@ GLOBALS_SECTION
  # Developed with ADMB v 9.0
  #
  # Changes:
+ #  v 2.01 - Added checksum feature to data reading
  #  v 2.00 - Tidied and annotated code more to fit with publication in HAWG repostiory.
  #  v 1.40 - Fixed problem with props not summing to 1
  #  v 1.30 - Estimates SCAI_hat, with std.dev internally within the model
@@ -42,7 +45,7 @@ GLOBALS_SECTION
   //TRACE macro for use in debuging
   #define TRACE(object) cout<<"line "<<__LINE__<<", file "<<__FILE__<<", "<<#object" =\n"<<object<<endl<<endl; 
   #define DEBUG(stage) cout << stage;
-  #define M_PI=3.1415926536
+  #define M_PI =3.1415926536
 
 DATA_SECTION
   init_int n_years
@@ -51,6 +54,12 @@ DATA_SECTION
   init_int n_surv
   init_int n_obs
   init_matrix obs(1,n_obs,1,3)
+
+  init_ivector checksum_dat(1,2)  //Check that data has read correctly - should be 123456
+  !!if(checksum_dat(1)!=checksum_dat(2)) { 
+  !! cout << "CHECKSUM FAILURE: \t"<<checksum_dat << endl;
+  !! exit(1);}
+
 
 PARAMETER_SECTION
   // Parameters to fit
