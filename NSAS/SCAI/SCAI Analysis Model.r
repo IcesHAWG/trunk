@@ -236,30 +236,28 @@ plot(LAI.tbl[,"E6"],LAI.tbl[,"E8"],log="xy",pch=19,xlab="Survey E6",ylab="Survey
 abline(a=0,b=1,lwd=2)
 
 #First plot the time series for each component, with observations
-par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(3.5,5,4,0.5),las=1,mgp=c(4,1,0))
+#par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(3.5,5,4,0.5),las=1,mgp=c(4,1,0))
 pchs <- c(19,2,3,8)
 for(i in 1:n.areas){
   a <- names(areas)[i]
   d <- fit[[a]]
   ylims <- range(pretty(c(0,d$obs$SCAI_hat.ub,d$fit$ub)))
-  plot(1,1,xlim=xlims,ylim=c(1,1e5),type="n",
-      xlab="",ylab=paste("SCAI(",a,")",sep=""),xaxt="n",xpd=NA,log="y")
+  plot(1,1,xlim=xlims,ylim=c(1,1e5),type="n",sprintf("%s SCAI indices",a),
+      xlab="Year",ylab=paste("SCAI(",a,")",sep=""),xpd=NA,log="y")
   leg.width <- strwidth("Orkney-Shetland")
   polygon(c(d$fit$year,rev(d$fit$year)),c(d$fit$lb,rev(d$fit$ub)),col="grey")
   lines(d$fit$year,d$fit$SCAI,lwd=2)
   #If a point is outside confidence region, plot its error bars -otherwise just the points
   pts.outside <- d$obs[d$obs$SCAI_hat< d$obs$SCAI$lb | d$obs$SCAI_hat >d$obs$SCAI$ub,]
-  arrows(pts.outside$year,pts.outside$SCAI_hat.lb,pts.outside$year,pts.outside$SCAI_hat.ub,angle=90,code=3,length=0.1)
-  points(d$obs$year,d$obs$SCAI_hat,pch=pchs[as.numeric(d$obs$ind)],col="black")
+  #arrows(pts.outside$year,pts.outside$SCAI_hat.lb,pts.outside$year,pts.outside$SCAI_hat.ub,angle=90,code=3,length=0.1)
+  points(d$obs$year,d$obs$SCAI_hat,pch=pchs[as.numeric(d$obs$LAIUnit)],col="black")
   lvls <- 1:nlevels(d$obs$LAIUnit)
   legend("bottomright",col="black",pch=pchs[lvls],legend=levels(d$obs$LAIUnit),bg="white",horiz=TRUE)
-  legend("topleft",legend=NA,title=sprintf("%s) %s",letters[i],a),bty="n")
+#  legend("topleft",legend=NA,title=sprintf("%s) %s",letters[i],a),bty="n")
+#  axis(1)
+#  title(main=sprintf("%s SCAI indices",a),outer=TRUE)
+#  title(xlab="Year",outer=TRUE,mgp=c(2.5,1,0))
 }
-#Add axis at the bottom
-axis(1)
-title(main="SCAI indices by area",outer=TRUE)
-title(xlab="Year",outer=TRUE,mgp=c(2.5,1,0))
-
 
 #Now plot residuals as bubbles
 par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(5,5,4,2),las=1,mgp=c(4,1,0))
