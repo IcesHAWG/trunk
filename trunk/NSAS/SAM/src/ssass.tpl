@@ -176,6 +176,11 @@ DATA_SECTION
   !! TRACE(stateDim); 
   init_ivector fbarRange(1,2)  
   !! TRACE(fbarRange); 
+
+  init_ivector checksum(1,2)  //Check that data has read correctly - should be 424242
+  !!if(checksum(1)!=checksum(2)) { 
+  !! cout << "CHECKSUM FAILURE: \t"<<checksum << endl;
+  !! exit(1);}
   
   !! ad_comm::change_datafile_name("model.init");
   init_number varLogFstaInit;
