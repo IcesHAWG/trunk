@@ -6,19 +6,20 @@ write.ADMB.dat<-function(stck,tun, file="",miss.val=-99999){
   fleet.types <- c(0,as.numeric(fleet.types))
   samp.times <- c(miss.val,sapply(NSH.tun,function(x) mean(x@range[c("startf","endf")])))
   samp.times <- ifelse(is.na(samp.times),miss.val,samp.times)
+  yrs <- seq(NSH@range["minyear"],NSH@range["maxyear"])
+  nyrs <- length(yrs)
 
   #Generate observation matrix
   obs.dat <- as.data.frame(lapply(NSH.tun,index))
   obs.dat <- rbind(obs.dat,as.data.frame(FLQuants(catch=NSH@catch.n)))
+  obs.dat <- subset(obs.dat,obs.dat$year %in% yrs)
   obs.dat$fleet <- as.numeric(factor(obs.dat$qname,levels=fleet.names))
-  obs.dat$age <- ifelse(obs.dat$age=="all",miss.val,obs.dat$age)
+  obs.dat$age[which(fleet.types[obs.dat$fleet]==3)] <- median(as.numeric(obs.dat$age),na.rm=TRUE)   #Set ssb indices equal to median age
   obs.dat <- obs.dat[,c("year","fleet","age","data")]
   obs.dat <- obs.dat[order(obs.dat$year,obs.dat$fleet,obs.dat$age),]
   idx.start <-which(!duplicated(obs.dat$year))
   idx.end   <-c(idx.start[-1]-1,nrow(obs.dat))
   nobs  <- nrow(obs.dat)
-  yrs <- unique(obs.dat$year)
-  nyrs <- length(yrs)
 
   # Now write the file!
   cat("# Auto generated file\n", file=file)
@@ -47,7 +48,7 @@ write.ADMB.dat<-function(stck,tun, file="",miss.val=-99999){
   flqout("Stock mean weights",stck@stock.wt)
   flqout("Catch mean weights",stck@catch.wt)
   flqout("Natural Mortality", stck@m)
-  flqout("Landing Fraction L/(L+D)",stck@landings.n/(stck@landings.n+stck@discards.n))
+  flqout("Landing Fraction L/(L+D)",stck@landings.n*0+1)
   flqout("Fprop",stck@harvest.spwn)
   flqout("Mprop",stck@m.spwn)
   
