@@ -159,6 +159,7 @@ do.summary.plots(NSH,NSH.ica)
 # Extra otolith plot with a slightly higher number of samples in there
 plot.otolith(NSH,NSH.ica,n=100000)
 NSH.retro <- do.retrospective.plots(NSH,NSH.tun,NSH.ctrl,n.retro.years)
+NSH.retro <- do.retrospective.plots(NSH,NSH.tun,NSH.ctrl,4)
 
 ### ======================================================================================================
 ### Custom plots
@@ -280,7 +281,7 @@ writeFLStock(NSH,output.file=output.base)
 ### ======================================================================================================
 FnPrint("PERFORMING INTERMEDIATE YEAR CALCULATION...\n")
 REC               <- NSH.ica@param["Recruitment prediction","Value"]
-TAC               <- 200000 #overshoot = approximately 13% every year + 1000 tons of transfer             #194233 in 2009  #It does not matter what you fill out here as it only computes the suvivors
+TAC               <- 215000 #overshoot = approximately 13% every year + 1000 tons of transfer             #194233 in 2009  #It does not matter what you fill out here as it only computes the suvivors
 NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,fbar.nyrs=1,f.rescale=TRUE,rec=REC,catch.constraint=TAC)
 NSH.stock11       <- as.FLStock(FLSTF(stock=NSH,control=NSH.stf,unit=1,season=1,area=1,survivors=NA,quiet=TRUE,sop.correct=FALSE))
 
