@@ -3,13 +3,13 @@
 #
 # By: Niels Hintzen
 # IMARES
-# 20 March 2010
+# 20 March 2011
 #
 ################################################################################
 rm(list=ls());
 library(minpack.lm)
 #Read in data
-path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2010/assessment2/NSAS/"
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2011/assessment/NSAS/"
 try(setwd(path))
 try(setwd("./stf/"))
 
@@ -54,13 +54,15 @@ source("./data/writeSTF.out.r")
 #2009: TACS  <- list("A"=c(194233,NA,NA),"B"=c(7310,NA,NA),"C"=c(6538,5400,5400),"D"=c(2701,2200,2200));
 #      TACS.orig <- list("A"=c(171000,NA,NA),"B"=c(15985,NA,NA),"C"=c(37722,5100,5100),"D"=c(8373,2000,2000))
 #2010:
-TACS      <- list("A"=c(164300+903,NA,NA),  "B"=c(8329,NA,NA),  "C"=c(4300,1680,1680),"D"=c(980,490,490));
-TACS.orig <- list("A"=c(164300,NA,NA),      "B"=c(13587,NA,NA), "C"=c(4300,1680,1680),"D"=c(980,490,490))
+#TACS      <- list("A"=c(164300+903,NA,NA),  "B"=c(8329,NA,NA),  "C"=c(4300,1680,1680),"D"=c(980,490,490));
+#TACS.orig <- list("A"=c(164300,NA,NA),      "B"=c(13587,NA,NA), "C"=c(4300,1680,1680),"D"=c(980,490,490))
+#2011:
+TACS      <- list("A"=c(200000+15000,NA,NA),"B"=c(16539*,NA,NA), "C"=c(1680,1500,1500),"D"=c(500,500,500));
+TACS.orig <- list("A"=c(200000,NA,NA),      "B"=c(16539,NA,NA),  "C"=c(4300,1680,1680),"D"=c(980,490,490))
 
 RECS  <- list("ImY"=NSH.ica@param["Recruitment prediction","Value"],"FcY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-7):(range(NSH)["maxyear"]))]))),
               "CtY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-7):(range(NSH)["maxyear"]))]))))
-#2010 extra:
-#RECS <- list("ImY"=34135668.24,"FcY"=38770600.39,"CtY"=38770600.39 )
+
 FS    <- list("A"=FA,"B"=FB,"C"=FC,"D"=FD)
 WS    <- list("A"=WA,"B"=WB,"C"=WC,"D"=WD)
 
