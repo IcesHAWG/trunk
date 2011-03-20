@@ -1,0 +1,9 @@
+Requests for a new assessment model for North Sea herring:
+* True estimator of uncertainty
+* Flexible in its use to deal with multiple fleets and areas
+* Flexible in its use to adopt a meta-population concept
+* Easy to operate and check
+* Preferably linking to management strategy evaluation software
+* Flexible to implement prior knowledge on uncertainties
+* Relax assumptions on relationships between survey indices and stock abundance
+* Estimator of selectivity 
