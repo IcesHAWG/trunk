@@ -71,6 +71,7 @@ output.dir <- file.path(".","SCAIoutputs")
 
 #output device
 pdf(file.path(output.dir,"SCAI_outputs.pdf"),width=200/25.4,height=200/25.4,pointsize=16,onefile=TRUE)
+#png(file.path(output.dir,"SCAI_outputs_%02d.png"),units = "px", height=900,width=900,pointsize = 24,bg = "white")
 
 ### ======================================================================================================
 ### Prepare input data
@@ -292,6 +293,12 @@ lapply(names(fit),function(a) {
 axis(1)
 title(main="Residuals",xlab="Year",outer=TRUE)
 
+#QQ plots of residuals
+par(mfrow=c(2,2),pty="s",mar=c(5,4,4,2))
+lapply(names(fit),function(a) {
+  d <- fit[[a]]
+  qqnorm(d$obs$resid,main=sprintf("%s QQ-plot",a),pch=19)
+})
 
 #Plot model parameters for each component
 par(mfrow=c(3,1),mar=c(0,0,0,0),oma=c(5,4,4,2),las=1,mgp=c(3,1,0))
@@ -378,15 +385,6 @@ legend("topleft",col=1:6,lty=1,legend=dimnames(retro.mat)$comp,bg="white")
 matplot(SCAIs$Year,log10(dat.to.plot),lwd=2,lty=1,type="b",xlab="Year",ylab="log10(SCAI)",main="SCAI indices for each component")
 legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),pch=as.character(1:4),bg="white")
 
-#Interannual changes per component
-diffs <- apply(log(SCAIs[,-1]),2,diff)
-mid.yrs   <- rev(rev(SCAIs$Year+0.5)[-1])
-matplot(mid.yrs,diffs[,-1],lwd=2,lty=1,type="b",xlab="Year",ylab="Growth rate (.yr-1)",
-  main="Annual growth rates for each component")
-lines(mid.yrs,diffs[,1],lwd=4,lty=1,col="black")
-abline(h=0,lty=3,col="grey")
-legend("topright",col=c(1,1:6),lty=1,lwd=c(4,rep(2,4)),legend=colnames(diffs),pch=c("",as.character(1:4)),bg="white")
-
 #Proportion of total by each area - area plot
 par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fraction",
@@ -416,6 +414,16 @@ for(i in 1:dim(retro.fracs)[3]) {
 }
 matlines(as.numeric(rownames(retro.fracs)),retro.fracs[,,"0"],lwd=2,lty=1)
 legend("topleft",col=1:6,lty=1,legend=dimnames(retro.fracs)[[2]],bg="white")
+
+
+#Interannual changes per component
+diffs <- apply(log(SCAIs[,-1]),2,diff)
+mid.yrs   <- rev(rev(SCAIs$Year+0.5)[-1])
+matplot(mid.yrs,diffs[,-1],lwd=2,lty=1,type="b",xlab="Year",ylab="Growth rate (.yr-1)",
+  main="Annual growth rates for each component")
+lines(mid.yrs,diffs[,1],lwd=4,lty=1,col="black")
+abline(h=0,lty=3,col="grey")
+legend("topright",col=c(1,1:6),lty=1,lwd=c(4,rep(2,4)),legend=colnames(diffs),pch=c("",as.character(1:4)),bg="white")
 
 
 #Close output
