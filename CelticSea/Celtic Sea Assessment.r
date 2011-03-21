@@ -1,9 +1,8 @@
 ######################################################################################################
 # CS.herring FLICA Assessment
-#  February 2009
+#  Used for the final assessment in 2009
+#  Updated in February 2010
 #
-# $Rev: 89 $
-# $Date: 2009-02-20 10:32:54 +0000 (Fri, 20 Feb 2009) $
 #
 # Author: Afra Egan
 # Ireland
@@ -23,10 +22,7 @@
 # V 0.20 - Modifications
 # V 0.10 - Initial version, based on code inherited from Tomas Grösler
 #
-# To be done:
-#
-# Notes:
-#
+
 ####################################################################################################
 
 ### ======================================================================================================
@@ -53,11 +49,10 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
 data.source         <-  file.path("data")      #Data source, not code or package source!!!
-output.dir          <-  file.path("Results")       #Output directory
+output.dir          <-  file.path("res")       #Output directory
 output.base         <-  file.path(output.dir,"cs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-retro.years         <-  c(2003,2005:2008)
-             #Specify specific years to do the retrospective over
-
+retro.years         <-  c(2005:2010)  #Specify specific years to do the retrospective over
+#retro.years         <-  c(2003,2005:2009)
 ### ======================================================================================================
 ### Output setup
 ### ======================================================================================================
@@ -120,9 +115,6 @@ cs.herring.tun   <- lapply(cs.herring.tun,function(idx) {
 
 names(cs.herring.tun)[1] <- c("Celtic Sea Herring Acoustic")
 
-#Only use the relevant data sets
-cs.herring.tun  <- cs.herring.tun[c("Celtic Sea Herring Acoustic")]
-
 ### ======================================================================================================
 ### Perform the assessment
 ### ======================================================================================================
@@ -133,13 +125,33 @@ cs.herring.ica   <-  FLICA(cs.herring,cs.herring.tun,cs.herring.ctrl)
 cs.herring       <-  cs.herring + cs.herring.ica
 cs.herring@stock=computeStock(cs.herring) # to get TSB in stock slot
 
+
 ################################################################################
-## Change Recruitment to mean value 1995-2006
+## Change Recruitment to mean value 1995-2008
 
 Rec=exp(mean(log(cs.herring@stock.n[1,as.character(1995:(cs.herring@range['maxyear']-2)),,,,])))
 
 # put recruitment into last fishing year
+
 cs.herring@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
+
+
+
+# puts the geomean value into the pop numbers at age 1 in 2010
+
+cs.herring.ica@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
+
+##Need to adjust the survivors also
+gm.recs <- exp(mean(log(rec(trim(cs.herring,year=1995:2008)))))
+stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec=gm.recs)
+cs.herring.stf  <- FLSTF(stock=cs.herring,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
+
+## Puts value into the survivors slot
+cs.herring.ica@survivors['2',ac(2011)]=  cs.herring.stf@stock.n['2',ac(2011)]
+
+
+#Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
+writeFLStock(cs.herring.stf,output.file=paste(output.base,"with STF"))
 
 ################################################################################
 
@@ -148,6 +160,7 @@ cs.herring@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
 ### ======================================================================================================
 do.summary.plots(cs.herring,cs.herring.ica)
 do.SRR.plot(cs.herring)
+
 
 ### ======================================================================================================
 ### Retrospective analysis
@@ -189,7 +202,7 @@ FnPrint("GENERATING CUSTOM PLOTS...\n")
 #Plot of Catch and TAC
 ## TAC years specified
 ## Catch all years
-TACs    <- data.frame(year=1974:2008,TAC=1000*c(32,25,10.8,0,0,6,6,6,8,8,13,13,17,18,18,20,17.5,21,21,21,21,21,21,22,22,21,21,20,11,13,13,13,11,9.3,7.9))
+TACs    <- data.frame(year=1974:2011,TAC=1000*c(32,25,10.8,0,0,6,6,6,8,8,13,13,17,18,18,20,17.5,21,21,21,21,21,21,22,22,21,21,20,11,13,13,13,11,9.4,7.9,5.9,10.15,13.2))
 TAC.plot.dat <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(TACs$TAC,each=2))
 catch   <- as.data.frame(cs.herring@catch)
 plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(pretty(c(catch$year,TACs$year))),ylim=range(pretty(c(0,TACs$TAC,catch$data))))
@@ -198,16 +211,11 @@ lines(TAC.plot.dat,lwd=5)
 legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2))
 title(main=paste(cs.herring@name,"Catch and TAC"))
 
-#Proportion of the catch by age
-canum.prop.age <- stacked.area.plot(data~year,data=as.data.frame(pay(cs.herring@catch.n)),groups="age",
-                    main=paste(cs.herring@name,"Proportion at age (by numbers) in the catch"),
-                    xlab="Year",ylab="Prop. at age in the catch")
-print(canum.prop.age)
-
-
 ### ======================================================================================================
 ### Document Assessment
 ### ======================================================================================================
+
+
 FnPrint("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
 old.opt <- options("width","scipen")
@@ -231,7 +239,7 @@ cs.herring.ica@param[,6:10]=round(cs.herring.ica@param[6:10],2)
 
 #Now write the file
 #Number to corresponds to numbers in the report
-ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4.6.2.1.%i Celtic Sea and Division VIIj Herring.")
+ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4.6.1.%i Celtic Sea and Division VIIj Herring.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
@@ -240,21 +248,178 @@ writeFLStock(cs.herring,output.file=output.base)
 
 
 
+################################################################################
+## Output for standard Graphs
+
+#And for incorporation into the standard graphs
+writeFLStock(cs.herring,file.path(output.dir,"hawg_her-irls.sum"),type="ICAsum")
+
+
+##### Extra Plots  #############################################################
+
+
+index.ts.dat  <- lapply(cs.herring.tun,slot,"index")
+index.ts.dat  <- as.data.frame(index.ts.dat)
+index.ts.dat$id <- paste(index.ts.dat$qname,", Age ",index.ts.dat$age,sep="")
+index.ts.dat$data[index.ts.dat$data<0] <- NA
+index.ts.plot <- xyplot(data~year|id,data=index.ts.dat,
+                    type="b",
+                    xlab="Year",ylab="Index Value",
+                    prepanel=function(...) list(ylim=range(pretty(c(0,list(...)$y)))),
+                    pch=19,
+                    as.table=TRUE,
+                    strip=strip.custom(par.strip.text=list(cex=0.8)),
+                    main=paste(cs.herring@name,"Input Indices"),
+                    scales=list(alternating=1,y=list(relation="free")),
+                    panel=function(...) {
+                        panel.grid(h=-1,v=-1)
+                        panel.xyplot(...)
+                    })
+print(index.ts.plot)
+
+
+#Time series of west
+west.ts  <- xyplot(data~year,data=window(cs.herring@stock.wt,1991,2010),
+              groups=age,
+              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+              type="b",
+              xlab="Year",ylab="Weight in the stock (kg)",
+              main=paste(cs.herring@name,"Weight in the Stock"),
+              par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25)))
+print(west.ts)
+
+
+#Time series of west by cohort
+west.by.cohort      <- as.data.frame(FLCohort(window(cs.herring@stock.wt,1992,2010)))
+west.by.cohort      <-  subset(west.by.cohort,!is.na(west.by.cohort$data))
+west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
+west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
+              groups=cohort,
+              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
+              type="b",
+              xlab="Year",ylab="Weight in the stock (kg)",
+              main=paste(cs.herring@name,"Weight in the stock by cohort"),
+              par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1.25)),
+              panel=function(...) {
+                panel.grid(h=-1,v=-1)
+                panel.xyplot(...)
+              })
+print(west.cohort.plot)
+
+
+
+#Cohort growth rates
+cohort.growth  <- xyplot(data~age,data=west.by.cohort,
+                  groups=cohort,
+                  auto.key=list(space="right",points=FALSE,lines=TRUE,type="b",cex=0.8,title="Cohort"),
+                  type="b",
+                  xlab="Year",ylab="Weight in the stock (kg)",
+                  main=paste(cs.herring@name,"Growth by Cohort"),
+                  par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1)),
+                  panel=function(...) {
+                    panel.grid(h=-1,v=-1)
+                    panel.xyplot(...)
+                  })
+print(cohort.growth)
+
+
+catch.curves(cs.herring,1990,2010)
+
+### Reference Points calculated and stock recruit relationship fitted
+
+cs.herring.sr <- ref.pts(cs.herring,"bevholt",100000)
+
+
+cor.tun(cs.herring.tun)
+
+print(stacked.area.plot(data~year| unit, as.data.frame(pay(cs.herring@stock.n)),groups="age",main="Proportion of stock.n at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+print(stacked.area.plot(data~year| unit, as.data.frame(pay(cs.herring@catch.n)),groups="age",main="Proportion of Catch.n at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+print(stacked.area.plot(data~year| unit, as.data.frame(pay(cs.herring@catch.wt)),groups="age",main="Proportion of Catch.wt at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+print(stacked.area.plot(data~year,as.data.frame(pay(cs.herring@stock.n*cs.herring@stock.wt)),groups="age",main="Proportion by weight in the stock",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+print(stacked.area.plot(data~year| unit, as.data.frame(pay(cs.herring.tun[[1]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+
+
 ### ======================================================================================================
-### Short Term Forecast
+### Create the figures for the advice sheet and the summary table and reference points
 ### ======================================================================================================
 
+#writeStandardOutput(cs.herring,cs.herring.sr,cs.retro.stck,nyrs.=3,output.base,Blim=44000,Bpa=26000,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=NULL)
 
-FnPrint("PERFORMING SHORT TERM FORECAST...\n")
-#Make forecast
-gm.recs         <- exp(mean(log(rec(trim(cs.herring,year=1995:2006)))))  #cs.herring recruitment is based on a geometric mean from 1995 - 2006
-## Set catch constraint
-stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec=gm.recs)
-cs.herring.stf  <- FLSTF(stock=cs.herring,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
+writeStandardOutput(cs.herring,cs.herring.sr,cs.retro.stck,nyrs.=3,recImY=NULL,output.base,Blim=44000,Bpa=26000,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=NULL)
+
+##############################################################################################################
 
 
-#Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(cs.herring.stf,output.file=paste(output.base,"with STF"))
+### ======================================================================================================
+### Write Options Tables
+### ======================================================================================================
+FnPrint("WRITING OPTIONS TABLES...\n")
+
+#Document input settings
+input.tbl.file <-paste(output.base,"options - input.csv",sep=".")
+write.table(NULL,file=input.tbl.file,col.names=FALSE,row.names=FALSE)
+input.tbl.list <- list(N="stock.n",M="m",Mat="mat",PF="harvest.spwn",
+                       PM="m.spwn",SWt="stock.wt",Sel="harvest",CWt="catch.wt")
+for(yr in c(ImY,AdY,CtY)){
+    col.dat <- sapply(input.tbl.list,function(slt) slot(cs.herring.proj,slt)[,as.character(yr),drop=TRUE])
+    write.table(yr,file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+    write.table(t(c("Age",colnames(col.dat))),file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+    write.table(col.dat,file=input.tbl.file,col.names=FALSE,row.names=TRUE,append=TRUE,sep=",",na="-")
+    write.table("",file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+}
+
+#Detailed options table
+options.file <-paste(output.base,"options - details.csv",sep=".")
+write.table(NULL,file=options.file,col.names=FALSE,row.names=FALSE)
+for(i in 1:length(cs.herring.options)) {
+    opt <- names(cs.herring.options)[i]
+    stk <- cs.herring.options[[opt]]
+    #Now the F and N by age
+    nums.by.age <- stk@stock.n[,tbl.yrs,drop=TRUE]
+    colnames(nums.by.age) <- sprintf("N(%s)",tbl.yrs)
+    f.by.age    <- stk@harvest[,tbl.yrs,drop=TRUE]
+    colnames(f.by.age) <- sprintf("F(%s)",tbl.yrs)
+    age.tbl     <- cbind(Age=rownames(f.by.age),N=nums.by.age,F=f.by.age)
+    #And now the summary tbl
+    sum.tbl     <- cbind(Year=tbl.yrs,SSB=ssb(stk)[,tbl.yrs],
+                        F.bar=fbar(stk)[,tbl.yrs],Yield=computeCatch(stk)[,tbl.yrs])
+    #Now, bind it all together
+    sum.tbl.padding <- matrix("",nrow=nrow(age.tbl)-nrow(sum.tbl),ncol=ncol(sum.tbl))
+    comb.tbl    <- cbind(age.tbl," ",rbind(sum.tbl,sum.tbl.padding))
+    #And write it - hdr first, then the rest
+    write.table(sprintf("%s). %s",letters[i],opt),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(t(colnames(comb.tbl)),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(comb.tbl,options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(c(""),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+}
+
+#Options summary table
+opt.sum.tbl <- function(stcks,fname) {
+    options.sum.tbl <- sapply(as.list(1:length(stcks)),function(i) {
+                          opt <- names(stcks)[i]
+                          stk <- stcks[[opt]]
+                          #Build up the summary
+                          sum.tbl     <- data.frame(Rationale=opt,
+                                          F.ImY=fbar(stk)[,as.character(ImY),drop=TRUE],
+                                          Catch.ImY=computeCatch(stk)[,as.character(ImY),drop=TRUE],
+                                          SSB.ImY=ssb(stk)[,as.character(ImY),drop=TRUE],
+                                          F.AdY=fbar(stk)[,as.character(AdY),drop=TRUE],
+                                          Catch.AdY=computeCatch(stk)[,as.character(AdY),drop=TRUE],
+                                          SSB.AdY=ssb(stk)[,as.character(AdY),drop=TRUE],
+                                          SSB.CtY=ssb(stk)[,as.character(CtY),drop=TRUE])
+                          })
+    options.sum.tbl <- t(options.sum.tbl)
+    colnames(options.sum.tbl) <- c("Rationale",
+                                    sprintf("Fbar (%i)",ImY),sprintf("Catch (%i)",ImY),sprintf("SSB (%i)",ImY),
+                                    sprintf("Fbar (%i)",AdY),sprintf("Catch (%i)",AdY),sprintf("SSB (%i)",AdY),
+                                    sprintf("SSB (%i)",CtY))
+    write.csv(options.sum.tbl,file=fname,row.names=FALSE)
+}
+opt.sum.tbl(stcks=cs.herring.options,fname=paste(output.base,"options - summary.csv",sep="."))
+opt.sum.tbl(stcks=cs.herring.mult.opts,fname=paste(output.base,"multi-options - summary.csv",sep="."))
+
+
+
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
@@ -266,11 +431,21 @@ dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
 
 
-################################################################################
-## Output for standard Graphs
 
-#And for incorporation into the standard graphs
-writeFLStock(cs.herring,file.path(output.dir,"hawg_her-irls.sum"),type="ICAsum")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
