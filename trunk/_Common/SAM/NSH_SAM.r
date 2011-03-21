@@ -48,5 +48,5 @@ dmp <- lapply(FLSAM.r.srcs,source)
 stck <- NSH
 tun <- NSH.tun
 
-write.ADMB.dat(NSH,NSH.tun,file.path(".","run","ssass.dat"))
+#write.ADMB.dat(NSH,NSH.tun,file.path(".","run","ssass.dat"))
 
