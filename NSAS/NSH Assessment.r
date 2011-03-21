@@ -134,13 +134,13 @@ NSH.tun[[3]]@index.var[]        <- 1.0/FLQuant(c(0.47,0.28,0.01,0.01,0.01),dimna
 NSH.tun[[2]]@index.var[]        <- 1.0/FLQuant(0.63,dimnames=dimnames(NSH.tun[[2]]@index)) #MIK
 NSH.tun[[1]]@index.var[]        <- 1.0/FLQuant(0.60,dimnames=dimnames(NSH.tun[[1]]@index)) #MLAI
 
+#Set names
 NSH.tun[[1]]@name               <- "MLAI"
 NSH.tun[[2]]@name               <- "IBTS0"
-NSH.tun[[3]]@name               <- "IBTS-Q1: 1-5+ wr"
-NSH.tun[[4]]@name               <- "Acoustic survey (HERAS): 1-9+ wr"
-
-#Set names
+NSH.tun[[3]]@name               <- "IBTS-Q1"
+NSH.tun[[4]]@name               <- "HERAS"
 names(NSH.tun)                  <- lapply(NSH.tun,name)
+
 ### ======================================================================================================
 ### Perform the assessment
 ### ======================================================================================================
