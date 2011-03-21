@@ -42,7 +42,10 @@ write.ADMB.dat<-function(stck,tun, file="",miss.val=-99999){
   #Now write the rest of the stock information
   flqout <- function(desc,flq) { #Local export function
                   cat("#",desc,"\n#",rownames(flq),"\n", file=file, append=TRUE)
-                  write.table(t(flq[,,drop=TRUE]@.Data), row.names=FALSE, col.names=FALSE, quote=FALSE, file=file, append=TRUE)
+                  out.dat <- t(flq[,,drop=TRUE]@.Data)
+                  tbl <- capture.output(write.table(out.dat, row.names=FALSE, col.names=FALSE, quote=FALSE))
+                  tbl <- paste(tbl,"#",rownames(out.dat),"\n")
+                  cat(tbl, file=file, append=TRUE)
                   return(invisible(NULL))}
   flqout("Proportion mature",stck@mat)
   flqout("Stock mean weights",stck@stock.wt)
