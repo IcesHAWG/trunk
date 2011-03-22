@@ -17,13 +17,15 @@ write.ADMB.dat<-function(stck,tun, file="",miss.val=-99999){
   obs.dat$age[which(fleet.types[obs.dat$fleet]==3)] <- median(as.numeric(obs.dat$age),na.rm=TRUE)   #Set ssb indices equal to median age
   obs.dat <- obs.dat[,c("year","fleet","age","data")]
   obs.dat <- obs.dat[order(obs.dat$year,obs.dat$fleet,obs.dat$age),]
+  obs.dat$fleet.name <- paste("#",fleet.names[obs.dat$fleet],sep="")
+  obs.dat <- subset(obs.dat,!(obs.dat$data<=0 | is.na(obs.dat$data)))
   idx.start <-which(!duplicated(obs.dat$year))
   idx.end   <-c(idx.start[-1]-1,nrow(obs.dat))
   nobs  <- nrow(obs.dat)
 
   # Now write the file!
   cat("# Auto generated file\n", file=file)
-  cat("# \n", file=file, append=TRUE)
+  cat(sprintf("# Datetime : %s\n\n",Sys.time()),file=file,append=TRUE)
 
   #Write meta data
   cat("# Number of fleets (res+con+sur)\n",length(fleet.names),"\n", file=file, append=TRUE)
@@ -41,11 +43,8 @@ write.ADMB.dat<-function(stck,tun, file="",miss.val=-99999){
 
   #Now write the rest of the stock information
   flqout <- function(desc,flq) { #Local export function
-                  cat("#",desc,"\n#",rownames(flq),"\n", file=file, append=TRUE)
-                  out.dat <- t(flq[,,drop=TRUE]@.Data)
-                  tbl <- capture.output(write.table(out.dat, row.names=FALSE, col.names=FALSE, quote=FALSE))
-                  tbl <- paste(tbl,"#",rownames(out.dat),"\n")
-                  cat(tbl, file=file, append=TRUE)
+                  cat("#",desc,"\n",file=file, append=TRUE)
+                  cat(.format.matrix.ADMB(t(flq[,,drop=TRUE]@.Data)), file=file, append=TRUE)
                   return(invisible(NULL))}
   flqout("Proportion mature",stck@mat)
   flqout("Stock mean weights",stck@stock.wt)
@@ -59,5 +58,41 @@ write.ADMB.dat<-function(stck,tun, file="",miss.val=-99999){
   cat("# Checksums to ensure correct reading of input data \n",42,42,"\n", file=file, append=TRUE)
   
   return(invisible(NULL))
+}
+
+write.ADMB.cfg <- function(ctrl,file="") {
+  #Write configuration file
+  # Now write the file!
+  cat("# Auto generated file\n", file=file)
+  cat(sprintf("# Datetime : %s\n\n",Sys.time()),file=file,append=TRUE)
+
+  #Write the headers
+  cat("# Min, max age represented internally in model \n",ctrl@range[c("min","max")],"\n", file=file, append=TRUE)
+  cat("# Max age considered a plus group? (0 = No, 1= Yes)\n",as.numeric(NSH.ctrl@plus.group[1]),"\n", file=file, append=TRUE)
+  
+  #Coupling Matrices
+  cat("\n# Coupling of fishing mortality STATES\n",.format.matrix.ADMB(ctrl@states,na.replace=0),file=file,append=TRUE)
+  cat("\n# Coupling of catchability PARAMETERS\n",.format.matrix.ADMB(ctrl@catchabilities,na.replace=0),file=file,append=TRUE)
+  cat("\n# Coupling of power law model EXPONENTS\n",.format.matrix.ADMB(ctrl@power.law.exps,na.replace=0),file=file,append=TRUE)
+  cat("\n# Coupling of fishing mortality RW VARIANCES\n",.format.matrix.ADMB(ctrl@f.vars,na.replace=0),file=file,append=TRUE)
+  cat("\n# Coupling of log N RW VARIANCES\n",ctrl@logN.vars,file=file,append=TRUE)
+  cat("\n\n# Coupling of OBSERVATION VARIANCES\n",.format.matrix.ADMB(ctrl@obs.vars,na.replace=0),file=file,append=TRUE)
+  
+  #Final values
+  cat("\n# Stock recruitment model code (0=RW, 1=Ricker, 2=BH, ... more in time\n",ctrl@srr,"\n",file=file,append=TRUE)
+  cat("# Years in which catch data are to be scaled by an estimated parameter (mainly cod related)\n",0,"\n",file=file,append=TRUE)
+  cat("# Fbar range \n",ctrl@range[c("minfbar","maxfbar")],"\n",file=file,append=TRUE)
+  
+  #Finally, write the checksums
+  cat("\n\n# Checksums to ensure correct reading of input data \n",123456,123456,"\n", file=file, append=TRUE)
+
+}
+
+.format.matrix.ADMB <- function(mat,na.replace="missing") {
+                  if(na.replace!="missing") {mat[is.na(mat)] <- na.replace}
+                  colnames(mat)[1] <- paste("#",colnames(mat)[1])
+                  tbl <- capture.output(write.table(mat, row.names=FALSE, col.names=TRUE, quote=FALSE))
+                  tbl <- paste(tbl,"#",c(" ",rownames(mat)),"\n")
+                  return(tbl)
 }
 

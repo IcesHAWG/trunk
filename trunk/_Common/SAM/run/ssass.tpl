@@ -116,9 +116,9 @@ DATA_SECTION
   !! TRACE(Fprop);
   init_matrix Mprop(1,noYears,minAgeObs,maxAgeObs)
   !! TRACE(Mprop);
-  init_ivector checksum(1,2)  //Check that data has read correctly - should be 424242
-  !!if(checksum(1)!=checksum(2)) { 
-  !! cout << endl << "CHECKSUM FAILURE: \t"<<checksum << endl;
+  init_ivector checksum_dat(1,2)  //Check that data has read correctly - should be 424242
+  !!if(checksum_dat(1)!=checksum_dat(2)) { 
+  !! cout << endl << "CHECKSUM FAILURE: \t"<<checksum_dat << endl;
   !! exit(1);
   !! } else {
   !!  cout << " CHECKSUM PASSED.";}
@@ -185,6 +185,12 @@ DATA_SECTION
   !! TRACE(stateDim); 
   init_ivector fbarRange(1,2)  
   !! TRACE(fbarRange); 
+  init_ivector checksum_cfg(1,2)  //Check that data has read correctly - should be 424242
+  !!if(checksum_cfg(1)!=checksum_cfg(2)) { 
+  !! cout << endl << "CHECKSUM FAILURE: \t"<<checksum_cfg << endl;
+  !! exit(1);
+  !! } else {
+  !!  cout << " CHECKSUM PASSED.";}
 
   //Initial guesses for the model
   !! cout<<"... model.init file"; cout.flush(); 
