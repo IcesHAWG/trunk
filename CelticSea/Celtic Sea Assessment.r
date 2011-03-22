@@ -1,7 +1,7 @@
 ######################################################################################################
 # CS.herring FLICA Assessment
-#  Used for the final assessment in 2009
-#  Updated in February 2010
+#  Used for the final assessment in 2011
+#  Updated in February 2011
 #
 #
 # Author: Afra Egan
