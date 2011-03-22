@@ -355,6 +355,8 @@ retro.plots<- function(retro.stck,retro.icas,ctrl) {
                             c(most.recent.stck@range["plusgroup"]-1,rep(ctrl@sep.sel,2)),c(most.recent.stck@range["plusgroup"],rep(ctrl@sep.sel,2)))   #Add CI's for sep.age, last true age, plus.group
     most.recent.sel$Age <- as.numeric(most.recent.sel$Age)
     most.recent.sel <- most.recent.sel[order(most.recent.sel$Age),]
+    plot.new()
+    par(mfrow=c(1,1))
     plot(0,0,pch=NA,xlab="Age",ylab="Catch Selectivity",xlim=range(pretty(as.numeric(rownames(sels)))),
         ylim=range(pretty(c(0,most.recent.sel$Upper.95.pct.CL))),main=paste(stck.name,"Retrospective selectivity pattern"))
     polygon(c(most.recent.sel$Age,rev(most.recent.sel$Age)),c(most.recent.sel$Lower.95.pct.CL,rev(most.recent.sel$Upper.95.pct.CL)),col="grey")
