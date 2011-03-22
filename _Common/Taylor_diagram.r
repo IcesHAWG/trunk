@@ -3,12 +3,12 @@
 #
 # Author: Mark Payne, mpa@aqua.dtu.dk
 # DTU-Aqua, Charlottenlund, DK
-# 
+#
 # Code for applying Taylor diagrams in Fish Stock assessment
 #
 # References:
-# Taylor, K.E. (2001) Summarizing multiple aspects of model performance in 
-#         a single diagram. Journal of Geophysical Research, 106: 7183-7192. 
+# Taylor, K.E. (2001) Summarizing multiple aspects of model performance in
+#         a single diagram. Journal of Geophysical Research, 106: 7183-7192.
 # Payne, M.R. (2011) Taylor diagrams can aid in the interpretation of fisheries
 #         models. CJFAS (submitted)
 #
@@ -50,14 +50,23 @@ setGeneric("taylor.diagram", function(object, object2,...){
   #Setup plot
   label <- "Normalised std dev (obs/model)"
   oldpar <- par(pty="s")
-  plot(NA,NA,xlim=sd.lims,ylim=sd.lims,xaxs="i",yaxs="i",bty="n",xlab=label,ylab=label,asp=1)
+  plot(NA,NA,xlim=sd.lims,ylim=sd.lims,xaxs="i",yaxs="i",bty="n",xlab=label,ylab=label,asp=1,xaxt="n",yaxt="n")
+  axis.ats <- pretty(sd.lims)
+  axis.lbls <- ifelse(axis.ats==1,"MDL",axis.ats)
+  axis(1,at=axis.ats,axis.lbls)
+  axis(2,at=axis.ats,axis.lbls)
   #Setup and plot arcs
   rarc <- seq(0,pi/2,length.out=200)
   lines(radius*cos(rarc),radius*sin(rarc),lwd=1.5)
-  #Now plot angular axis with labels and grid lines
+  for(r in unique(abs(axis.ats-1))){
+    lines(1+r*cos(rarc),r*sin(rarc),lty="dashed",col="grey")
+    lines(1-r*cos(rarc),r*sin(rarc),lty="dashed",col="grey")
+  }
+  #angular axis
   lines(cos(rarc),sin(rarc),lwd=1.5)
-  ang.axis.ticks <- c(seq(0,1,by=0.1),0.95,0.99)   #Defined as r (not r2)
-  ang.axis.angle <- acos(ang.axis.ticks)
+  #labelled ticks
+  labelled.ticks <- c(seq(0,1,by=0.1),0.95,0.99)   #Defined as r (not r2)
+  ang.axis.angle <- acos(labelled.ticks)
   tick.len <- 1-0.025
   segments(radius*cos(ang.axis.angle),radius*sin(ang.axis.angle),0,0,lty="dotted",col="grey")
   segments(0,0,0,radius)   #Redraw axes for tidyness
@@ -68,6 +77,12 @@ setGeneric("taylor.diagram", function(object, object2,...){
   for(a in ang.axis.angle) {
     text(radius*text.offset*cos(a),radius*text.offset*sin(a),
       labels=sprintf("%5.2f",cos(a)),xpd=NA,srt=a/pi*180)}
+  #unlabelled ticks
+  unlabelled.ticks <- c(seq(0.05,0.85,by=0.1),seq(0.91,0.98,by=0.01))   #Defined as r (not r2)
+  ang.axis.angle <- acos(unlabelled.ticks)
+  tick.len <- 1-0.0125
+  segments(radius*cos(ang.axis.angle),radius*sin(ang.axis.angle),
+      radius*tick.len*cos(ang.axis.angle),radius*tick.len*sin(ang.axis.angle))
   #Axis label - the tricky one
   ang.lab <- "Correlation coefficient (r)"
   axis.lab.offset <- 1.125
@@ -80,7 +95,7 @@ setGeneric("taylor.diagram", function(object, object2,...){
 ### ======================================================================================================
 ### Prepare taylor data
 ### ======================================================================================================
-.prepare.taylor.data <- function(obj,common.basis=FALSE) {
+.prepare.taylor.data <- function(obj,common.basis=TRUE) {
   #Extract data
   mdl.dat <- as.data.frame(obj@index.hat)
   obs.dat <- as.data.frame(obj@index)
@@ -90,11 +105,12 @@ setGeneric("taylor.diagram", function(object, object2,...){
   dat <- dat[!(is.na(dat$data.obs) | is.na(dat$data.mdl)),]
 
   #Apply common basis if requested
+  yrs <- unique(dat$year)
   if(common.basis) {
     tbl <- table(dat$year,paste(dat$qname,dat$age))
     all.pts <- apply(tbl!=0,1,all)
-    common.yrs <- as.numeric(names(which(all.pts)))
-    dat <- subset(dat,dat$year %in% common.yrs)
+    yrs <- as.numeric(names(which(all.pts)))
+    dat <- subset(dat,dat$year %in% yrs)
   }
 
   #Calculate r and sd statistics
@@ -106,19 +122,27 @@ setGeneric("taylor.diagram", function(object, object2,...){
                r <- cor(obs,mdl)
                return(data.frame(src=factor(unique(x$qname)),age=unique(x$age),sd.ratio=sd.obs/sd.mdl,r))})
   sum.dat <- do.call(rbind,sum.dat)
+
+  #Sort for convenience
+  sum.dat <- sum.dat[order(sum.dat$src,sum.dat$age),]
+
+  #return
+  attr(sum.dat,"yrs") <- yrs
+  return(sum.dat)
 }
 
 ### ======================================================================================================
 ### Plot single plot
 ### ======================================================================================================
-setMethod("taylor.diagram", signature(object="FLICA",object2="missing"), function(object, object2="missing", pchs=21:25,cols=1:6,common.basis=TRUE){
+setMethod("taylor.diagram", signature(object="FLAssess",object2="missing"), function(object, object2="missing", pchs=21:25,cols=1:6,common.basis=TRUE){
     #Extract data
-    plt.dat <- .prepare.taylor.data(object,common.basis)
+    plt.dat <- .prepare.taylor.data(object,common.basis=common.basis)
     #For data sources where there is only one age, set this to zero
     src.freq <- as.data.frame(table(plt.dat$src))
     loners <- subset(src.freq$Var1,src.freq$Freq==1)
     if(length(loners)>0) {plt.dat[plt.dat$src %in% loners,]$age <- NA}
     #Assign pchs, col
+    plt.dat$src <- factor(plt.dat$src,levels=sort(unique(as.character(plt.dat$src))))
     pchs <- rep(pchs,length.out=nlevels(plt.dat$src))
     cols <- rep(cols,length.out=nlevels(plt.dat$src))
     plt.dat$pchs <- pchs[as.numeric(plt.dat$src)]
@@ -131,20 +155,22 @@ setMethod("taylor.diagram", signature(object="FLICA",object2="missing"), functio
       text(sd.ratio*cos(acos(r)),sd.ratio*sin(acos(r)),age,pos=1,cex=0.75,xpd=NA)
     })
     #Finally, the legend
+    yr.rng <- range(attr(plt.dat,"yrs"))
     legend("topright",pch=pchs,pt.bg=cols,col=cols,legend=levels(plt.dat$src),cex=0.75,pt.cex=1,
-        title=ifelse(common.basis,"Common basis","All years"))
+        title=ifelse(common.basis,sprintf("(%i-%i)",yr.rng[1],yr.rng[2]),"All years"))
 })
 
 ### ======================================================================================================
 ### Two object difference plot
 ### ======================================================================================================
-setMethod("taylor.diagram", signature(object="FLICA",object2="FLICA"), function(object, object2, pchs=21:25,cols=1:6,common.basis=TRUE){
+setMethod("taylor.diagram", signature(object="FLAssess",object2="FLAssess"), function(object, object2, pchs=21:25,cols=1:6,common.basis=TRUE){
   #Prepare data
-  sum.dat1 <- .prepare.taylor.data(object)
-  sum.dat2 <- .prepare.taylor.data(object2)
+  sum.dat1 <- .prepare.taylor.data(object,common.basis=common.basis)
+  sum.dat2 <- .prepare.taylor.data(object2,common.basis=common.basis)
 
   #Combine the two data sets into one table
   plt.dat <- merge(sum.dat1,sum.dat2,suffixes=c(".1",".2"),by=c("src","age"))
+  plt.dat$src <- factor(plt.dat$src,levels=sort(unique(as.character(plt.dat$src))))
   #For data sources where there is only one age, set this to zero
   src.freq <- as.data.frame(table(plt.dat$src))
   loners <- subset(src.freq$Var1,src.freq$Freq==1)
@@ -167,7 +193,8 @@ setMethod("taylor.diagram", signature(object="FLICA",object2="FLICA"), function(
   })
   points(1,0,pch=8,col="black",xpd=TRUE)
   #Finally, the legend
+  yr.rng <- range(attr(sum.dat1,"yrs"))
   legend("topright",pch=pchs,col=cols,legend=c(levels(plt.dat$src)),cex=0.75,pt.cex=1,
-    title=ifelse(common.basis,"Common basis","All years"))
+        title=ifelse(common.basis,sprintf("(%i-%i)",yr.rng[1],yr.rng[2]),"All years"))
 })
 
