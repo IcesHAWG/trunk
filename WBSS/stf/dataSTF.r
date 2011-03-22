@@ -2,19 +2,19 @@
 descFleet <- list(A = "Human consumption IV",C = "Human consumption IIIa",D = "Bycatch sprat industrial",F = "Human consumption 22-24")
 
 #Time series of catches for the different fleets
-tsCatchFleet                  <- matrix(NA,nrow=8,ncol=11,dimnames=list(Fleet=c("A - WBSS","A - NSAS","C - WBSS","C - NSAS","D - WBSS","D - NSAS","F - WBSS","F - NSAS"),years=2000:2010))
-tsCatchFleet["A - WBSS",-11]  <- c(7,6,7,2.8,7.1,7.0,11.0,1.1,0.1,3.9)
-tsCatchFleet["A - NSAS",-11]  <- rep(0,10) #c(322,296,323,434.9,529.5,610.0,487.1,379.6,236.3,152.1)
-tsCatchFleet["C - WBSS",-11]  <- c(45,33,38,31.6,16.8,32.5,30.2,25.3,23.0,29.4)
-tsCatchFleet["C - NSAS",-11]  <- c(36,34,17,24.1,13.4,22.9,11.6,16.4,9.2,5.1)
-tsCatchFleet["D - WBSS",-11]  <- c(5,3,9,4.0,11.2,5.1,5.9,2.3,2.2,2.9)
-tsCatchFleet["D - NSAS",-11]  <- c(13,12,9,8.4,10.8,9.0,3.4,3.4,3.7,1.5)
-tsCatchFleet["F - WBSS",-11]  <- c(53.3,62.9,46.2,38.7,41.2,41.8,39.4,37.6,38.5,27.4) + c(1.0,0.8,4.6,2.6,0.4,2.2,2.5,2.9,5.7,3.6)
-tsCatchFleet["F - NSAS",-11]  <- 0
+tsCatchFleet                  <- matrix(NA,nrow=8,ncol=12,dimnames=list(Fleet=c("A - WBSS","A - NSAS","C - WBSS","C - NSAS","D - WBSS","D - NSAS","F - WBSS","F - NSAS"),years=2000:2011))
+tsCatchFleet["A - WBSS",-12]  <- c(7,6,7,2.8,7.1,7.0,11.0,1.1,0.1,3.9,0.8)
+tsCatchFleet["A - NSAS",-12]  <- rep(0,11) #c(322,296,323,434.9,529.5,610.0,487.1,379.6,236.3,152.1)
+tsCatchFleet["C - WBSS",-12]  <- c(45,33,38,31.6,16.8,32.5,30.2,25.3,23.0,29.4,23)
+tsCatchFleet["C - NSAS",-12]  <- c(36,34,17,24.1,13.4,22.9,11.6,16.4,9.2,5.1,12)
+tsCatchFleet["D - WBSS",-12]  <- c(5,3,9,4.0,11.2,5.1,5.9,2.3,2.2,2.9,0.5)
+tsCatchFleet["D - NSAS",-12]  <- c(13,12,9,8.4,10.8,9.0,3.4,3.4,3.7,1.5,1.8)
+tsCatchFleet["F - WBSS",-12]  <- c(53.3,62.9,46.2,38.7,41.2,41.8,39.4,37.6,38.5,27.4,NA) + c(1.0,0.8,4.6,2.6,0.4,2.2,2.5,2.9,5.7,3.6,NA)
+tsCatchFleet["F - NSAS",-12]  <- 0
 
 
 #Time series of shares of WBSS by fleet (from the total catch of WBSS and NSAS)
-tsShareFleet                  <- matrix(NA,nrow=4,ncol=11,dimnames=list(Fleet=c("A","C","D","F"),years=2000:2010))
+tsShareFleet                  <- matrix(NA,nrow=4,ncol=12,dimnames=list(Fleet=c("A","C","D","F"),years=2000:2011))
 tsShareFleet["A",]            <- tsCatchFleet["A - WBSS",] / apply(tsCatchFleet[grep("A -",dimnames(tsCatchFleet)[[1]]),],2,sum,na.rm=T)
 tsShareFleet["C",]            <- tsCatchFleet["C - WBSS",] / apply(tsCatchFleet[grep("C -",dimnames(tsCatchFleet)[[1]]),],2,sum,na.rm=T)
 tsShareFleet["D",]            <- tsCatchFleet["D - WBSS",] / apply(tsCatchFleet[grep("D -",dimnames(tsCatchFleet)[[1]]),],2,sum,na.rm=T)

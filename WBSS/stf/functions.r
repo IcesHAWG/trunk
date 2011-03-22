@@ -1,87 +1,22 @@
+#------------------------------------
+# Some basic functions
+#------------------------------------
+
 ac <- function(x){return(as.character(x))}
 an <- function(x){return(as.numeric(x))}
 af <- function(x){return(as.factor(x))}
 
-#HCR
-Fmsytrans     <- function(Fbarminyear,Fmsy,Fpa,SSB,Bpa){return(pmin(c(0.8*Fbarminyear + ifelse(SSB < Bpa,0.2*Fmsy*SSB/Bpa,0.2*Fmsy)),Fpa,na.rm=T))}
+#------------------------------------
+# Fmsy transition period target
+#------------------------------------
 
-#Split the TAC over the four fleets
-splitTAC <- function(totalTAC,Yr,TAC){
-                TACA  <- 0
-                TACC  <- 0.5*totalTAC * (TAC[,ac(Yr-1),"C"]/(TAC[,ac(Yr-1),"C"] + TAC[,ac(Yr-1),"D"]))
-                TACD  <- 0.5*totalTAC * (TAC[,ac(Yr-1),"D"]/(TAC[,ac(Yr-1),"C"] + TAC[,ac(Yr-1),"D"]))
-                TACF  <- 0.5*totalTAC
-                TAC[,ac(FcY),"A"] <- TACA/1000; TAC[,ac(FcY),"C"] <- TACC/1000; TAC[,ac(FcY),"D"] <- TACD/1000; TAC[,ac(FcY),"F"] <- TACF/1000;
-            return(TAC)}
+Fmsytrans     <- function(Fbarminyear,Fmsy,Fpa,SSB,Bpa,tppoints){return(pmin(c(tppoints[1]*Fbarminyear + ifelse(SSB < Bpa,tppoints[2]*Fmsy*SSB/Bpa,0.4*Fmsy)),Fpa,na.rm=T))}
 
+#------------------------------------
+# Calculate the survivors
+#------------------------------------
 
-
-#Predict the split
-predictSplit <- function(object,newdata,fixes=NULL,ranefs=NULL){
-
-                        fixs <- fixef(object)
-                        rans <- ranef(object)
-
-                        if(is.null(fixes) == F){
-                          fixs            <- fixs[which(names(fixs) %in% fixes)]
-                          if(length(fixes[which(!fixes %in% names(fixs))]>0)){
-                            fixs2         <- c(fixs,rep(0,length(which(!fixes %in% names(fixs)))))
-                            names(fixs2)  <- c(names(fixs),fixes[which(!fixes %in% names(fixs))])
-                            fixs          <- fixs2
-                          }
-                        }
-                        if(is.null(fixes) == T){
-                          missingAge      <- an(sub("age","",names(fixs)[grep("age",names(fixs))]))
-                          missingAge      <- seq(min(missingAge),max(missingAge),1)[which(!seq(min(missingAge),max(missingAge),1) %in% missingAge)]
-                          missingQ        <- an(sub("Q","",names(fixs)[grep("Q",names(fixs))]))
-                          missingQ        <- (1:4)[which(!1:4 %in% missingQ)]
-                          fixs2           <- c(fixs,missingAge,missingQ)
-                          names(fixs2)    <- c(names(fixs),paste("age",missingAge,sep=""),paste("Q",missingQ,sep=""))
-                          fixs            <- fixs2
-                        }
-                        if(is.null(ranefs) == F){
-                          idxRans             <- numeric(); names. <- names(idxRans)
-                          for(i in names(rans)){
-                            if(i %in% ranefs){
-                              idxRans         <- c(idxRans,unlist(rans[[i]]))
-                              names.          <- c(names.,paste(i,rownames(rans[[i]]),sep=""))
-                              names(idxRans)  <- names.
-                            }
-                          }
-                          rans <- idxRans
-                        }
-
-                        values      <- c(fixs,rans)
-                        new.names   <- numeric()
-                        for(x in names(values)){
-                          i <- 0
-                          while(is.na(an(substr(x,nchar(x)-i,nchar(x))))==F) i <- i+1
-                          new.names <- c(new.names,substr(x,1,nchar(x)-i))
-                        }
-                        effectNames <- unique(new.names)
-
-                        if(any(!colnames(newdata) %in% effectNames)) stop(paste("variable names '",colnames(newdata)[which(!colnames(newdata) %in% effectNames)],"'in newdata which are not in model"))
-
-                        newdata$split                       <- exp(values["(Intercept)"]+
-                                                                   values[paste("age",newdata$age,sep="")]+
-                                                                   values[paste("Q",newdata$Q,sep="")]+
-                                                                   values[paste("year",newdata$year,sep="")] +
-                                                                   values[paste("yearclass",newdata$yearclass,sep="")] +
-                                                                   values["lat"]*newdata$lat+
-                                                                   values["long"]*newdata$long+
-                                                                   values["lat:long"]*newdata$long*newdata$lat) /
-                                                            (1+exp(values["(Intercept)"]+
-                                                                   values[paste("age",newdata$age,sep="")]+
-                                                                   values[paste("Q",newdata$Q,sep="")]+
-                                                                   values[paste("year",newdata$year,sep="")]+
-                                                                   values[paste("yearclass",newdata$yearclass,sep="")]+
-                                                                   values["lat"]*newdata$lat+
-                                                                   values["long"]*newdata$long+
-                                                                   values["lat:long"]*newdata$long*newdata$lat))
-
-                return(newdata$split)}
-
-#-Calculate survivors
+#- Calculate the survivors given recruitment, stock numbers and harvest pattern
 survivors <- function(rec,stk){
                 survivors     <- numeric(length(dimnames(stk@stock.n)$age))
                 survivors[1]  <- rec
@@ -94,3 +29,46 @@ survivors <- function(rec,stk){
                     survivors[2:length(survivors)]    <- c(stk@stock.n * exp(-stk@harvest-stk@m))[1:(length(survivors)-1)]
                   }
              return(survivors)}
+
+#------------------------------------
+# Scale harvest based on catch constraint
+#------------------------------------
+
+#- Rescale the harvest of the fleets given a TAC constraint
+fleet.harvest <- function(stk,iYr,TACS){
+                    nUnits              <- dims(stk)$unit
+                    if(length(TACS)!=nUnits) stop("Number of TACS supplied is not equal to number of units")
+                    res                 <- nls.lm(par=rep(1,nUnits),rescaleF,stk=stk,iYr=iYr,TACS=TACS,nls.lm.control(ftol = (.Machine$double.eps)),jac=NULL)$par
+                    stk@harvest[,iYr]   <- sweep(stk@harvest[,iYr],3,res,"*")
+                 return(stk@harvest[,iYr])}
+
+#- Objective function of rescaling harverst function
+rescaleF      <- function(mult,stk.=stk,iYr.=iYr,TACS.=TACS){
+                    stk.@harvest[,iYr.] <- sweep(stk.@harvest[,iYr.],3,mult,"*")
+                    stkZ                <- unitSums(stk.@harvest[,iYr.]) + stk.@m[,iYr.,1]
+                    res                 <- sqrt(c((TACS. - c(apply(sweep(stk.@stock.n[,iYr.] * stk.@catch.wt[,iYr.] * sweep(stk.@harvest[,iYr.],c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T)))^2))
+                 return(res)}
+
+#- Rescale the harvest of the fleets given an F constraint but a TAC constraint for the A fleet
+fleetCDF.harvest    <-  function(stk,iYr,catchA,Ftarget){
+                          nUnits                <- dims(stk)$unit
+                          res                   <- nls.lm(par=rep(1,2),independentRescaleF,stk=stk,iYr=iYr,TACS=catchA,Ftarget=Ftarget,nls.lm.control(ftol = (.Machine$double.eps)),jac=NULL)$par
+                          stk@harvest[,iYr,1]   <- stk@harvest[,iYr,1]   * res[1]
+                          stk@harvest[,iYr,2:4] <- stk@harvest[,iYr,2:4] * res[2]
+                        return(stk@harvest[,iYr])}
+
+#- Objective function of fleetCDF rescaling harverst function
+independentRescaleF <-  function(mult,stk.=stk,iYr.=iYr,TACS1=TACS,Ftarget.=Ftarget){
+                          stk.@harvest[,iYr.,1]     <- stk.@harvest[,iYr.,1]   * mult[1]
+                          stk.@harvest[,iYr.,2:4]   <- stk.@harvest[,iYr.,2:4] * mult[2]
+                          stkZ                      <- unitSums(stk.@harvest[,iYr.]) + stk.@m[,iYr.,1]
+                          catch1                    <- sum(stk.@stock.n[,iYr.,1] * stk.@catch.wt[,iYr.,1] * stk.@harvest[,iYr.,1]/stkZ * (1-exp(-stkZ)),na.rm=T)
+                          Fbar36                    <- mean(unitSums(stk.@harvest[ac(3:6),iYr.]))
+                          res                       <- c(sqrt((TACS1 - catch1)^2),sqrt((Ftarget. - Fbar36)^2))
+                        return(res)}
+                        
+#- Calculate catch based on an updated harvest pattern
+harvestCatch  <-  function(stk.,iYr){
+                    stkZ      <- unitSums(stk.@harvest[,iYr]) + stk.@m[,iYr,1]
+                    res       <- apply(sweep(stk.@stock.n[,iYr] * stk.@catch.wt[,iYr] * sweep(stk.@harvest[,iYr],c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T)
+                  return(res)}
