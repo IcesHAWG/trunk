@@ -50,22 +50,25 @@ rescaleF      <- function(mult,stk.=stk,iYr.=iYr,TACS.=TACS){
                  return(res)}
 
 #- Rescale the harvest of the fleets given an F constraint but a TAC constraint for the A fleet
-fleetCDF.harvest    <-  function(stk,iYr,catchA,Ftarget){
+fleetCDF.harvest    <-  function(stk,iYr,catchA,Ftarget,CDFsplit,CDsplit){
                           nUnits                <- dims(stk)$unit
-                          res                   <- nls.lm(par=rep(1,2),independentRescaleF,stk=stk,iYr=iYr,TACS=catchA,Ftarget=Ftarget,nls.lm.control(ftol = (.Machine$double.eps)),jac=NULL)$par
-                          stk@harvest[,iYr,1]   <- stk@harvest[,iYr,1]   * res[1]
-                          stk@harvest[,iYr,2:4] <- stk@harvest[,iYr,2:4] * res[2]
+                          res                   <- nls.lm(par=rep(1,nUnits),independentRescaleF,stk=stk,iYr=iYr,TACS=catchA,Ftarget=Ftarget,CDFsplit=CDFsplit,CDsplit=CDsplit,nls.lm.control(ftol = (.Machine$double.eps),nprint=1,maxiter=1000),jac=NULL)$par
+                          stk@harvest[,iYr]     <- sweep(stk@harvest[,iYr],3,res,"*")
                         return(stk@harvest[,iYr])}
 
 #- Objective function of fleetCDF rescaling harverst function
-independentRescaleF <-  function(mult,stk.=stk,iYr.=iYr,TACS1=TACS,Ftarget.=Ftarget){
-                          stk.@harvest[,iYr.,1]     <- stk.@harvest[,iYr.,1]   * mult[1]
-                          stk.@harvest[,iYr.,2:4]   <- stk.@harvest[,iYr.,2:4] * mult[2]
+independentRescaleF <-  function(mult,stk.=stk,iYr.=iYr,TACS1=TACS,Ftarget.=Ftarget,CDFsplit.=CDFsplit,CDsplit.=CDsplit){
+                          stk.@harvest[,iYr.]       <- sweep(stk.@harvest[,iYr.],3,mult,"*")
                           stkZ                      <- unitSums(stk.@harvest[,iYr.]) + stk.@m[,iYr.,1]
-                          catch1                    <- sum(stk.@stock.n[,iYr.,1] * stk.@catch.wt[,iYr.,1] * stk.@harvest[,iYr.,1]/stkZ * (1-exp(-stkZ)),na.rm=T)
+                          catch                     <- harvestCatch(stk.,iYr.)
                           Fbar36                    <- mean(unitSums(stk.@harvest[ac(3:6),iYr.]))
-                          res                       <- c(sqrt((TACS1 - catch1)^2),sqrt((Ftarget. - Fbar36)^2))
-                        return(res)}
+                          #-Multiple target: Afleet needs to catch TAC, Cfleet needs to take CDFleet share * CDfleet share, Dfleet needs to take CDFleetshare * 1-CDfleet share and F fleet takes CDFleet share
+                          #                  All of them contribute to the F36 target
+                          res1                      <- sqrt((TACS1       - c(catch)[1])^2) / c(catch)[1]
+                          res2                      <- sqrt((c(catch)[2] - (sum(c(catch))*CDFsplit.*CDsplit.))^2)/c(catch)[2]      + sqrt((Ftarget. - Fbar36)^2)/Ftarget.
+                          res3                      <- sqrt((c(catch)[3] - (sum(c(catch))*CDFsplit.*(1-CDsplit.)))^2)/c(catch)[3]  + sqrt((Ftarget. - Fbar36)^2)/Ftarget.
+                          res4                      <- sqrt((c(catch)[4] - (sum(c(catch))*CDFsplit.))^2)/c(catch)[4]               + sqrt((Ftarget. - Fbar36)^2)/Ftarget.
+                        return(c(res1,res2,res3,res4))}
                         
 #- Calculate catch based on an updated harvest pattern
 harvestCatch  <-  function(stk.,iYr){
