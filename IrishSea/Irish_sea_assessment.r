@@ -1,4 +1,20 @@
-####################################################################################################
+######################################################################################################
+# nIrish.herring FLICA Assessment
+#
+# Performs an assessment of Irish Sea Herring (nIrish.herring) using the FLICA package.
+#
+# Developed with:
+#   - R version 2.8.0
+#   - FLCore 1.99-111
+#   - FLICA, version 1.4-10
+#   - FLAssess, version 1.99-102
+#   - FLSTF, version 1.99-1
+#
+# To be done:
+#
+# Notes:
+#
+########################################################################################################################################################################################################
 
 ### ======================================================================================================
 ### Initialise system, including convenience functions and title display
@@ -77,7 +93,7 @@ names(Pop4.tun) <- c("NINEL","Northern Ireland Acoustic Surveys")
 units(Pop4)[1:17]               <-as.list(c(rep(c("Tonnes","Thousands","Kg"),4),"NA","NA","f","NA","NA"))
 
 Pop4.ctrl<-FLICA.control(sep.nyr=6,sep.age=4,sep.sel=1.0,sr=FALSE,
-                                lambda.yr=c(1,1,1,1,1,0.01),
+                                lambda.yr=c(1,1,1,1,0.01,1),
                                 lambda.age =c(0.1, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
                                 lambda.sr=0.01, index.model=c("l","l"), index.cor=F)
 
@@ -99,4 +115,43 @@ do.SRR.plot(Pop4)
 #Close plots
 dev.off()
 
-#MPA: See the examples in the WBSS assessment for writing ica.out files, making tables, doing short-term forecasts etc
+
+### ======================================================================================================
+### Document Assessment
+### ======================================================================================================
+
+
+FnPrint("GENERATING DOCUMENTATION...\n")
+#Document the run with alternative table numbering and a reduced width
+old.opt <- options("width","scipen")
+options("width"=80,"scipen"=1000)
+#Do some tidying up on the ica file
+## Removes the additional decimal places
+Pop4.ica@catch.res[round(Pop4.ica@catch.res),3] <- NA
+Pop4.ica@catch.res@.Data <- round(Pop4.ica@catch.res@.Data,3)
+Pop4.ica@index.res[[1]]@.Data <- round(Pop4.ica@index.res[[1]]@.Data,3)
+Pop4.ica@survivors=round(Pop4.ica@survivors)
+Pop4.ica@sel=round(Pop4.ica@sel,3)
+Pop4@harvest <- zapsmall(Pop4@harvest,3)
+Pop4@stock.n=round(Pop4@stock.n)
+Pop4@catch.n=round(Pop4@catch.n)
+Pop4.ica@catch.n=round(Pop4.ica@catch.n)
+Pop4.ica@index.hat[[1]]@.Data=round(Pop4.ica@index.hat[[1]]@.Data)
+Pop4@mat=round(Pop4@mat,2)
+Pop4@stock.wt=round(Pop4@stock.wt,3)
+Pop4@catch.wt=round(Pop4@catch.wt,3)
+Pop4.ica@param[,6:10]=round(Pop4.ica@param[6:10],2)
+
+#Now write the file
+#Number to corresponds to numbers in the report
+ica.out.file <- ica.out(Pop4,Pop4.tun,Pop4.ica,format="TABLE 7.6.%i Irish Sea herring VIIa(N).")
+write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
+options("width"=old.opt$width,"scipen"=old.opt$scipen)
+
+#And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
+writeFLStock(Pop4,output.file=output.base)
+
+
+ #Close plots
+dev.off()
+
