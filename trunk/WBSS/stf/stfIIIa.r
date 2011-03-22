@@ -51,9 +51,9 @@ TACusage                            <- list("A"=c(1,1,1),"C"=c(1,NA,NA),"D"=c(0.
 #   D-fleet: Bycatch ceiling * 3-year average usage: From EU-norway negotiations
 #   F-fleet: Quota for F fleet
 
-TACS        <- list("A"=c(770*TACusage$A[1],770,770),   "C"=c(30000*propTACinIV*TACusage$C[1],NA,NA),
+TACS        <- list("A"=c(772*TACusage$A[1],770,770),   "C"=c(30000*propTACinIV*TACusage$C[1],NA,NA),
                     "D"=c(6659*TACusage$D[1],NA,NA),    "F"=c(15884*TACusage$F[1],NA,NA));
-TACS.orig   <- list("A"=c(770,770,770),                 "C"=c(30000,NA,NA),
+TACS.orig   <- list("A"=c(772,772,772),                 "C"=c(30000,NA,NA),
                     "D"=c(6659,NA,NA),                  "F"=c(15884,NA,NA))
 
 RECS        <- list("DtY"=exp(apply(log(rec(WBSS)[,ac(rec.years)]),6,mean)),"ImY"=exp(apply(log(rec(WBSS)[,ac(rec.years)]),6,mean)),
@@ -152,6 +152,7 @@ stfY@stock[,ImY]            <- computeStock(stfY[,ImY])
 WBSSTAC                     <- apply(sweep(yearMeans(stfY@catch.wt[,ac(an(DtY)-c(2,1,0))] * stfY@catch.n[,ac(an(DtY)-c(2,1,0))] / splt),3,
                                     (unlist(TACS)[seq(1,12,3)] / apply(yearMeans(stfY@catch.wt[,ac(an(DtY)-c(2,1,0))] * stfY@catch.n[,ac(an(DtY)-c(2,1,0))] / splt),2:6,sum,na.rm=T)),"*")*
                                      splt,2:6,sum,na.rm=T)
+WBSSTAC[,,c(1,4)]           <- unlist(TACS)[seq(1,12,3)][c(1,4)]
 
 stfY@harvest[,ImY]          <- fleet.harvest(stk=stfY,iYr=ImY,TACS=c(WBSSTAC))
 for(i in dms$unit){
@@ -185,18 +186,12 @@ if("fmsy" %in% stf.options){
   #- Set F target based on Fmsy transition period
   Ftarget                     <- Fmsytrans(mean(apply(stfY@harvest[f36,ac(ImY)],1,sum)),Fmsy=0.25,Fpa=NA,SSB=stf.table[1,11],Bpa=110000,transPoints <- c(0.6,0.4))
 
-  stfY@harvest[,FcY]          <- fleetCDF.harvest(stfY,FcY,c(WBSSTAC)[1],Ftarget)
-  totalCatch                  <- unitSums(harvestCatch(stfY,FcY)[,,c("C","D","F")])
+  CDfleetShare                <- yearMeans(stfY@catch[,ac(an(DtY)-c(2,1,0)),"C"]) / (yearMeans(stfY@catch[,ac(an(DtY)-c(2,1,0)),"D"]) + yearMeans(stfY@catch[,ac(an(DtY)-c(2,1,0)),"C"]))
 
-  CDfleetShare      <- yearMeans(stfY@catch[,ac(an(DtY)-c(2,1,0)),"C"]) / (yearMeans(stfY@catch[,ac(an(DtY)-c(2,1,0)),"D"]) + yearMeans(stfY@catch[,ac(an(DtY)-c(2,1,0)),"C"]))
-  shareByFleet      <- list("A"=c(WBSSTAC)[1],"C"=0.5*totalCatch*CDfleetShare,"D"=0.5*totalCatch*(1-CDfleetShare),"F"=0.5*totalCatch)
 
-  TACS$A[2]         <- shareByFleet$A
-  TACS$C[2]         <- shareByFleet$C
-  TACS$D[2]         <- shareByFleet$D
-  TACS$F[2]         <- shareByFleet$F
+  stfY@harvest[,FcY]          <- fleetCDF.harvest(stfY,FcY,unlist(TACS)[2],Ftarget,0.5,c(CDfleetShare))
+  totalCatch                  <- unitSums(harvestCatch(stfY,FcY))
 
-  stfY@harvest[,FcY]         <- fleet.harvest(stfY,FcY,unlist(TACS)[seq(2,12,3)])
   for(i in dms$unit){
     stfY@catch.n[,FcY,i]     <- stfY@stock.n[,FcY,i]*(1-exp(-unitSums(stfY@harvest[,FcY])-stfY@m[,FcY,i]))*(stfY@harvest[,FcY,i]/(unitSums(stfY@harvest[,FcY])+stfY@m[,FcY,i]))
     stfY@catch[,FcY,i]       <- computeCatch(stfY[,FcY,i])
@@ -213,4 +208,9 @@ if("fmsy" %in% stf.options){
                                  round(c(sum(stfY@stock.n[,FcY,1]*stfY@stock.wt[,FcY,1]*exp(-unitSums(stfY@harvest[,FcY])*stfY@harvest.spwn[,FcY,1]-stfY@m[,FcY,1]*stfY@m.spwn[,FcY,1])*stfY@mat[,FcY,1]),
                                  ssb.CtY),0))
                                  
-  stf.table["fmsy",13:16]   <-
+  stf.table["fmsy",13:16]   <- round(c(harvestCatch(stfY,FcY)[,,"A"],
+                                       sum(stfY@catch.wt[,FcY,"C"] * stfY@catch.n[,FcY,"C"] / splt,na.rm=T),
+                                       sum(stfY@catch.wt[,FcY,"D"] * stfY@catch.n[,FcY,"D"] / splt,na.rm=T),
+                                       harvestCatch(stfY,FcY)[,,"F"]),0)
+}
+                                     
