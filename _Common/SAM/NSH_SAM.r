@@ -43,10 +43,33 @@ FLSAM.r.srcs <- dir(file.path(FLSAM.dir,"R"),pattern="r$|R$",full.names=TRUE)
 dmp <- lapply(FLSAM.r.srcs,source)
 
 ### ======================================================================================================
-### Save files to ADMB
+### Configure assessment
 ### ======================================================================================================
-stck <- NSH
-tun <- NSH.tun
+#Setup configuration
+NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
+#Fishing mortality random walk coupling
+NSH.ctrl@states["catch",] <- c(1:5,rep(6,5))            #Couple age 5+ Fs
+NSH.ctrl@f.vars["catch",] <- 1                          #All have the same variance
+#Log N random walk variances
+NSH.ctrl@logN.vars <- c(1,rep(2,9))
+#Catchability models
+NSH.ctrl@catchabilities["HERAS",ac(1:9)] <- c(1:4, rep(5,5))    #Set linear catchability model
+NSH.ctrl@catchabilities["IBTS-Q1",ac(1:5)] <- 6:10
+NSH.ctrl@catchabilities["IBTS0","0"] <- 11
+#Observation model parameters
+NSH.ctrl@obs.vars["catch",] <- c(1,rep(2,9))
+NSH.ctrl@obs.vars["HERAS",ac(1:9)] <- 3
+NSH.ctrl@obs.vars["IBTS-Q1",ac(1:5)] <- 4
+NSH.ctrl@obs.vars["MLAI","0"] <- 5
 
-#write.ADMB.dat(NSH,NSH.tun,file.path(".","run","ssass.dat"))
+### ======================================================================================================
+### Run the assessment
+### ======================================================================================================
+#Write configuration file
+write.ADMB.dat(NSH,NSH.tun,file.path(".","run","ssass.dat"))
+write.ADMB.cfg(NSH.ctrl,file.path(".","run","model.cfg"))
+
+#Run the assessment
+
+#Load
 

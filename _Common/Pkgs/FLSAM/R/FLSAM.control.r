@@ -2,25 +2,25 @@ setClass("FLSAM.control",
 	representation(
     range	          ="numeric",   ## minimum and miximum age represented internally in the assessment
     plus.group      ="logical",   ## should we model the maximum age as a plus group or not?
-    state.coupling  ="matrix",   ## matrix describing the coupling of the states
-    param.coupling  ="matrix",   ## matrix characterising the coupling of the parameters
-    survey.qs       ="matrix",   ## matrix of survey catchabilities
-    f.var.coupling  ="matrix",   ## matrix of fishing mortality couplings
-    logN.coupling   ="vector",   ## vector of coupling of the logN variables
-    obs.var.coupling="matrix",   ## matrix coupling the observation variances
-    srr             ="integer",    ## stock recruitment relationship
-    catch.data.scaling="integer"),  ##N
+    states          ="matrix",   ## matrix describing the coupling of the states
+    logN.vars           ="vector",   ## vector of coupling of the logN variables
+    catchabilities  ="matrix",   ## matrix characterising the coupling of the catachability parameters
+    power.law.exps  ="matrix",   ## matrix characterising the coupling of the power law expoonents
+    f.vars          ="matrix",   ## matrix of fishing mortality couplings
+
+    obs.vars        ="matrix",   ## matrix coupling the observation variances
+    srr             ="integer"),    ## stock recruitment relationship
 	prototype=prototype(
     range	          =as.numeric(1),   ## minimum age represented internally in the assessment
     plus.group      =as.logical(TRUE),   ## should we model the maximum age as a plus group or not?
-		state.coupling  =as.matrix(0),   ## matrix describing the coupling of the states
-    param.coupling  =as.matrix(0),   ## matrix characterising the coupling of the parameters
-    survey.qs       =as.matrix(0),   ## matrix of survey catchabilities
-    f.var.coupling  =as.matrix(0),   ## matrix of fishing mortality couplings
-    logN.coupling   =as.vector(0),   ## vector of coupling of the logN variables
-    obs.var.coupling=as.matrix(0),   ## matrix coupling the observation variances
-    srr             =as.integer(0),    ## stock recruitment relationship
-    catch.data.scaling=as.integer(0)),  ##N
+		states          =as.matrix(0),   ## matrix describing the coupling of the states
+    logN.vars           =as.vector(0),   ## vector of coupling of the logN variables
+    catchabilities  =as.matrix(0),   ## matrix characterising the coupling of the parameters
+    power.law.exps  =as.matrix(0),   ## matrix of survey catchabilities
+    f.vars          =as.matrix(0),   ## matrix of fishing mortality couplings
+
+    obs.vars        =as.matrix(0),   ## matrix coupling the observation variances
+    srr             =as.integer(0)),    ## stock recruitment relationship
 	validity=function(object){
                 	if (any(object@lambda.age < 0))
                 		return("weights must be > 0")
@@ -39,6 +39,7 @@ setClass("FLSAM.control",
 
 
 FLSAM.control <- function(stck,tun) {
+  #Default constructor
   #Create object
   ctrl <- new("FLSAM.control")
 
@@ -47,18 +48,17 @@ FLSAM.control <- function(stck,tun) {
   ctrl@plus.group <- stck@range["plusgroup"]==stck@range["max"]
   
   #Setup coupling structures
-  default.coupling <- matrix(as.integer(0),nrow=1+length(tun),ncol=dims(stck)$age,
+  default.coupling <- matrix(as.integer(NA),nrow=1+length(tun),ncol=dims(stck)$age,
                         dimnames=list(c("catch",names(tun)),dimnames(stck@catch.n)$age))
-  ctrl@state.coupling  <- default.coupling
-  ctrl@param.coupling  <- default.coupling
-  ctrl@survey.qs       <- default.coupling
-  ctrl@f.var.coupling  <- default.coupling
-  ctrl@obs.var.coupling<- default.coupling
+  ctrl@states           <- default.coupling
+  ctrl@catchabilities   <- default.coupling
+  ctrl@power.law.exps   <- default.coupling
+  ctrl@f.vars           <- default.coupling
+  ctrl@obs.vars         <- default.coupling
 
   #Other variables
-  ctrl@logN.coupling   <- default.coupling[1,]
+  ctrl@logN.vars            <- default.coupling[1,]
   ctrl@srr <- as.integer(0)
-  ctrl@catch.data.scaling <- as.integer(0)
 
   #Finished!
   return(ctrl)
