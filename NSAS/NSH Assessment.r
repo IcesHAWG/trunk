@@ -33,7 +33,7 @@
 ### ======================================================================================================
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 
-path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2011/assessment/NSAS/"
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2011/assessment2/NSAS/"
 try(setwd(path))
 
 #in need of something extra
@@ -276,6 +276,11 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(NSH,output.file=output.base)
 
+#And for incorporation into the standard graphs
+writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.sum"),type="ICAsum")
+#The YPR curves based on the same values as the projection - therefore use WBSS.proj
+writeFLStock(NSAS.proj,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
+
 ### ======================================================================================================
 ### Intermediate year
 ### ======================================================================================================
@@ -304,6 +309,11 @@ text(y=fbar(NSH.stock11[,ac(2002:2011)]),   x=(ssb(NSH.stock11[,ac(2002:2011)])/
 
 #Write the results out in the lowestoft VPA format
 writeFLStock(NSH.stock11,output.file=paste(output.base,"with STF"))
+
+#And for incorporation into the standard graphs
+writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.sum"),type="ICAsum")
+#The YPR curves based on the same values as the projection - therefore use WBSS.proj
+writeFLStock(NSH.stock11,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
 
 ### ======================================================================================================
 ### Write summary table for use with State Space Framework

@@ -491,14 +491,14 @@ age     2000     2001     2002     2003     2004     2005     2006     2007
 age     2008     2009     2010     2011
   0 1.587302 1.587302 1.587302 1.587302
 
-IBTS-Q1: 1-5+ wr - Configuration
+IBTS-Q1 - Configuration
 
 "Herring in Sub-area IV, Divisions VIId & IIIa (autumn-spawners) . Imported from VPA file."
       min       max plusgroup   minyear   maxyear    startf      endf 
      1.00      5.00      5.00   1984.00   2011.00      0.08      0.17 
 Index type : number
 
-IBTS-Q1: 1-5+ wr - Index Values
+IBTS-Q1 - Index Values
 
 Units  :  NA 
    year
@@ -530,7 +530,7 @@ age     2008     2009     2010     2011
   4  202.100   11.223   45.944  419.102
   5  232.335   46.427   89.950  465.734
 
-IBTS-Q1: 1-5+ wr - Index Variance (Inverse Weights) 
+IBTS-Q1 - Index Variance (Inverse Weights) 
 
 Units  :  NA 
    year
@@ -569,14 +569,14 @@ age       2008       2009       2010       2011
   4 100.000000 100.000000 100.000000 100.000000
   5 100.000000 100.000000 100.000000 100.000000
 
-Acoustic survey (HERAS): 1-9+ wr - Configuration
+HERAS - Configuration
 
 "Herring in Sub-area IV, Divisions VIId & IIIa (autumn-spawners) . Imported from VPA file."
       min       max plusgroup   minyear   maxyear    startf      endf 
      1.00      9.00      9.00   1989.00   2010.00      0.54      0.56 
 Index type : number
 
-Acoustic survey (HERAS): 1-9+ wr - Index Values
+HERAS - Index Values
 
 Units  :  NA 
    year
@@ -613,7 +613,7 @@ age    2007    2008    2009     2010
   8  152000  185000 1142000  1110000
   9   65000  270000  578000  1619000
 
-Acoustic survey (HERAS): 1-9+ wr - Index Variance (Inverse Weights) 
+HERAS - Index Variance (Inverse Weights) 
 
 Units  :  NA 
    year
@@ -1138,7 +1138,7 @@ age     2000     2001    2002     2003     2004     2005     2006     2007
 age     2008     2009     2010 2011
   0 69.79248 102.7134 104.1655   77
 
-IBTS-Q1: 1-5+ wr
+IBTS-Q1
 
 Units  :  NA NA 
    year
@@ -1177,7 +1177,7 @@ age       2009       2010      2011
   4   47.76059   76.70687  113.1493
   5  113.35688   87.23957  103.3154
 
-Acoustic survey (HERAS): 1-9+ wr
+HERAS
 
 Units  :  NA NA 
    year
@@ -1266,7 +1266,7 @@ age      2006       2007       2008        2009       2010
 age                  2011
   0 -0.000000000005385914
 
-IBTS-Q1: 1-5+ wr
+IBTS-Q1
 
 Units  :  NA 
    year
@@ -1305,7 +1305,7 @@ age       2008       2009        2010       2011
   4  1.0851975 -1.4482356 -0.51256800  1.3094062
   5  0.6468279 -0.8926599  0.03059597  1.5058280
 
-Acoustic survey (HERAS): 1-9+ wr
+HERAS
 
 Units  :  NA 
    year
