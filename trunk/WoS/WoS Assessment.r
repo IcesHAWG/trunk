@@ -249,16 +249,7 @@ FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),
 ### ======================================================================================================
 ### Create the figures for the advice sheet and the summary table and reference points
 ### ======================================================================================================
-WoS.sr <- fmle(FLSR(rec=rec(WoS)[,ac(1959:2010)],ssb=ssb(WoS)[,ac(1957:2008)],model="bevholt"),control=list(parscale=c(0.001,1,0.001)))
-#WoS.sr <- fmle(as.FLSR(transform(WoS,stock.n=WoS@stock.n/100000),model="segreg"));
-#WoS.sr@params <- WoS.sr@params*100000
-
-# Or, for Hockey-Stick
-# WoS.sr <- fmle(as.FLSR(transform(WoS,stock.n=WoS@stock.n/100000),model="segreg"));
-# WoS.sr@params <- WoS.sr@params*100000
-
-writeStandardOutput(WoS,WoS.sr,WoS.retro,nyrs.=3,output.base,Blim=5e4,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25)
-
+#create stock-recruitment relationship (Bev-Holt)
 WoS.srcontrol <- FLSR(
   rec = rec(transform(WoS,stock.n=WoS@stock.n/100000))[,ac(1959:2010)],
   ssb = ssb(transform(WoS,stock.n=WoS@stock.n/100000))[,ac(1957:2008)],
@@ -267,6 +258,8 @@ WoS.sr <- fmle(WoS.srcontrol,control=list(parscale=c(0.001,1,0.001)))
 
 plot(WoS.sr)
 WoS.sr@params <- WoS.sr@params*100000
+
+writeStandardOutput(WoS,WoS.sr,WoS.retro,recImY=gm.recs,nyrs.=3,output.base,Blim=5e4,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25)
 
 ### ======================================================================================================
 ### Short Term Forecast data preparation - not used as John has code above
