@@ -259,7 +259,14 @@ WoS.sr <- fmle(FLSR(rec=rec(WoS)[,ac(1959:2010)],ssb=ssb(WoS)[,ac(1957:2008)],mo
 
 writeStandardOutput(WoS,WoS.sr,WoS.retro,nyrs.=3,output.base,Blim=5e4,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25)
 
+WoS.srcontrol <- FLSR(
+  rec = rec(transform(WoS,stock.n=WoS@stock.n/100000))[,-1],
+  ssb = ssb(transform(WoS,stock.n=WoS@stock.n/100000))[,1:(length(dimnames(ssb(WoS))$year)-1)],
+  model = 'bevholt')
+WoS.sr <- fmle(WoS.srcontrol,control=list(parscale=c(0.001,1,0.001)))
 
+plot(WoS.sr)
+WoS.sr@params <- WoS.sr@params*100000
 
 ### ======================================================================================================
 ### Short Term Forecast data preparation - not used as John has code above
