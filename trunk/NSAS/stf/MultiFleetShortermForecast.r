@@ -9,10 +9,11 @@
 rm(list=ls());
 library(minpack.lm)
 #Read in data
-path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2011/assessment/NSAS/"
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2011/assessment2/NSAS/"
 try(setwd(path))
+source(file.path("../","_Common","HAWG Common assessment module.r"))
 try(setwd("./stf/"))
-source(file.path("../../","_Common","HAWG Common assessment module.r"))
+
 
 stk     <- NSH
 stk.ica <- NSH.ica
@@ -58,8 +59,8 @@ source("./data/writeSTF.out.r")
 #TACS      <- list("A"=c(164300+903,NA,NA),  "B"=c(8329,NA,NA),  "C"=c(4300,1680,1680),"D"=c(980,490,490));
 #TACS.orig <- list("A"=c(164300,NA,NA),      "B"=c(13587,NA,NA), "C"=c(4300,1680,1680),"D"=c(980,490,490))
 #2011:
-TACS      <- list("A"=c(200000+15000,NA,NA),"B"=c(16539*0.668,NA,NA), "C"=c(3875,4599,4599),"D"=c(1723,538,538));
-TACS.orig <- list("A"=c(200000,NA,NA),      "B"=c(16539,NA,NA),       "C"=c(3875,4599,4599),"D"=c(1723,538,538))
+TACS      <- list("A"=c(200000+15000,NA,NA),"B"=c(16539*0.668,NA,NA), "C"=c(3875,6810,6810),"D"=c(1723,1938,1938));
+TACS.orig <- list("A"=c(200000,NA,NA),      "B"=c(16539,NA,NA),       "C"=c(3875,6810,6810),"D"=c(1723,1938,1938))
 
 RECS  <- list("ImY"=NSH.ica@param["Recruitment prediction","Value"],"FcY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-8):(range(NSH)["maxyear"]))]))),
               "CtY"=exp(mean(log(rec(NSH)[,ac((range(NSH)["maxyear"]-8):(range(NSH)["maxyear"]))]))))
