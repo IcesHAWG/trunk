@@ -255,95 +255,10 @@ writeFLStock(cs.herring,output.file=output.base)
 writeFLStock(cs.herring,file.path(output.dir,"hawg_her-irls.sum"),type="ICAsum")
 
 
-##### Extra Plots  #############################################################
-
-
-index.ts.dat  <- lapply(cs.herring.tun,slot,"index")
-index.ts.dat  <- as.data.frame(index.ts.dat)
-index.ts.dat$id <- paste(index.ts.dat$qname,", Age ",index.ts.dat$age,sep="")
-index.ts.dat$data[index.ts.dat$data<0] <- NA
-index.ts.plot <- xyplot(data~year|id,data=index.ts.dat,
-                    type="b",
-                    xlab="Year",ylab="Index Value",
-                    prepanel=function(...) list(ylim=range(pretty(c(0,list(...)$y)))),
-                    pch=19,
-                    as.table=TRUE,
-                    strip=strip.custom(par.strip.text=list(cex=0.8)),
-                    main=paste(cs.herring@name,"Input Indices"),
-                    scales=list(alternating=1,y=list(relation="free")),
-                    panel=function(...) {
-                        panel.grid(h=-1,v=-1)
-                        panel.xyplot(...)
-                    })
-print(index.ts.plot)
-
-
-#Time series of west
-west.ts  <- xyplot(data~year,data=window(cs.herring@stock.wt,1991,2010),
-              groups=age,
-              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
-              type="b",
-              xlab="Year",ylab="Weight in the stock (kg)",
-              main=paste(cs.herring@name,"Weight in the Stock"),
-              par.settings=list(superpose.symbol=list(pch=as.character(0:8),cex=1.25)))
-print(west.ts)
-
-
-#Time series of west by cohort
-west.by.cohort      <- as.data.frame(FLCohort(window(cs.herring@stock.wt,1992,2010)))
-west.by.cohort      <-  subset(west.by.cohort,!is.na(west.by.cohort$data))
-west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
-west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
-              groups=cohort,
-              auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
-              type="b",
-              xlab="Year",ylab="Weight in the stock (kg)",
-              main=paste(cs.herring@name,"Weight in the stock by cohort"),
-              par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1.25)),
-              panel=function(...) {
-                panel.grid(h=-1,v=-1)
-                panel.xyplot(...)
-              })
-print(west.cohort.plot)
-
-
-
-#Cohort growth rates
-cohort.growth  <- xyplot(data~age,data=west.by.cohort,
-                  groups=cohort,
-                  auto.key=list(space="right",points=FALSE,lines=TRUE,type="b",cex=0.8,title="Cohort"),
-                  type="b",
-                  xlab="Year",ylab="Weight in the stock (kg)",
-                  main=paste(cs.herring@name,"Growth by Cohort"),
-                  par.settings=list(superpose.symbol=list(pch=as.character(unique(west.by.cohort$cohort)%%10),cex=1)),
-                  panel=function(...) {
-                    panel.grid(h=-1,v=-1)
-                    panel.xyplot(...)
-                  })
-print(cohort.growth)
-
-
-catch.curves(cs.herring,1990,2010)
-
-### Reference Points calculated and stock recruit relationship fitted
-
-cs.herring.sr <- ref.pts(cs.herring,"bevholt",100000)
-
-
-cor.tun(cs.herring.tun)
-
-print(stacked.area.plot(data~year| unit, as.data.frame(pay(cs.herring@stock.n)),groups="age",main="Proportion of stock.n at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-print(stacked.area.plot(data~year| unit, as.data.frame(pay(cs.herring@catch.n)),groups="age",main="Proportion of Catch.n at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-print(stacked.area.plot(data~year| unit, as.data.frame(pay(cs.herring@catch.wt)),groups="age",main="Proportion of Catch.wt at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-print(stacked.area.plot(data~year,as.data.frame(pay(cs.herring@stock.n*cs.herring@stock.wt)),groups="age",main="Proportion by weight in the stock",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-print(stacked.area.plot(data~year| unit, as.data.frame(pay(cs.herring.tun[[1]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-
-
 ### ======================================================================================================
 ### Create the figures for the advice sheet and the summary table and reference points
 ### ======================================================================================================
 
-#writeStandardOutput(cs.herring,cs.herring.sr,cs.retro.stck,nyrs.=3,output.base,Blim=44000,Bpa=26000,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=NULL)
 
 writeStandardOutput(cs.herring,cs.herring.sr,cs.retro.stck,nyrs.=3,recImY=NULL,output.base,Blim=44000,Bpa=26000,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=NULL)
 
