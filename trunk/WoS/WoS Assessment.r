@@ -119,8 +119,8 @@ WoS@stock <- computeStock(WoS) # to get TSB in stock slot
 
 WoS@stock.n[1,ac(2010)] <- NA #Take this recruitment out because it is not well estimated in ICA as there is no information to support it
 
-#-Replace the recruitment value in 2010 with a geometric mean recruitment over the years 1986 to 2007
-WoS@stock.n[1,ac(2010)] <- exp(mean(log(rec(WoS[,ac(1989:2007)])),na.rm=T))
+#-Replace the recruitment value in the last data year with a geometric mean recruitment over the years 1989 to the year prior to the last data year
+WoS@stock.n[1,ac(2010)] <- exp(mean(log(rec(WoS[,ac(1989:2009)])),na.rm=T))
 
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
@@ -139,7 +139,7 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
 
     # Remove last years recruitment value as it gets estimated wrong in ICA, replace it later with a GM estimate
     stcks[[9]]@stock.n[1,ac(2010)] <- NA
-    stcks[[9]]@stock.n[1,ac(2010)] <- exp(mean(log(rec(stck[,ac(1989:2007)])),na.rm=T))
+    stcks[[9]]@stock.n[1,ac(2010)] <- exp(mean(log(rec(stck[,ac(1989:2009)])),na.rm=T))
     #Now call the retro plotting functions
     retro.plots(stcks,icas,ctrl)
 
@@ -222,16 +222,16 @@ writeFLStock(WoS,output.file=output.base)
 ### ======================================================================================================
 FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
-#WoS recruitment is based on a geometric mean of 1989-2007. Updated by one year, each year
-gm.recs                   <- exp(mean(log(rec(trim(WoS.orig,year=1989:2007)))))
+#WoS recruitment is based on a geometric mean of 1989-one year prior to the last data year. Updated by one year, each year
+gm.recs                   <- exp(mean(log(rec(trim(WoS,year=1989:2009)))))
 stf.ctrl                  <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=22481,f.rescale=TRUE,rec=gm.recs)
 WoS@catch.n[1,52,,,,]     <- 1
-WoS.stf                   <- FLSTF(stock=WoS.orig,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
+WoS.stf                   <- FLSTF(stock=WoS,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
 writeFLStock(WoS.stf,output.file=paste(output.base," WoSaddyr",sep=""))
 ## use the rounder version so report and quality control database have same values
 writeFLStock(WoS,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
 # project one year in order to get a single year holding means for YPR output
-WoS.proj                  <- stf(WoS.orig,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
+WoS.proj                  <- stf(WoS,nyears=1,wts.nyears=3,fbar.nyears=1,arith.mean=TRUE,na.rm=TRUE)
 writeFLStock(WoS.proj,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
 
 # Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
@@ -249,15 +249,15 @@ FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),
 ### ======================================================================================================
 ### Create the figures for the advice sheet and the summary table and reference points
 ### ======================================================================================================
-WoS.sr <- fmle(FLSR(rec=rec(WoS.orig)[,ac(1959:2010)],ssb=ssb(WoS.orig)[,ac(1957:2007)],model="bevholt"),control=list(parscale=c(0.001,1,0.001)))
+WoS.sr <- fmle(FLSR(rec=rec(WoS)[,ac(1959:2010)],ssb=ssb(WoS)[,ac(1957:2008)],model="bevholt"),control=list(parscale=c(0.001,1,0.001)))
 #WoS.sr <- fmle(as.FLSR(transform(WoS,stock.n=WoS@stock.n/100000),model="segreg"));
-WoS.sr@params <- WoS.sr@params*100000
+#WoS.sr@params <- WoS.sr@params*100000
 
 # Or, for Hockey-Stick
 # WoS.sr <- fmle(as.FLSR(transform(WoS,stock.n=WoS@stock.n/100000),model="segreg"));
 # WoS.sr@params <- WoS.sr@params*100000
 
-writeStandardOutput(WoS.orig,WoS.sr,WoS.retro,nyrs.=3,output.base,Blim=5e4,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25)
+writeStandardOutput(WoS,WoS.sr,WoS.retro,nyrs.=3,output.base,Blim=5e4,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25)
 
 
 
