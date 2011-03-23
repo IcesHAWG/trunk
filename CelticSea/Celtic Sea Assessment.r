@@ -216,28 +216,6 @@ title(main=paste(cs.herring@name,"Catch and TAC"))
 ### ======================================================================================================
 
 
-FnPrint("GENERATING DOCUMENTATION...\n")
-#Document the run with alternative table numbering and a reduced width
-old.opt <- options("width","scipen")
-options("width"=80,"scipen"=1000)
-#Do some tidying up on the ica file
-## Removes the additional decimal places
-cs.herring.ica@catch.res[round(cs.herring.ica@catch.res),3] <- NA
-cs.herring.ica@catch.res@.Data <- round(cs.herring.ica@catch.res@.Data,3)
-cs.herring.ica@index.res[[1]]@.Data <- round(cs.herring.ica@index.res[[1]]@.Data,3)
-cs.herring.ica@survivors=round(cs.herring.ica@survivors)
-cs.herring.ica@sel=round(cs.herring.ica@sel,3)
-cs.herring@harvest <- zapsmall(cs.herring@harvest,3)
-cs.herring@stock.n=round(cs.herring@stock.n)
-cs.herring@catch.n=round(cs.herring@catch.n)
-cs.herring.ica@catch.n=round(cs.herring.ica@catch.n)
-cs.herring.ica@index.hat[[1]]@.Data=round(cs.herring.ica@index.hat[[1]]@.Data)
-cs.herring@mat=round(cs.herring@mat,2)
-cs.herring@stock.wt=round(cs.herring@stock.wt,3)
-cs.herring@catch.wt=round(cs.herring@catch.wt,3)
-cs.herring.ica@param[,6:10]=round(cs.herring.ica@param[6:10],2)
-
-#Now write the file
 #Number to corresponds to numbers in the report
 ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4.6.1.%i Celtic Sea and Division VIIj Herring.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
