@@ -51,6 +51,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 data.source         <-  file.path("data")      #Data source, not code or package source!!!
 output.dir          <-  file.path("results")       #Output directory
 output.base         <-  file.path(output.dir,"cs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
+#retro.years         <-  c(2005:2010)  #Specify specific years to do the retrospective over
 retro.years         <-  c(2003,2005:2010)
 
 ### ======================================================================================================
@@ -135,8 +136,6 @@ Rec=exp(mean(log(cs.herring@stock.n[1,as.character(1995:(cs.herring@range['maxye
 
 cs.herring@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
 
-
-
 # puts the geomean value into the pop numbers at age 1 in 2010
 
 cs.herring.ica@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
@@ -215,11 +214,11 @@ title(main=paste(cs.herring@name,"Catch and TAC"))
 ### Document Assessment
 ### ======================================================================================================
 
-
+#Now write the file
 #Number to corresponds to numbers in the report
 ica.out.file <- ica.out(cs.herring,cs.herring.tun,cs.herring.ica,format="TABLE 4.6.1.%i Celtic Sea and Division VIIj Herring.")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
-options("width"=old.opt$width,"scipen"=old.opt$scipen)
+#options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(cs.herring,output.file=output.base)
@@ -232,13 +231,6 @@ writeFLStock(cs.herring,output.file=output.base)
 #And for incorporation into the standard graphs
 writeFLStock(cs.herring,file.path(output.dir,"hawg_her-irls.sum"),type="ICAsum")
 
-
-### ======================================================================================================
-### Create the figures for the advice sheet and the summary table and reference points
-### ======================================================================================================
-
-
-writeStandardOutput(cs.herring,cs.herring.sr,cs.retro.stck,nyrs.=3,recImY=NULL,output.base,Blim=44000,Bpa=26000,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=NULL)
 
 ##############################################################################################################
 
@@ -304,14 +296,15 @@ options.l <- list(#Zero catch
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch, AdY.catch*1.25,1))),
+                  #  TAC +30%                           
                                           
-                    # TAC + 30%
-                  "Catch(2012) = 2011 TAC + 30% (17160 t)"=
+                     "Catch(2012) = 2011 TAC + 30% (17160 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch, AdY.catch*1.30,1))),
-                    
+                                          val=c(ImY.catch, AdY.catch*1.30,1))),                     
+                                                            
+                                          
                   #F =0.25 
                   "Fbar(2012) = 0.25"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
@@ -324,12 +317,12 @@ options.l <- list(#Zero catch
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,0.19,1))),
-                  # F = 0.23
-                  "Fbar(2012) = 0.23"=
+                  # F = 0.14
+                  "Fbar(2012) = 0.14"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,0.23,1)))
+                                          val=c(ImY.catch,0.14,1)))
 ) #End options list
 
 
@@ -418,6 +411,17 @@ opt.sum.tbl(stcks=cs.herring.options,fname=paste(output.base,"options - summary.
 opt.sum.tbl(stcks=cs.herring.mult.opts,fname=paste(output.base,"multi-options - summary.csv",sep="."))
 
 
+
+
+
+
+### ======================================================================================================
+### Create the figures for the advice sheet and the summary table and reference points
+### ======================================================================================================
+
+cs.herring.sr <- ref.pts(cs.herring,"bevholt",100000)
+
+writeStandardOutput(cs.herring,cs.herring.sr,cs.retro.stck,nyrs.=3,recImY=NULL,output.base,Blim=44000,Bpa=26000,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=NULL)
 
 
 ### ======================================================================================================
