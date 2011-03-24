@@ -65,7 +65,7 @@ GLOBALS_SECTION
   }
 
 DATA_SECTION
-  !! cout<<"DATASECTION: Data file"; cout.flush(); 
+  !! cout<<"DATASECTION"; cout.flush(); 
   !! time(&StartTime);  
   init_int noFleets
   !! TRACE(noFleets);
@@ -116,15 +116,6 @@ DATA_SECTION
   !! TRACE(Fprop);
   init_matrix Mprop(1,noYears,minAgeObs,maxAgeObs)
   !! TRACE(Mprop);
-  init_ivector checksum_dat(1,2)  //Check that data has read correctly - should be 424242
-  !!if(checksum_dat(1)!=checksum_dat(2)) { 
-  !! cout << endl << "CHECKSUM FAILURE: \t"<<checksum_dat << endl;
-  !! exit(1);
-  !! } else {
-  !!  cout << " CHECKSUM PASSED.";}
-  
-  //Now change to configuration file
-  !! cout<<"... model.cfg file"; cout.flush(); 
   !! ad_comm::change_datafile_name("model.cfg");
   init_int minAge  
   !! TRACE(minAge);
@@ -185,15 +176,7 @@ DATA_SECTION
   !! TRACE(stateDim); 
   init_ivector fbarRange(1,2)  
   !! TRACE(fbarRange); 
-  init_ivector checksum_cfg(1,2)  //Check that data has read correctly - should be 424242
-  !!if(checksum_cfg(1)!=checksum_cfg(2)) { 
-  !! cout << endl << "CHECKSUM FAILURE: \t"<<checksum_cfg << endl;
-  !! exit(1);
-  !! } else {
-  !!  cout << " CHECKSUM PASSED.";}
-
-  //Initial guesses for the model
-  !! cout<<"... model.init file"; cout.flush(); 
+  
   !! ad_comm::change_datafile_name("model.init");
   init_number varLogFstaInit;
   init_number varLogNInit;
@@ -202,8 +185,6 @@ DATA_SECTION
   init_number rec_logaInit;
   init_number rec_logbInit;
 
-  //Reduced configuration
-  !! cout<<"... reduced.cfg file"; cout.flush(); 
   !! ad_comm::change_datafile_name("reduced.cfg");
   init_ivector retro(1,noFleets);
   int reducedRun;
@@ -221,7 +202,7 @@ DATA_SECTION
   !!  }
   !!  noYears=noYears-((int)years(noYears)-(int)max(lastYearData));  
   matrix residuals(1,noObs,1,6)
-  !! cout<<"  ---  Reading complete."<<endl; cout.flush(); 
+  !! cout<<"  ---  Done."<<endl; cout.flush(); 
 
 PARAMETER_SECTION
   !! cout<<"PARAMETERSECTION"; cout.flush(); 

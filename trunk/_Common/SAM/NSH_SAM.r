@@ -33,12 +33,12 @@ FnPrint("\nNSH SAM Assessment Wrapper\n=====================\n")
 ### ======================================================================================================
 ### Import externals
 ### ======================================================================================================
-library(FLCore)
+library(FLCore);library(FLAssess)
 #Load NSH assessessment objects
 load(file.path("..","..","NSAS","results","NSH Assessment Assessment.RData"))
 
 #FLSAM package (uncompiled)
-FLSAM.dir <- file.path("..","Pkgs","FLSAM")
+FLSAM.dir <- file.path(".","FLSAM")
 FLSAM.r.srcs <- dir(file.path(FLSAM.dir,"R"),pattern="r$|R$",full.names=TRUE)
 dmp <- lapply(FLSAM.r.srcs,source)
 
@@ -65,9 +65,13 @@ NSH.ctrl@obs.vars["MLAI","0"] <- 5
 ### ======================================================================================================
 ### Run the assessment
 ### ======================================================================================================
+stck <- NSH
+tun  <- NSH.tun
+ctrl <- NSH.ctrl
+
 #Write configuration file
-write.ADMB.dat(NSH,NSH.tun,file.path(".","run","ssass.dat"))
-write.ADMB.cfg(NSH.ctrl,file.path(".","run","model.cfg"))
+write.ADMB.dat(stck,tun,file.path(".","run","ssass.dat"))
+write.ADMB.cfg(ctrl,file.path(".","run","model.cfg"))
 
 #Run the assessment
 
