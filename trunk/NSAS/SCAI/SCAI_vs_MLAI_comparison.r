@@ -90,7 +90,19 @@ dat <- merge(dat,NSH.ssb[,c("year","ssb")])
 ### ======================================================================================================
 ### Plot the data
 ### ======================================================================================================
-par(mar=c(5,4,1,1))
+par(mar=c(5,4,2,4))
+
+#Plot the time series showing MLAI,SCAI
+yr.lims <- range(pretty(dat$year))
+plot(dat$year,dat$sumSCAI,xlab="Year",ylab="sum SCAI",pch=19,type="p",
+    xaxs="i",yaxs="i",xlim=yr.lims,ylim=range(pretty(dat$sumSCAI)))
+lines(dat$year,dat$sumSCAI,lty=1)
+par(new=TRUE)
+plot(dat$year,dat$MLAI,pch=1,type="p",axes=FALSE,xlim=yr.lims,ylim=range(pretty(dat$MLAI)),xlab="",ylab="",xaxs="i",yaxs="i")
+lines(dat$year,dat$MLAI,lty=3)
+axis(4)
+mtext("MLAI",4,line=2)
+legend("topleft",legend=c("sum SCAI","MLAI"),pch=c(19,1),lty=c(1,3))
 
 #Plot the comparison between MLAI and SCAI
 plot(log(dat$MLAI),log(dat$sumSCAI),xlab="log MLAI",ylab="log sum SCAI",pch=19)
@@ -105,6 +117,7 @@ mdl <- lm(log(sumSCAI) ~ log(ssb),dat)
 abline(mdl)
 legend("topleft",bty="n",legend=c(sprintf("r2 = %4.2f",summary(mdl)$r.squared),
        sprintf("Slope = %4.2f ± %4.2f",coef(mdl)[2],1.96*summary(mdl)$coef[2,2])))
+
 
 #Plot the comparison between SSB and MLAI
 plot(log(dat$ssb),log(dat$MLAI),xlab="log SSB",ylab="log MLAI",pch=19)
