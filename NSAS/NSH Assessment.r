@@ -307,6 +307,10 @@ points(y=fbar(NSH.stock11[,ac(2002:2011)]), x=(ssb(NSH.stock11[,ac(2002:2011)])/
 lines(y=fbar(NSH.stock11[,ac(2002:2011)]),  x=(ssb(NSH.stock11[,ac(2002:2011)])/1e6))
 text(y=fbar(NSH.stock11[,ac(2002:2011)]),   x=(ssb(NSH.stock11[,ac(2002:2011)])/1e6),labels=ac(2002:2011),pos=3,cex=0.7)
 
+#points(y=c(fbar(NSH.stock11[,ac(2002:2010)]),0.125),   x=c((ssb(NSH.stock11[,ac(2002:2010)])/1e6),1714498/1e6),pch=19)
+#lines( y=c(fbar(NSH.stock11[,ac(2002:2010)]),0.125),   x=c((ssb(NSH.stock11[,ac(2002:2010)])/1e6),1714498/1e6))
+#text(  y=c(fbar(NSH.stock11[,ac(2002:2010)]),0.125),   x=c((ssb(NSH.stock11[,ac(2002:2010)])/1e6),1714498/1e6),labels=ac(2002:2011),pos=3,cex=0.7)
+
 #Write the results out in the lowestoft VPA format
 writeFLStock(NSH.stock11,output.file=paste(output.base,"with STF"))
 
