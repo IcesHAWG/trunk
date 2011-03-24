@@ -294,7 +294,7 @@ axis(1)
 title(main="Residuals",xlab="Year",outer=TRUE)
 
 #QQ plots of residuals
-par(mfrow=c(2,2),pty="s",mar=c(5,4,4,2))
+par(mfrow=c(2,2),pty="s",oma=c(5,4,4,2))
 lapply(names(fit),function(a) {
   d <- fit[[a]]
   qqnorm(d$obs$resid,main=sprintf("%s QQ-plot",a),pch=19)
@@ -356,16 +356,24 @@ arrows(1:nrow(props),props$lb,1:nrow(props),props$ub,angle=90,code=3,length=0.1)
 axis(1,at=1:nrow(props),labels=samp.unit.names, las=2)
 abline(v= cumsum(table(factor(props$component,levels=unique(props$component)))[-n.areas])+0.5,lwd=4)
 
-
 #SCAIs plotted on one figure
 par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 SCAIs <- sapply(fit,function(d) d$fit$SCAI)
 SCAIs <- data.frame(Year=yrs,Total=rowSums(SCAIs),SCAIs)
 dat.to.plot <- SCAIs[,-c(1:2)]
-plot(NA,NA,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
-  xlab="Year",ylab="SCAI",main="SCAI indices for each component")
-matlines(SCAIs$Year,dat.to.plot,lwd=2,lty=1)
-legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),bg="white")
+for(colour in c(T,F)) {    #Two versions - colour & B&W
+  plot(NA,NA,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
+    xlab="Year",ylab="SCAI",main="SCAI indices for each component")
+  if(colour) {
+    matlines(SCAIs$Year,dat.to.plot,lwd=2,lty=1)
+    legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),bg="white")
+  } else {
+    matlines(SCAIs$Year,dat.to.plot,lty=c(1,1,3,1),col=1,type="l",lwd=2)
+    matpoints(SCAIs$Year,dat.to.plot,col=1,pch=c(21,NA,NA,4),bg="white",cex=1)
+    legend("topleft",col=1,lty=c(1,1,3,1),pch=c(21,NA,NA,4),pt.bg="white",
+        legend=names(areas),bg="white",horiz=FALSE,xpd=NA,lwd=2,pt.cex=1)
+  }
+}
 
 #Retrospective analysis - individual values
 retro.res$SCAI <- exp(retro.res$value)
@@ -387,15 +395,18 @@ legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),pch=as.character(1:4
 
 #Proportion of total by each area - area plot
 par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
-plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fraction",
-  main="Proportion of North Sea stock by component")
-area.plot.dat <- t(apply(SCAIs[,-c(1,2)],1,function(x) 1-cumsum(c(0,x))/sum(x)))
-for(i in 1:length(areas)) {
-  x.to.plot <- c(SCAIs$Year,rev(SCAIs$Year))
-  y.to.plot <- c(area.plot.dat[,i],rev(area.plot.dat[,i+1]))
-  polygon(x.to.plot,y.to.plot,col=i)
+for(colour in c(T,F)) {
+  plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fraction",
+    main="Proportion of North Sea stock by component")
+  area.plot.dat <- t(apply(SCAIs[,-c(1,2)],1,function(x) 1-cumsum(c(0,x))/sum(x)))
+  cols <- if(colour) {cols<- 1:4} else {cols <- c("grey80","grey60","grey40","grey20")}
+  for(i in 1:length(areas)) {
+    x.to.plot <- c(SCAIs$Year,rev(SCAIs$Year))
+    y.to.plot <- c(area.plot.dat[,i],rev(area.plot.dat[,i+1]))
+    polygon(x.to.plot,y.to.plot,col=cols[i])
+  }
+  legend("topleft",bg="white",legend=colnames(area.plot.dat)[-1],pch=22,pt.bg=cols,pt.cex=2)
 }
-legend("topleft",bg="white",legend=colnames(area.plot.dat)[-1],pch=22,pt.bg=1:4,pt.cex=2)
 
 #Proportion of total by each area - line plot
 dat.to.plot <- SCAIs[,-c(1:2)]
