@@ -129,7 +129,7 @@ old.opt <- options("width","scipen")
 options("width"=80,"scipen"=1000)
 #Do some tidying up on the ica file
 ## Removes the additional decimal places
-Pop4.ica@catch.res[round(Pop4.ica@catch.res)==0,3] <- NA
+#Pop4.ica@catch.res[round(Pop4.ica@catch.res),3] <- NA
 Pop4.ica@catch.res@.Data <- round(Pop4.ica@catch.res@.Data,3)
 Pop4.ica@index.res[[1]]@.Data <- round(Pop4.ica@index.res[[1]]@.Data,3)
 Pop4.ica@survivors=round(Pop4.ica@survivors)
@@ -157,5 +157,4 @@ writeFLStock(Pop4,output.file=output.base)
  #Close plots
 dev.off()
 
-dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
