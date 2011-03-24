@@ -51,7 +51,6 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 data.source         <-  file.path("data")      #Data source, not code or package source!!!
 output.dir          <-  file.path("res")       #Output directory
 output.base         <-  file.path(output.dir,"cs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
-#retro.years         <-  c(2005:2010)  #Specify specific years to do the retrospective over
 retro.years         <-  c(2003,2005:2010)
 ### ======================================================================================================
 ### Output setup
@@ -304,6 +303,14 @@ options.l <- list(#Zero catch
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch, AdY.catch*1.25,1))),
+                                          
+                    # TAC + 30%
+                  "Catch(2012) = 2011 TAC + 30% (17160 t)"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","catch","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch, AdY.catch*1.30,1))),
+                    
                   #F =0.25 
                   "Fbar(2012) = 0.25"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
@@ -316,7 +323,7 @@ options.l <- list(#Zero catch
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,0.19,1))),
-                  # F = 0.18
+                  # F = 0.23
                   "Fbar(2012) = 0.23"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
