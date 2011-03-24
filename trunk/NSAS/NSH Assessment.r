@@ -279,7 +279,7 @@ writeFLStock(NSH,output.file=output.base)
 #And for incorporation into the standard graphs
 writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.sum"),type="ICAsum")
 #The YPR curves based on the same values as the projection - therefore use WBSS.proj
-writeFLStock(NSAS.proj,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
+#writeFLStock(NSAS.proj,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
 
 ### ======================================================================================================
 ### Intermediate year
