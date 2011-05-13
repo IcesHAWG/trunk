@@ -236,6 +236,10 @@ box()
 plot(LAI.tbl[,"E6"],LAI.tbl[,"E8"],log="xy",pch=19,xlab="Survey E6",ylab="Survey E8")
 abline(a=0,b=1,lwd=2)
 
+
+### ======================================================================================================
+### Model Fit diagnostic plots
+### ======================================================================================================
 #First plot the time series for each component, with observations
 #par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(3.5,5,4,0.5),las=1,mgp=c(4,1,0))
 pchs <- c(19,2,3,8)
@@ -294,11 +298,32 @@ axis(1)
 title(main="Residuals",xlab="Year",outer=TRUE)
 
 #QQ plots of residuals
-par(mfrow=c(2,2),pty="s",oma=c(5,4,4,2))
+par(mfrow=c(2,2),mar=c(3,2,0,0),las=1,mgp=c(3,1,0),oma=c(2,2,2,1))
 lapply(names(fit),function(a) {
   d <- fit[[a]]
-  qqnorm(d$obs$resid,main=sprintf("%s QQ-plot",a),pch=19)
+  qqnorm(d$obs$resid,main="",pch=19,xlab="",ylab="")
+  title(main=sprintf("%s",a),line=-1)
 })
+title(xlab="Theoretical Quantiles",ylab="Sample Quantiles",outer=TRUE,xpd=NA,line=0)
+title(main="QQ Plots",outer=TRUE,line=1)
+
+
+#Plot residuals vs observations
+resid.rng <- sapply(fit,function(a) range(a$obs$resid))
+resid.lims <- range(pretty(c(resid.rng,-resid.rng)))
+lapply(names(fit),function(a) {
+   d <- fit[[a]]
+   plot(d$obs$LAI,d$obs$resid,xlab="",ylab="",pch=pchs[as.numeric(d$obs$LAIUnit)],log="x",ylim=resid.lims)
+   abline(h=0)
+   title(main=sprintf("%s",a),line=-1)
+   legend("bottomright",col="black",pch=pchs[1:nlevels(d$obs$LAIUnit)],legend=levels(d$obs$LAIUnit),bg="white",horiz=TRUE)
+})
+title(xlab="Observed LAI",ylab="Residual",outer=TRUE,xpd=NA,line=0)
+title(main="Residuals vs Observed LAI",outer=TRUE,line=1)
+
+### ======================================================================================================
+### Model parameters
+### ======================================================================================================
 
 #Plot model parameters for each component
 par(mfrow=c(3,1),mar=c(0,0,0,0),oma=c(5,4,4,2),las=1,mgp=c(3,1,0))
@@ -343,6 +368,9 @@ matplot(yrs,dat.to.plot,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),
 legend("topleft",legend=names(areas),pch=as.character(1:n.areas),col=1:6,lty=1,bg="white")
 
 
+### ======================================================================================================
+### Component dynamics plots
+### ======================================================================================================
 #Plot proportions of SCAI for each sampling unit
 props <- lapply(names(fit),function(a) {
                 data.frame(component=a,subset(fit[[a]]$res,name==("props")))
