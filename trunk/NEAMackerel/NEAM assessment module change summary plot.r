@@ -518,9 +518,9 @@ stop(paste("ERROR: Current R version is",paste(version$major,version$minor,sep="
 }
 
 #Add in other functions
-source('D:/WGWIDE2009/R assessment/scritps/HAWG Retro func.r')
-source('D:/WGWIDE2009/R assessment/scritps/Stacked Area plot.r')
-source('D:/WGWIDE2009/R assessment/scritps/WriteIcaSum.r')
+source('../_Common/HAWG Retro func.r')
+source('../_Common/Stacked Area plot.r')
+source('../_Common/WriteIcaSum.r')
 
 
 
