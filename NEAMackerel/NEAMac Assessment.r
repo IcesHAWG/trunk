@@ -19,20 +19,19 @@
 # Ctrl.txt only required of MFDP required to be run  - update catches and recruitment
 
 
-
-
-#
 # $Rev: 1 $
 # $Date: 2009-05-27 $
-#
 # Author: John Simmonds
 # FRS, Scotland
 #
 # $Rev: 2 $
 # $Date: 2010-09-01 $
-#
 # Author: Teunis Jansen (DTU-AQUA, Denmark), Thomas Brunel (IMARES, Nederlands), Charlie Main( FRS, Scotland)
 #
+# $Rev: 3 $
+# $Date: 2011-09-01 $
+# Author: Teunis Jansen (DTU-AQUA, Denmark), Thomas Brunel (IMARES, Nederlands), Emma Hatfield (Neo-FRS, is it called Marine Scotland now or?)
+#                    
 # Performs an assessment of North East Atlantic Mackerel stock using the
 # FLICA package.
 # and provides short term options that comare with MFDP to 4 figures
@@ -55,7 +54,7 @@
 #
 # Notes:
 # This sets the working directory on Teunis's machine:
-path <- "C://ExpertGroups/HAWG/2009/Assessments/hawg/NEAMackerel"
+path <- "C://Assessment/NEAMackerel"
 try(setwd(path),silent=TRUE)
 
 ####################################################################################################
@@ -64,6 +63,7 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
+objBeginTime <- proc.time()[3]
 FnPrint     <-  function(string) {
 	cat(string)
 	flush.console()
@@ -74,6 +74,7 @@ FnPrint("\nNEAMac FLICA Assessment - dont forget to set working directory to sto
 ### Incorporate Common modules
 ### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
 ### ======================================================================================================
+#Here the herring-people use: source(file.path("..","_Common","HAWG Common assessment module.r"))
 source(file.path("NEAM assessment module change summary plot.r"))
 source("NEAMac Stock summary plot.r")
 ### ======================================================================================================
@@ -83,7 +84,7 @@ source("NEAMac Stock summary plot.r")
 ### ======================================================================================================
 data.source         <-  file.path(".","data")      #Data source, not code or package source!!!
 output.dir          <-  file.path(".","results")       #Output directory - some questions regarding use old "res" or "results"
-# these next two lines are stock specific - others are standar across stocks
+# these next two lines are stock specific - others are standard across stocks
 output.base         <-  file.path(output.dir,"NEAMac Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  6                          #Number of years for which to run the retrospective: 7 in 2009
 
@@ -96,14 +97,8 @@ trellis.par.set(fontsize=list(text=24,points=20))
 
 ### ======================================================================================================
 ### Prepare control object for assessment
-### We use here two different options - the first is the simpler and more normal:, just setting the control
-### directly in the code. The second is reading in the configuration from a file - this is normally not
-### necessary, but is a handy feature for using the code on stockassessment.org
 ### ======================================================================================================
 FnPrint("PREPARING CONTROL OBJECTS...\n")
-#Set control object straight up (option 1)
-#-----------------------------------------
-# copied from John Simmonds' 2008 WIDE script
 # single 12 years separable period
 # F on oldest true age = 1.5 * F on reference age of 5
 # do not fit s/r relationship
@@ -122,15 +117,11 @@ NEA.Mac.ctrl<-FLICA.control(sep.nyr=12,sep.age=5,sep.sel=1.5,sr=FALSE,
 ### Prepare stock object for assessment - standard FL stock object
 ### ======================================================================================================
 FnPrint("PREPARING STOCK OBJECT...\n")
-NEA.Mac                        <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE)
-#Set units
-units(NEA.Mac)[1:17]           <- as.list(c(rep(c("Tonnes","Thousands","Kg"),4), rep("NA",5)))
-#Set fbar
-range(NEA.Mac)[c("minfbar","maxfbar")] <- c(4,8)
-#Set plus group
-NEA.Mac                        <- setPlusGroup(NEA.Mac,NEA.Mac@range["max"])
-#Set stock object name - this is propagated through into the figure titles
-NEA.Mac@name    <- "NEA Mackerel"
+NEA.Mac <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE)
+units(NEA.Mac)[1:17] <- as.list(c(rep(c("Tonnes","Thousands","Kg"),4), rep("NA",5))) #Set units
+range(NEA.Mac)[c("minfbar","maxfbar")] <- c(4,8) #Set fbar
+NEA.Mac <- setPlusGroup(NEA.Mac,NEA.Mac@range["max"]) #Set plus group
+NEA.Mac@name    <- "NEA Mackerel" #Set stock object name - this is propagated through into the figure titles
 
 ### ======================================================================================================
 ### Prepare index object for assessment
@@ -140,7 +131,7 @@ FnPrint("PREPARING INDEX OBJECT...\n")
 
 
 # Ideally line should be as follows but this does not work because the call expects at least one age disaggregated index
-#NEA.Mac.tun   <- readFLIndices(file.path(data.source, "/Ssb.txt"),type="ICA")
+# NEA.Mac.tun   <- readFLIndices(file.path(data.source, "/Ssb.txt"),type="ICA")
 # here we only have an SSB index so we use a short routine to load iot and comple the indices object
 ## add tempory solution --- subroutine
   read.SSB.Index<-function(file.str,catch){
@@ -162,15 +153,11 @@ NEA.Mac.tun=FLIndices(NEA.Mac.indices)
 
 
 #Set names, and parameters etc
-NEA.Mac.tun[[1]]@index.var[] <- 0.1 # implies a weighting of 10 which was chosen in 2007 Benchmark
-# overall the weightinmg set here is 30 relative to catch weight of 1
+NEA.Mac.tun[[1]]@index.var[] <- 0.1 # implies a weighting of 10 which was chosen in 2007 Benchmark  - overall the weightinmg set here is 30 relative to catch weight of 1
 NEA.Mac.tun[[1]]@effort[] <- 1 # just a standard number - realy ignored if 1
-
-#Set the 0 values to NAs
-NEA.Mac.tun[[1]]@index[NEA.Mac.tun[[1]]@index==0] <- NA
-
+NEA.Mac.tun[[1]]@index[NEA.Mac.tun[[1]]@index==0] <- NA #Set the 0 values to NAs
 NEA.Mac.tun[[1]]@type <- "biomass"
-names(NEA.Mac.tun) <- "NEA.Mac Egg Survey"  #MPA: Added so that your graphs are a bit prettier
+names(NEA.Mac.tun) <- "NEA.Mac Egg Survey"
 
 ### ======================================================================================================
 ### Perform the assessment
@@ -180,32 +167,25 @@ FnPrint("PERFORMING ASSESSMENT.    \n")
 NEA.Mac.ica   <-  FLICA(NEA.Mac,NEA.Mac.tun,NEA.Mac.ctrl)
 
 
-# T Brunel 26-08 : replace the recruitment value in the last year by the geometric mean of recruitment over the period 1972 to two year before assessment year
+# replace the recruitment value in the last year by the geometric mean of recruitment over the period 1972 to two year before assessment year
 nyears<-dim(NEA.Mac.ica@stock.n)[2]
 NEA.Mac.ica@stock.n[1,nyears]<-prod(NEA.Mac.ica@stock.n[1,1:(nyears-2)])^(1/(nyears-2))
-# do the same for the survivors
-NEA.Mac.ica@survivors[1,]<-prod(NEA.Mac.ica@stock.n[1,1:(nyears-2)])^(1/(nyears-2))
-# recalculate age 1 for the survivors given the new recruitment for the last year and the fishing mortality
-NEA.Mac.ica@survivors[2,]<-NEA.Mac.ica@stock.n[1,nyears]*exp(-NEA.Mac.ica@harvest[1,nyears]-NEA.Mac@m[1,nyears])
+NEA.Mac.ica@survivors[1,]<-prod(NEA.Mac.ica@stock.n[1,1:(nyears-2)])^(1/(nyears-2)) # do the same for the survivors
+NEA.Mac.ica@survivors[2,]<-NEA.Mac.ica@stock.n[1,nyears]*exp(-NEA.Mac.ica@harvest[1,nyears]-NEA.Mac@m[1,nyears]) # recalculate age 1 for the survivors given the new recruitment for the last year and the fishing mortality
 
-
-# put assessment results in stock object
-NEA.Mac       <-  NEA.Mac + NEA.Mac.ica
-# calculate total stock biomass for use in outpurt tables
+NEA.Mac <-  NEA.Mac + NEA.Mac.ica # put assessment results in stock object
+# calculate total stock biomass for use in output tables
 NEA.Mac@stock=computeStock(NEA.Mac) # to get TSB in stock slot
-# set flagged index resituals set to -99 as missing residuals to 0
-NEA.Mac.ica@index.res[[1]]@.Data[NEA.Mac.ica@index.res[[1]]@.Data==-99] <- NA
+NEA.Mac.ica@index.res[[1]]@.Data[NEA.Mac.ica@index.res[[1]]@.Data==-99] <- NA # set flagged index resituals set to -99 as missing residuals to 0
 
 ### ======================================================================================================
 ### Use the standard code from the common modules to produce outputs
 ### ======================================================================================================
-#Make the customised NEA mackerel stock summary plot
-NEAmac.stock.summary.plot(NEA.Mac)
+NEAmac.stock.summary.plot(NEA.Mac) #Make the customised NEA mackerel stock summary plot
 #Do the other common plots
 do.summary.plots(NEA.Mac,NEA.Mac.ica)
 NEA.Mac.retro <- do.retrospective.plots(NEA.Mac,NEA.Mac.tun,NEA.Mac.ctrl,n.retro.years)
 do.SRR.plot(NEA.Mac)
-
 
 ### ======================================================================================================
 ### Document Assessment
@@ -442,8 +422,4 @@ FnPrint("SAVING WORKSPACES...\n")
 save(NEA.Mac.orig,NEA.Mac.tun,NEA.Mac.ctrl,file=paste(output.base,"Assessment.RData"))
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
-FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
-
-
-
-
+FnPrint(paste("\nFinished After", round(((proc.time()[3] - objBeginTime)/60), 1), "minutes.\n"))
