@@ -1,5 +1,0 @@
-NEA Mackerel Control file standard 3 yr with catch constraint 1st year
-4 8
-3835910 3835910 3835910 3835910 3835910
-1
-600000
