@@ -54,7 +54,7 @@
 #
 # Notes:
 # This sets the working directory on Teunis's machine:
-path <- "C://Assessment/NEAMackerel"
+path <- "C:/Assessment/NEAMackerel/"
 try(setwd(path),silent=TRUE)
 
 ####################################################################################################
@@ -75,7 +75,7 @@ FnPrint("\nNEAMac FLICA Assessment - dont forget to set working directory to sto
 ### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
 ### ======================================================================================================
 #Here the herring-people use: source(file.path("..","_Common","HAWG Common assessment module.r"))
-source(file.path("NEAM assessment module change summary plot.r"))
+source("NEAM assessment module change summary plot.r")
 source("NEAMac Stock summary plot.r")
 ### ======================================================================================================
 
