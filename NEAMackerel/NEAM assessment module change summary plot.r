@@ -504,7 +504,7 @@ if(required.date - package.date > 0)
 do.call(require,list(package=lib))
 invisible(NULL)
 }
-check.versions("FLCore","3.0",ISOdatetime(2009,03,10,04,42,27))
+check.versions("FLCore","2.2",ISOdatetime(2009,03,10,04,42,27))
 check.versions("FLAssess","1.99-102",ISOdatetime(2009,03,23,08,18,00))
 check.versions("FLICA","1.4-10")
 check.versions("FLSTF","1.99-1")
