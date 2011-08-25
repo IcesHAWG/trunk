@@ -283,9 +283,7 @@ NEA.Mac.proj <- stf(NEA.Mac.orig,nyears=4,wts.nyears=3,arith.mean=TRUE,na.rm=TRU
 NEA.Mac.proj@stock.n[,ac(ImY)]  <- NEA.Mac.ica@survivors
 NEA.Mac.proj@stock.n[1,as.character(c(TaY,ImY,AdY,CtY))] <- gm.recs
 
-#Setup options to suite the advice sheet  the choice here is based on the following:
-#0 catch,  role over + and - 20% on TAC, F=0.20,0.21,0.22 from management plan  
-
+#Setup options to suite the advice sheet:
 options.l <- list(#2011 Catch, followed by Zero catch
                   "Catch(2012) = Zero"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
@@ -325,7 +323,7 @@ options.l <- list(#2011 Catch, followed by Zero catch
                                           quantity=c("catch","f","f"),
                                           val=c(ImY.catch,0.22,0.22))),
                  #2011 Catch, followed by EC/ICES transition F (0.292)
-                  "Fbar(2012) = 0.292 (EC and ICES transition F)"=
+                  "Fbar(2012) = 0.292 (EC and ICES transition F=0.6*F2010+0.4*Fmsy)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           val=c(ImY.catch,0.292,0.22)))
