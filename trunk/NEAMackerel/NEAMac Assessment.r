@@ -227,15 +227,16 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 ### ======================================================================================================
 
 # MUST BE UPDATED FOR THE CURRENT YEAR       
-# Current status: NOT FINAL ESTIMATES FOR 2010 
+# Current status: NOT FINAL ESTIMATES FOR 2011 
 # see for example section 2.8 short term  prediction inputs
-ImY.catch <- 930002  # estimated catches expected due to TAC, discards, payback, overfishing, unilateral quotas etc.
+ImY.catch <- 929758  # estimated catches expected due to TAC, discards, payback, overfishing, unilateral quotas etc.
 # see table in text of section 2.8
-ImY.TAC <- 834971
+ImY.TAC <- 934990
 # to be checked from NEAFC and Coatal states agreement (not EU TAC regulations whicvh is only part of this
 # final number should be very close REF TAC + southern TAC = 0.0700767 * CS Ref TAC   + NEAFC = 57,884
 # 2009 example: IMY.TAC = REF TAC + southern TAC + NEAFC + NOFO unilateral, where REF TAC = 511287t  Southern = 35829  NEAFC = 57844 NOFO unilateral = 35819
 # 2010 no coastal state agreement only uni- and bilateral agreements, therefore set to ImY.Catch - transfer from 2009 - Discard - expected overcatch
+# 2011 no coastal state agreement only uni- and bilateral agreements, therefore set to ImY.Catch minus (transfers+paybacks+discards+expected overcatch)
 
 FnPrint("YPR and stock summary for standard graphs...\n")
 #Define years
@@ -285,46 +286,46 @@ NEA.Mac.proj@stock.n[1,as.character(c(TaY,ImY,AdY,CtY))] <- gm.recs
 #Setup options to suite the advice sheet  the choice here is based on the following:
 #0 catch,  role over + and - 20% on TAC, F=0.20,0.21,0.22 from management plan  
 
-options.l <- list(#Zero catch
-                  "Catch(2011) = Zero"=
+options.l <- list(#2011 Catch, followed by Zero catch
+                  "Catch(2012) = Zero"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity="catch",
                                           val=c(ImY.catch,0,0))),
-                  #2010 Catch is XXX, followed by -20% Catch reduction => XXX
-                  "Catch(2011) = 2010 catch (excl. interannual transfer and discard) -20%"=
+                  #2011 Catch, followed by 20% reduction in declared TACs
+                  "Catch(2012) = 2011 catch (excl. interannual transfers, paybacks and discard) -20%"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,ImY.TAC*0.80,1))),
-                  #2009 and 2010 Catch is XXX
-                  "Catch(2011) = 2010 catch (excl. interannual transfer and discard)"=
+                  #2011 Catch, followed by unchanged declared TACs
+                  "Catch(2012) = 2011 catch (excl. interannual transfers, paybacks and discard)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,ImY.TAC,1))),
-                  #2010 Catch is XXX, followed by +20% Catch increase => 2011 Catch XXX
-                  "Catch(2011) = 2010 catch (excl. interannual transfer and discard) +20%"=
+                  #2011 Catch, followed by 20% increase in declared TACs
+                  "Catch(2012) = 2010 catch (excl. interannual transfers, paybacks and discard) +20%"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,ImY.TAC*1.20,1))),
-                 #2010 Catch is XXX, followed Fbar= 0.20
-                  "Fbar(2011) = 0.20"=
+                 #2011 Catch, followed by Fbar= 0.20
+                 "Fbar(2012) = 0.20"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           val=c(ImY.catch,0.20,0.20))),
-                 #2010 Catch is XXX, followed Fbar= 0.21
-                  "Fbar(2011) = 0.21"=
+                 #2011 Catch, followed by Fbar= 0.21
+                  "Fbar(2012) = 0.21"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           val=c(ImY.catch,0.21,0.21))),
-                 #2010 Catch is XXX, followed Fbar= 0.22
-                  "Fbar(2011) = 0.22 (Fmsy)"=
+                 #2011 Catch, followed by Fbar= 0.22
+                  "Fbar(2012) = 0.22 (Fmsy)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           val=c(ImY.catch,0.22,0.22))),
-                 #
-                  "Fbar(2011) = 0.292 (EC and ICES transition F)"=
+                 #2011 Catch, followed by EC/ICES transition F (0.292)
+                  "Fbar(2012) = 0.292 (EC and ICES transition F)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           val=c(ImY.catch,0.292,0.22)))
@@ -339,7 +340,7 @@ mult.opts.l <- lapply(as.list(fmult.targs),function(fmult) {
                                           rel=c(NA,ImY,AdY),
                                           val=c(ImY.catch,fmult,1)))
                   })
-names(mult.opts.l) <- sprintf("Fmult(2011) = %4.3f",fmult.targs)
+names(mult.opts.l) <- sprintf("Fmult(2012) = %4.3f",fmult.targs)
 
 #Calculate options for two option tables
 NEA.Mac.options   <- lapply(options.l,function(ctrl) {fwd(NEA.Mac.proj,ctrl=ctrl,sr=NEA.Mac.srr)})
