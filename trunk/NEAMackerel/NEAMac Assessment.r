@@ -229,9 +229,9 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 # MUST BE UPDATED FOR THE CURRENT YEAR       
 # Current status: NOT FINAL ESTIMATES FOR 2011 
 # see for example section 2.8 short term  prediction inputs
-ImY.catch <- 929758  # estimated catches expected due to TAC, discards, payback, overfishing, unilateral quotas etc.
+ImY.catch <- 936151  # estimated catches expected due to TAC, discards, payback, overfishing, unilateral quotas etc.
 # see table in text of section 2.8
-ImY.TAC <- 934990
+ImY.TAC <- 932184
 # to be checked from NEAFC and Coatal states agreement (not EU TAC regulations whicvh is only part of this
 # final number should be very close REF TAC + southern TAC = 0.0700767 * CS Ref TAC   + NEAFC = 57,884
 # 2009 example: IMY.TAC = REF TAC + southern TAC + NEAFC + NOFO unilateral, where REF TAC = 511287t  Southern = 35829  NEAFC = 57844 NOFO unilateral = 35819
@@ -316,17 +316,17 @@ options.l <- list(#2011 Catch, followed by Zero catch
                   "Fbar(2012) = 0.21"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
-                                          val=c(ImY.catch,0.21,0.21))),
+                                          val=c(ImY.catch,0.21,0.21))),            
                  #2011 Catch, followed by Fbar= 0.22
                   "Fbar(2012) = 0.22 (Fmsy)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           val=c(ImY.catch,0.22,0.22))),
                  #2011 Catch, followed by EC/ICES transition F (0.292)
-                  "Fbar(2012) = 0.292 (EC and ICES transition F=0.6*F2010+0.4*Fmsy)"=
+                  "Fbar(2012) = 0.24256 (EC and ICES transition F=0.6*F2010+0.4*Fmsy)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
-                                          val=c(ImY.catch,0.292,0.22)))
+                                          val=c(ImY.catch,0.24256,0.22)))
 ) #End options list
 
 #Multi-options table - standard one to show wider range of options for the report
