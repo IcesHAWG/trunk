@@ -229,9 +229,9 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 # MUST BE UPDATED FOR THE CURRENT YEAR       
 # Current status: NOT FINAL ESTIMATES FOR 2011 
 # see for example section 2.8 short term  prediction inputs
-ImY.catch <- 936151  # estimated catches expected due to TAC, discards, payback, overfishing, unilateral quotas etc.
+ImY.catch <- 934567  # estimated catches expected due to TAC, discards, payback, overfishing, unilateral quotas etc.
 # see table in text of section 2.8
-ImY.TAC <- 932184
+#ImY.TAC <- 929002
 # to be checked from NEAFC and Coatal states agreement (not EU TAC regulations whicvh is only part of this
 # final number should be very close REF TAC + southern TAC = 0.0700767 * CS Ref TAC   + NEAFC = 57,884
 # 2009 example: IMY.TAC = REF TAC + southern TAC + NEAFC + NOFO unilateral, where REF TAC = 511287t  Southern = 35829  NEAFC = 57844 NOFO unilateral = 35819
@@ -289,24 +289,24 @@ options.l <- list(#2011 Catch, followed by Zero catch
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity="catch",
                                           val=c(ImY.catch,0,0))),
-                  #2011 Catch, followed by 20% reduction in declared TACs
-                  "Catch(2012) = 2011 catch (excl. interannual transfers, paybacks and discard) -20%"=
+                  #2011 Catch, followed by 20% reduction in catch (roll-over catch)
+                  "Catch(2012) = 2011 catch -20%"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,ImY.TAC*0.80,1))),
-                  #2011 Catch, followed by unchanged declared TACs
-                  "Catch(2012) = 2011 catch (excl. interannual transfers, paybacks and discard)"=
+                                          val=c(ImY.catch,ImY.catch*0.80,1))),
+                  #2011 Catch, followed by same catch (roll-over catch)
+                  "Catch(2012) = 2011 catch"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,ImY.TAC,1))),
-                  #2011 Catch, followed by 20% increase in declared TACs
-                  "Catch(2012) = 2010 catch (excl. interannual transfers, paybacks and discard) +20%"=
+                                          val=c(ImY.catch,ImY.catch,1))),
+                  #2011 Catch, followed by 20% increase in catch (roll-over catch)
+                  "Catch(2012) = 2011 catch +20%"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,ImY.TAC*1.20,1))),
+                                          val=c(ImY.catch,ImY.catch*1.20,1))),
                  #2011 Catch, followed by Fbar= 0.20
                  "Fbar(2012) = 0.20"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
@@ -316,17 +316,17 @@ options.l <- list(#2011 Catch, followed by Zero catch
                   "Fbar(2012) = 0.21"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
-                                          val=c(ImY.catch,0.21,0.21))),            
+                                          val=c(ImY.catch,0.21,0.21))),               
                  #2011 Catch, followed by Fbar= 0.22
                   "Fbar(2012) = 0.22 (Fmsy)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           val=c(ImY.catch,0.22,0.22))),
-                 #2011 Catch, followed by EC/ICES transition F (0.292)
-                  "Fbar(2012) = 0.24256 (EC and ICES transition F=0.6*F2010+0.4*Fmsy)"=
+                 #2011 Catch, followed by 0.23 = Fpa = EC/ICES transition F
+                  "Fbar(2012) = 0.23 (=Fpa =EC/ICES transition F)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
-                                          val=c(ImY.catch,0.24256,0.22)))
+                                          val=c(ImY.catch,0.23,0.22)))
 ) #End options list
 
 #Multi-options table - standard one to show wider range of options for the report
@@ -389,25 +389,33 @@ for(i in 1:length(NEA.Mac.options)) {
 
 #Options summary table
 opt.sum.tbl <- function(stcks,fname) {
-    options.sum.tbl <- sapply(as.list(1:length(stcks)),function(i) {
-                          opt <- names(stcks)[i]
-                          stk <- stcks[[opt]]
-                          #Build up the summary
-                          sum.tbl     <- data.frame(Rationale=opt,
-                                          F.ImY=fbar(stk)[,as.character(ImY),drop=TRUE],
-                                          Catch.ImY=computeCatch(stk)[,as.character(ImY),drop=TRUE],
-                                          SSB.ImY=ssb(stk)[,as.character(ImY),drop=TRUE],
-                                          F.AdY=fbar(stk)[,as.character(AdY),drop=TRUE],
-                                          Catch.AdY=computeCatch(stk)[,as.character(AdY),drop=TRUE],
-                                          SSB.AdY=ssb(stk)[,as.character(AdY),drop=TRUE],
-                                          SSB.CtY=ssb(stk)[,as.character(CtY),drop=TRUE])
-                          })
-    options.sum.tbl <- t(options.sum.tbl)
-    colnames(options.sum.tbl) <- c("Rationale",
-                                    sprintf("Fbar (%i)",ImY),sprintf("Catch (%i)",ImY),sprintf("SSB (%i)",ImY),
-                                    sprintf("Fbar (%i)",AdY),sprintf("Catch (%i)",AdY),sprintf("SSB (%i)",AdY),
-                                    sprintf("SSB (%i)",CtY))
-    write.csv(options.sum.tbl,file=fname,row.names=FALSE)
+  options.sum.tbl <- sapply(as.list(1:length(stcks)),function(i) {
+    opt <- names(stcks)[i]
+    stk <- stcks[[opt]]
+    #Build up the summary
+    sum.tbl <- data.frame(Rationale=opt,
+    F.ImY=fbar(stk)[,as.character(ImY),drop=TRUE],
+    Catch.ImY=computeCatch(stk)[,as.character(ImY),drop=TRUE],
+    SSB.ImY=ssb(stk)[,as.character(ImY),drop=TRUE],
+    
+    TSB.ImY=quantSums(stock.wt(stk)*stock.n(stk))[,as.character(ImY),drop=TRUE],
+    
+    F.AdY=fbar(stk)[,as.character(AdY),drop=TRUE],
+    Catch.AdY=computeCatch(stk)[,as.character(AdY),drop=TRUE],
+    SSB.AdY=ssb(stk)[,as.character(AdY),drop=TRUE],
+    
+    TSB.AdY=quantSums(stock.wt(stk)*stock.n(stk))[,as.character(AdY),drop=TRUE] ,
+    
+    SSB.CtY=ssb(stk)[,as.character(CtY),drop=TRUE],
+    TSB.CtY=quantSums(stock.wt(stk)*stock.n(stk))[,as.character(CtY),drop=TRUE] )
+    
+    })
+  options.sum.tbl <- t(options.sum.tbl)
+  colnames(options.sum.tbl) <- c("Rationale",
+  sprintf("Fbar (%i)",ImY),sprintf("Catch (%i)",ImY),sprintf("SSB (%i)",ImY),sprintf("TSB (%i)",ImY),
+  sprintf("Fbar (%i)",AdY),sprintf("Catch (%i)",AdY),sprintf("SSB (%i)",AdY),sprintf("TSB (%i)",AdY),
+  sprintf("SSB (%i)",CtY),sprintf("TSB (%i)",CtY) )
+  write.csv(options.sum.tbl,file=fname,row.names=FALSE)
 }
 opt.sum.tbl(stcks=NEA.Mac.options,fname=paste(output.base,"options - summary.csv",sep="."))
 opt.sum.tbl(stcks=NEA.Mac.mult.opts,fname=paste(output.base,"multi-options - summary.csv",sep="."))
