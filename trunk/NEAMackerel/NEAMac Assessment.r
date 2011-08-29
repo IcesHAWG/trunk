@@ -167,7 +167,7 @@ FnPrint("PERFORMING ASSESSMENT.    \n")
 NEA.Mac.ica   <-  FLICA(NEA.Mac,NEA.Mac.tun,NEA.Mac.ctrl)
 
 
-# replace the recruitment value in the last year by the geometric mean of recruitment over the period 1972 to two year before assessment year
+# replace the recruitment value in the last year by the geometric mean of recruitment over the period 1972 to two year before terminal assessment year
 nyears<-dim(NEA.Mac.ica@stock.n)[2]
 NEA.Mac.ica@stock.n[1,nyears]<-prod(NEA.Mac.ica@stock.n[1,1:(nyears-2)])^(1/(nyears-2))
 NEA.Mac.ica@survivors[1,]<-prod(NEA.Mac.ica@stock.n[1,1:(nyears-2)])^(1/(nyears-2)) # do the same for the survivors
