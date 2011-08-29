@@ -1,0 +1,18 @@
+NEA Mackerel 
+1
+./results/NEAMac Assessment-LATON.txt
+./results/NEAMac Assessment-LANUM.txt
+./results/NEAMac Assessment-WELAND.txt
+./results/NEAMac Assessment-WEST.txt
+./results/NEAMac Assessment-NATMOR.txt
+./results/NEAMac Assessment-MATPROP.txt
+./results/NEAMac Assessment-FPROP.txt
+./results/NEAMac Assessment-MPROP.txt
+./results/NEAMac Assessment-F.txt
+./results/NEAMac Assessment-N.txt
+./results/NEAMac Assessment-DISTON.txt
+./results/NEAMac Assessment-DISNUM.txt
+./results/NEAMac Assessment-WEDIS.txt
+./results/NEAMac Assessment-CATON.txt
+./results/NEAMac Assessment-CANUM.txt
+./results/NEAMac Assessment-WECA.txt
