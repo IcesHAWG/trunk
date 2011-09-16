@@ -229,7 +229,7 @@ writeFLStock(NEA.Mac.orig,output.file=output.base)
 # MUST BE UPDATED FOR THE CURRENT YEAR       
 # Current status: NOT FINAL ESTIMATES FOR 2011 
 # see for example section 2.8 short term  prediction inputs
-ImY.catch <- 934567  # estimated catches expected due to TAC, discards, payback, overfishing, unilateral quotas etc.
+ImY.catch <- 927245  # estimated catches expected due to TAC, discards, payback, overfishing, unilateral quotas etc.
 # see table in text of section 2.8
 #ImY.TAC <- 929002
 # to be checked from NEAFC and Coatal states agreement (not EU TAC regulations whicvh is only part of this
