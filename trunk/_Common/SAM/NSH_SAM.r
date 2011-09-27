@@ -78,6 +78,7 @@ tun[["MLAI"]]@index[,"2010"] <- NA
 wkdir <- file.path(".","run")
 write.ADMB.dat(stck,tun,file.path(wkdir,"ssass.dat"))
 write.ADMB.cfg(ctrl,file.path(wkdir,"model.cfg"))
+write.ADMB.init(ctrl,file.path(wkdir,"model.init"))
 
 #Run the assessment
 olddir <- setwd(wkdir)

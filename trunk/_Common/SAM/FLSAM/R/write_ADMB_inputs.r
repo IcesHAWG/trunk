@@ -90,6 +90,19 @@ write.ADMB.cfg <- function(ctrl,file="") {
 
 }
 
+write.ADMB.init <- function(ctrl,file="") {
+  # Now write the file!
+  cat("# Auto generated file\n", file=file)
+  cat(sprintf("# Datetime : %s\n\n",Sys.time()),file=file,append=TRUE)
+
+  cat("#varLogFsta\n 0.5\n",file=file,append=TRUE)
+  cat("#varLogN\n0.5 \n",file=file,append=TRUE)
+  cat("#varLogObs \n 0.5\n",file=file,append=TRUE)
+  cat("#logFpar \n, 0.3 \n",file=file,append=TRUE)
+  cat("#rec_loga \n, 1 \n",file=file,append=TRUE)
+  cat("#rec_logb \n, -12 \n",file=file,append=TRUE)
+}
+
 .format.matrix.ADMB <- function(mat,na.replace="missing") {
                   if(na.replace!="missing") {mat[is.na(mat)] <- na.replace}
                   colnames(mat)[1] <- paste("#",colnames(mat)[1])
