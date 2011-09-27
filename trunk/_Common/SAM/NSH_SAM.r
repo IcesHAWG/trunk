@@ -28,12 +28,12 @@ options(stringsAsFactors=FALSE)
 FnPrint     <-  function(string) {
 	cat(string)
 }
-FnPrint("\nNSH SAM Assessment Wrapper\n=====================\n")
+FnPrint("\nNSH SAM Assessment Wrapper\n==========================\n")
 
 ### ======================================================================================================
 ### Import externals
 ### ======================================================================================================
-library(FLCore);library(FLAssess)
+library(FLCore);
 #Load NSH assessessment objects
 load(file.path("..","..","NSAS","results","NSH Assessment Assessment.RData"))
 
@@ -58,9 +58,9 @@ NSH.ctrl@catchabilities["IBTS-Q1",ac(1:5)] <- 6:10
 NSH.ctrl@catchabilities["IBTS0","0"] <- 11
 #Observation model parameters
 NSH.ctrl@obs.vars["catch",] <- c(1,rep(2,9))
-NSH.ctrl@obs.vars["HERAS",ac(1:9)] <- 3
-NSH.ctrl@obs.vars["IBTS-Q1",ac(1:5)] <- 4
-NSH.ctrl@obs.vars["MLAI","0"] <- 5
+NSH.ctrl@obs.vars["IBTS0",] <- 5
+NSH.ctrl@obs.vars["IBTS-Q1",] <- 4
+NSH.ctrl@obs.vars["HERAS",] <- 3
 
 ### ======================================================================================================
 ### Run the assessment
@@ -69,11 +69,34 @@ stck <- NSH
 tun  <- NSH.tun
 ctrl <- NSH.ctrl
 
+#Remove 2010 data to be fully comparable with development version
+stck@catch.n[,"2010"] <- NA
+tun[["HERAS"]]@index[,"2010"] <- NA
+tun[["MLAI"]]@index[,"2010"] <- NA
+
 #Write configuration file
-write.ADMB.dat(stck,tun,file.path(".","run","ssass.dat"))
-write.ADMB.cfg(ctrl,file.path(".","run","model.cfg"))
+wkdir <- file.path(".","run")
+write.ADMB.dat(stck,tun,file.path(wkdir,"ssass.dat"))
+write.ADMB.cfg(ctrl,file.path(wkdir,"model.cfg"))
 
 #Run the assessment
+olddir <- setwd(wkdir)
+if(.Platform$OS.type=="windows") {
+  shell("ssass.exe",mustWork=TRUE)
+} else {
+  system("ssass",mustWork=TRUE)
+}
+setwd(olddir)
 
-#Load
+#Load results
+NSH.sam.out <- read.ADMB.outputs(file.path(".","run","ssass"),stck,ctrl)
 
+#Update stock object
+NSH.sam <- NSH + NSH.sam.out
+
+### ======================================================================================================
+### Compare results
+### ======================================================================================================
+stcks <- FLStocks(SAM=NSH.sam,ICA=NSH)
+plot(stcks,key=TRUE)
+save(NSH.sam.out,stcks,file="NSH_sam_assessment.RData")
