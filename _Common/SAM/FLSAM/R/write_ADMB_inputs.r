@@ -4,14 +4,16 @@ write.ADMB.dat<-function(stck,tun, file="",miss.val=-99999){
   fleet.names <- c(catch="catch",sapply(tun,name))
   fleet.types <- factor(sapply(tun,type),levels=c("con","number","biomass"))
   fleet.types <- c(0,as.numeric(fleet.types))
-  samp.times <- c(miss.val,sapply(NSH.tun,function(x) mean(x@range[c("startf","endf")])))
+  names(fleet.types) <- fleet.names
+  samp.times <- c(miss.val,sapply(tun,function(x) mean(x@range[c("startf","endf")])))
   samp.times <- ifelse(is.na(samp.times),miss.val,samp.times)
-  yrs <- seq(NSH@range["minyear"],NSH@range["maxyear"])
+  names(samp.times) <- fleet.names
+  yrs <- seq(stck@range["minyear"],stck@range["maxyear"])
   nyrs <- length(yrs)
 
   #Generate observation matrix
-  obs.dat <- as.data.frame(lapply(NSH.tun,index))
-  obs.dat <- rbind(obs.dat,as.data.frame(FLQuants(catch=NSH@catch.n)))
+  obs.dat <- as.data.frame(lapply(tun,index))
+  obs.dat <- rbind(obs.dat,as.data.frame(FLQuants(catch=stck@catch.n)))
   obs.dat <- subset(obs.dat,obs.dat$year %in% yrs)
   obs.dat$fleet <- as.numeric(factor(obs.dat$qname,levels=fleet.names))
   obs.dat$age[which(fleet.types[obs.dat$fleet]==3)] <- median(as.numeric(obs.dat$age),na.rm=TRUE)   #Set ssb indices equal to median age
@@ -29,8 +31,8 @@ write.ADMB.dat<-function(stck,tun, file="",miss.val=-99999){
 
   #Write meta data
   cat("# Number of fleets (res+con+sur)\n",length(fleet.names),"\n", file=file, append=TRUE)
-  cat("# Fleet types (res=0, con=1, sur=2, ssb=3)\n",fleet.types,"\n", file=file, append=TRUE)
-  cat("# Sample times (only relevent for sur)\n",samp.times,"\n", file=file, append=TRUE)
+  cat("# Fleet types (res=0, con=1, sur=2, ssb=3)\n",.format.matrix.ADMB(t(fleet.types)),file=file, append=TRUE)
+  cat("# Sample times (only relevent for sur)\n",.format.matrix.ADMB(t(samp.times)), file=file, append=TRUE)
   cat("# Number of years\n",nyrs,"\n", file=file, append=TRUE)
   cat("# Years\n",yrs,"\n", file=file, append=TRUE)
   cat("# Number of observations \n",nobs,"\n", file=file, append=TRUE)
@@ -68,15 +70,15 @@ write.ADMB.cfg <- function(ctrl,file="") {
 
   #Write the headers
   cat("# Min, max age represented internally in model \n",ctrl@range[c("min","max")],"\n", file=file, append=TRUE)
-  cat("# Max age considered a plus group? (0 = No, 1= Yes)\n",as.numeric(NSH.ctrl@plus.group[1]),"\n", file=file, append=TRUE)
+  cat("# Max age considered a plus group? (0 = No, 1= Yes)\n",as.numeric(ctrl@plus.group[1]),"\n", file=file, append=TRUE)
   
   #Coupling Matrices
-  cat("\n# Coupling of fishing mortality STATES\n",.format.matrix.ADMB(ctrl@states,na.replace=0),file=file,append=TRUE)
-  cat("\n# Coupling of catchability PARAMETERS\n",.format.matrix.ADMB(ctrl@catchabilities,na.replace=0),file=file,append=TRUE)
-  cat("\n# Coupling of power law model EXPONENTS\n",.format.matrix.ADMB(ctrl@power.law.exps,na.replace=0),file=file,append=TRUE)
-  cat("\n# Coupling of fishing mortality RW VARIANCES\n",.format.matrix.ADMB(ctrl@f.vars,na.replace=0),file=file,append=TRUE)
-  cat("\n# Coupling of log N RW VARIANCES\n",ctrl@logN.vars,file=file,append=TRUE)
-  cat("\n\n# Coupling of OBSERVATION VARIANCES\n",.format.matrix.ADMB(ctrl@obs.vars,na.replace=0),file=file,append=TRUE)
+  cat("\n# Coupling of fishing mortality STATES (ctrl@states)\n",.format.matrix.ADMB(ctrl@states,na.replace=0),file=file,append=TRUE)
+  cat("\n# Coupling of catchability PARAMETERS (ctrl@catchabilities)\n",.format.matrix.ADMB(ctrl@catchabilities,na.replace=0),file=file,append=TRUE)
+  cat("\n# Coupling of power law model EXPONENTS (ctrl@power.law.exps)\n",.format.matrix.ADMB(ctrl@power.law.exps,na.replace=0),file=file,append=TRUE)
+  cat("\n# Coupling of fishing mortality RW VARIANCES (ctrl@f.vars)\n",.format.matrix.ADMB(ctrl@f.vars,na.replace=0),file=file,append=TRUE)
+  cat("\n# Coupling of log N RW VARIANCES (ctrl@logN.vars)\n",ctrl@logN.vars,file=file,append=TRUE)
+  cat("\n\n# Coupling of OBSERVATION VARIANCES (ctrl@obs.vars)\n",.format.matrix.ADMB(ctrl@obs.vars,na.replace=0),file=file,append=TRUE)
   
   #Final values
   cat("\n# Stock recruitment model code (0=RW, 1=Ricker, 2=BH, ... more in time\n",ctrl@srr,"\n",file=file,append=TRUE)
