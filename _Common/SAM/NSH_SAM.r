@@ -29,6 +29,8 @@ FnPrint     <-  function(string) {
 	cat(string)
 }
 FnPrint("\nNSH SAM Assessment Wrapper\n==========================\n")
+do.simulate <- FALSE
+if(do.simulate) FnPrint("Simulated run\n")
 
 ### ============================================================================
 ### Import externals
@@ -79,15 +81,18 @@ wkdir <- file.path(".","run")
 write.ADMB.dat(stck,tun,file.path(wkdir,"ssass.dat"))
 write.ADMB.cfg(ctrl,file.path(wkdir,"model.cfg"))
 write.ADMB.init(ctrl,file.path(wkdir,"model.init"))
+write.ADMB.reduced(ctrl,file.path(wkdir,"model.init"))
 
 #Run the assessment
-#olddir <- setwd(wkdir)
-#if(.Platform$OS.type=="windows") {
-#  shell("ssass.exe",mustWork=TRUE)
-#} else {
-#  system(file.path(".","ssass"))
-#}
-#setwd(olddir)
+if(!do.simulate) {
+  olddir <- setwd(wkdir)
+  if(.Platform$OS.type=="windows") {
+    shell("ssass.exe -nr 2 -noinit -iprint 1",mustWork=TRUE)
+  } else {
+    system(file.path(".","ssass -nr 2 -noinit -iprint 1"))
+  }
+  setwd(olddir)
+}
 
 #Load results
 NSH.sam.out <- read.ADMB.outputs(file.path(".","run","ssass"),stck,ctrl)
@@ -101,5 +106,5 @@ NSH.sam <- NSH + NSH.sam.out
 ### ============================================================================
 ### Compare results
 ### ============================================================================
-save(NSH.sam.out,stcks,file="NSH_sam_assessment.RData")
+save(NSH.sam.out,file="NSH_sam_assessment.RData")
 cat("Complete.\n")
