@@ -101,7 +101,5 @@ NSH.sam <- NSH + NSH.sam.out
 ### ============================================================================
 ### Compare results
 ### ============================================================================
-stcks <- FLStocks(SAM=NSH.sam,ICA=NSH)
-plot(stcks,key=TRUE)
 save(NSH.sam.out,stcks,file="NSH_sam_assessment.RData")
 cat("Complete.\n")
