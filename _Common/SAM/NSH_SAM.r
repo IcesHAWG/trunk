@@ -1,4 +1,4 @@
-######################################################################################################
+################################################################################
 # NSH_SAM Assessment
 #
 # $Rev$
@@ -6,8 +6,8 @@
 #
 # Author: HAWG model devlopment group
 #
-# Acts as a basic wrapper around the SAM framework for use in the assessment of NSAS herring
-# Most of the interfacing is taken care of by the FLR packages
+# Acts as a basic wrapper around the SAM framework for use in the assessment of 
+# NSAS herring. Most of the interfacing is taken care of by the FLR packages
 #
 # Developed with:
 #   - R version 2.8.1
@@ -18,11 +18,11 @@
 #
 # Notes: Have fun running this assessment!
 #
-####################################################################################################
+################################################################################
 
-### ======================================================================================================
+### ============================================================================
 ### Initialise system, including convenience functions and title display
-### ======================================================================================================
+### ============================================================================
 rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 FnPrint     <-  function(string) {
@@ -30,9 +30,9 @@ FnPrint     <-  function(string) {
 }
 FnPrint("\nNSH SAM Assessment Wrapper\n==========================\n")
 
-### ======================================================================================================
+### ============================================================================
 ### Import externals
-### ======================================================================================================
+### ============================================================================
 library(FLCore);
 #Load NSH assessessment objects
 load(file.path("..","..","NSAS","results","NSH Assessment Assessment.RData"))
@@ -42,9 +42,9 @@ FLSAM.dir <- file.path(".","FLSAM")
 FLSAM.r.srcs <- dir(file.path(FLSAM.dir,"R"),pattern="r$|R$",full.names=TRUE)
 dmp <- lapply(FLSAM.r.srcs,source)
 
-### ======================================================================================================
+### ============================================================================
 ### Configure assessment
-### ======================================================================================================
+### ============================================================================
 #Setup configuration
 NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
 #Fishing mortality random walk coupling
@@ -62,14 +62,14 @@ NSH.ctrl@obs.vars["IBTS0",] <- 5
 NSH.ctrl@obs.vars["IBTS-Q1",] <- 4
 NSH.ctrl@obs.vars["HERAS",] <- 3
 
-### ======================================================================================================
+### ============================================================================
 ### Run the assessment
-### ======================================================================================================
+### ============================================================================
 stck <- NSH
 tun  <- NSH.tun
 ctrl <- NSH.ctrl
 
-#Remove 2010 data to be fully comparable with development version
+#Remove 2010 data to be fully comparable with development version (baserun)
 stck@catch.n[,"2010"] <- NA
 tun[["HERAS"]]@index[,"2010"] <- NA
 tun[["MLAI"]]@index[,"2010"] <- NA
@@ -81,13 +81,13 @@ write.ADMB.cfg(ctrl,file.path(wkdir,"model.cfg"))
 write.ADMB.init(ctrl,file.path(wkdir,"model.init"))
 
 #Run the assessment
-olddir <- setwd(wkdir)
-if(.Platform$OS.type=="windows") {
-  shell("ssass.exe",mustWork=TRUE)
-} else {
-  system("ssass",mustWork=TRUE)
-}
-setwd(olddir)
+#olddir <- setwd(wkdir)
+#if(.Platform$OS.type=="windows") {
+#  shell("ssass.exe",mustWork=TRUE)
+#} else {
+#  system(file.path(".","ssass"))
+#}
+#setwd(olddir)
 
 #Load results
 NSH.sam.out <- read.ADMB.outputs(file.path(".","run","ssass"),stck,ctrl)
@@ -95,9 +95,13 @@ NSH.sam.out <- read.ADMB.outputs(file.path(".","run","ssass"),stck,ctrl)
 #Update stock object
 NSH.sam <- NSH + NSH.sam.out
 
-### ======================================================================================================
+#Run diagnostics
+#diagnostics(NSH.sam.out)
+
+### ============================================================================
 ### Compare results
-### ======================================================================================================
+### ============================================================================
 stcks <- FLStocks(SAM=NSH.sam,ICA=NSH)
 plot(stcks,key=TRUE)
 save(NSH.sam.out,stcks,file="NSH_sam_assessment.RData")
+cat("Complete.\n")
