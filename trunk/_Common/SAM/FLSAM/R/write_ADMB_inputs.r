@@ -103,6 +103,23 @@ write.ADMB.init <- function(ctrl,file="") {
   cat("#rec_logb \n, -12 \n",file=file,append=TRUE)
 }
 
+write.ADMB.reduced <- function(ctrl,file="") {
+  # Now write the file!
+  cat("# Auto generated file\n", file=file)
+  cat(sprintf("# Datetime : %s\n\n",Sys.time()),file=file,append=TRUE)
+
+  cat("# This allows to exclude data in ways customized for retrospective runs\n",
+      "# The following specifies one integer for each fleet (catches and surveys)\n",
+      "# if:\n",
+      "#     0: all data for that fleet is used\n",
+      "#    -1: all data for that fleet is excluded\n",
+      "#     n: n is a positive integer the corresponding fleet's data is reduced\n",
+      "#        by n years starting from the most recent year.\n",
+      "0 0 0 0 0\n", file=file,append=TRUE)
+}
+
+
+
 .format.matrix.ADMB <- function(mat,na.replace="missing") {
                   if(na.replace!="missing") {mat[is.na(mat)] <- na.replace}
                   colnames(mat)[1] <- paste("#",colnames(mat)[1])
