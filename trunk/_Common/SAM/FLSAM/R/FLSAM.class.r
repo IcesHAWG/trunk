@@ -29,6 +29,7 @@
 if (!isGeneric("merge")) {
     setGeneric("merge", useAsDefault = merge)
 }
+
 setMethod("merge", signature(x="FLStock", y="FLSAM"),
   function(x, y, ...)
   {
