@@ -41,7 +41,7 @@ load(file.path("..","..","NSAS","results","NSH Assessment Assessment.RData"))
 
 #FLSAM package (uncompiled)
 FLSAM.dir <- file.path(".","FLSAM")
-FLSAM.r.srcs <- dir(file.path(FLSAM.dir,"R"),pattern="r$|R$",full.names=TRUE)
+FLSAM.r.srcs <- dir(file.path(FLSAM.dir,"R"),pattern="r$",full.names=TRUE)
 dmp <- lapply(FLSAM.r.srcs,source)
 
 ### ============================================================================
@@ -81,7 +81,7 @@ wkdir <- file.path(".","run")
 write.ADMB.dat(stck,tun,file.path(wkdir,"ssass.dat"))
 write.ADMB.cfg(ctrl,file.path(wkdir,"model.cfg"))
 write.ADMB.init(ctrl,file.path(wkdir,"model.init"))
-write.ADMB.reduced(ctrl,file.path(wkdir,"model.init"))
+write.ADMB.reduced(ctrl,file.path(wkdir,"reduced.cfg"))
 
 #Run the assessment
 if(!do.simulate) {
@@ -107,4 +107,4 @@ NSH.sam <- NSH + NSH.sam.out
 ### Compare results
 ### ============================================================================
 save(NSH.sam.out,file="NSH_sam_assessment.RData")
-cat("Complete.\n")
+FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
