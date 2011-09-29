@@ -157,7 +157,6 @@ FLSAM <-function(stck,tun,ctrl,run.dir="missing",admb.stem="missing",miss.val=-9
     #Run!
     cmd <- sprintf("cd %s \n %s",run.dir, paste(admb.exec,admb.args))
     rtn <- system(cmd)
-    browser()
    } else {
     cat("Simulated run.\n")
    }
