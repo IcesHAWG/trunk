@@ -33,17 +33,12 @@ FnPrint("\nNSH SAM Assessment Wrapper\n==========================\n")
 ### ============================================================================
 ### Import externals
 ### ============================================================================
-library(FLCore);
+library(FLSAM)
 
-#Load old ICA-based NSH assessessment objects
+#Load old ICA-based NSH assessessment objects from FLSAM package
 #Normally you would use the FLCore functions to read the data
 #files and create the objects. This is just a shortcut to achieve that
-load(file.path(".","FLSAM","data","NSH.ica.RData"))
-
-#Source uncompiled FLSAM package
-FLSAM.dir <- file.path(".","FLSAM")
-FLSAM.r.srcs <- dir(file.path(FLSAM.dir,"R"),pattern="r$",full.names=TRUE)
-dmp <- lapply(FLSAM.r.srcs,source)
+data(NSH)
 
 ### ============================================================================
 ### Configure assessment
@@ -75,19 +70,19 @@ NSH.tun[["MLAI"]]@index[,"2010"] <- NA
 ### Run the assessment
 ### ============================================================================
 #Perform assessment
-NSH.sam.out <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+sam.out <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 
 #Update stock object
-NSH.sam <- NSH + NSH.sam.out
+stck <- NSH + sam.out
 
 ### ============================================================================
 ### Diagnostic plots
 ### ============================================================================
 #Survey fits
-#survey.diagnostics(NSH.sam.out)
+#survey.diagnostics(sam.out)
 
 #Bubble plots - bit rough at moment, but anyway
-res.dat <- NSH.sam.out@residuals
+res.dat <- sam.out@residuals
 res.dat$data <- res.dat$std.res
 p <-bubbles(age~year | fleet,res.dat)
 print(p)
@@ -95,5 +90,5 @@ print(p)
 ### ============================================================================
 ### Compare results
 ### ============================================================================
-save(NSH.sam.out,file="NSH_sam_assessment.RData")
+save(sam.out,file="NSH_sam_assessment.RData")
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))

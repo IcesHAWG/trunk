@@ -12,14 +12,15 @@ More about what it does (maybe more than one line)
 }
 \details{
 \tabular{ll}{
-Package: \tab FLSAM\cr
+Package: \tab test\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
-Date: \tab 2011-03-16\cr
+Date: \tab 2011-09-29\cr
 License: \tab What license is it under?\cr
 LazyLoad: \tab yes\cr
 }
-~~ An overview of how to use the package, including the most important functions ~~
+~~ An overview of how to use the package, including the most important ~~
+~~ functions ~~
 }
 \author{
 Who wrote it
@@ -30,8 +31,10 @@ Maintainer: Who to complain to <yourfault@somewhere.net>
 \references{
 ~~ Literature or other references for background information ~~
 }
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R documentation directory ~~
-\keyword{ package }
+\keyword{ package 
+~~ Optionally other standard keywords, one per line, from file KEYWORDS in ~~
+~~ the R documentation directory ~~
+}
 \seealso{
 ~~ Optional links to other man pages, e.g. ~~
 ~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
