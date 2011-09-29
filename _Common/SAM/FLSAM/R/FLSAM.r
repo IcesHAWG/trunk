@@ -3,7 +3,7 @@ FLSAM <-function(stck,tun,ctrl,run.dir="missing",admb.stem="missing",miss.val=-9
   # Setup for output
   #---------------------------------------------------
   #General Setup
-  if(missing(run.dir)) {run.dir <- file.path(".","run") }
+  if(missing(run.dir)) {run.dir <- tempdir() }
   if(missing(admb.stem)) {admb.stem <- "ssass" }
   run.time <- Sys.time()
 
@@ -141,25 +141,54 @@ FLSAM <-function(stck,tun,ctrl,run.dir="missing",admb.stem="missing",miss.val=-9
   if(!ctrl@simulate) {
     admb.args <-  "-nr 2 -noinit -iprint 1"
     #Platform specific issues
+<<<<<<< .mine
+    if (R.version$os=="linux-gnu") {
+      exec <- file.path(system.file("bin", "linux", package="FLSAM", mustWork=TRUE),
+        admb.stem, sep="/")
+      file.copy(exec, run.dir)
+    } else if (R.verison$os == "windows") {
+      exec <- file.path(system.file("bin", "windows", package="FLSAM", mustWork=TRUE),
+        sprintf("%s.exe",admb.stem))
+      file.copy(exec, run.dir)
+=======
     if(.Platform$OS.type=="windows") {
       admb.exec <- sprintf("%s.exe",admb.stem)
       cmd <- paste(admb.exec,admb.args)
     } else if(.Platform$OS.type=="unix") {
       admb.exec <- admb.stem
       cmd <- sprintf("./%s %s",admb.exec,admb.args)
+>>>>>>> .r514
     } else {
-      stop(sprintf("Platform type, %s, is not currently supported.",.Platform$OS.type))
+      stop(sprintf("Platform type, %s, is not currently supported.",R.version$os))
     }
+<<<<<<< .mine
+=======
 
     #Check file exists
     if(!file.exists(file.path(run.dir,admb.exec))) {
       stop(sprintf("Cannot find the ADMB executable (%s/%s): have you compiled the tpl?",
             run.dir,admb.exec))
     }
+>>>>>>> .r514
 
+<<<<<<< .mine
+    #Run!
+    cmd <- sprintf("./%s -nr 2 -noinit -iprint 1" ,admb.exec)
+    olddir <- setwd(run.dir)
+=======
     #Now run!
     olddir <- setwd(run.dir)
+>>>>>>> .r514
     rtn <- system(cmd)
+<<<<<<< .mine
+    setwd(olddir)
+    if(rtn!=0) {
+      stop(sprintf("An error occurred while running ADMB. Return code %s.",rtn))
+    }
+   } else {
+    cat("Simulated run.\n")
+   }
+=======
     setwd(olddir)
     if(rtn!=0) {
       stop(sprintf("An error occurred while running ADMB. Return code %s.",rtn))
@@ -167,6 +196,7 @@ FLSAM <-function(stck,tun,ctrl,run.dir="missing",admb.stem="missing",miss.val=-9
   } else {
      cat("Simulated run.\n")
   }
+>>>>>>> .r514
 
   #---------------------------------------------------
   # Now read the results from the assessment
