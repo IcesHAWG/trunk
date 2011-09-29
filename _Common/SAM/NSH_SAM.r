@@ -76,7 +76,7 @@ sam.out <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 stck <- NSH + sam.out
 
 ### ============================================================================
-### Diagnostic plots
+### Plots
 ### ============================================================================
 #Survey fits
 #survey.diagnostics(sam.out)
@@ -86,6 +86,9 @@ res.dat <- sam.out@residuals
 res.dat$data <- res.dat$std.res
 p <-bubbles(age~year | fleet,res.dat)
 print(p)
+
+#Plot result
+plot(stck)
 
 ### ============================================================================
 ### Compare results
