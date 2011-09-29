@@ -1,9 +1,12 @@
   setClass("FLSAM",
   	representation(
+      name     = "character",
+      desc     = "character",
       nopar    = "integer",
       nlogl    = "numeric",
       maxgrad  = "numeric",
       logDetHess = "numeric",
+      params   = "data.frame",
       ssb      = "data.frame",
       fbar     = "data.frame",
       tsb      = "data.frame",
@@ -26,8 +29,8 @@
 ### Methods #############################################################
 # merge {{{
 # merge results from FLAssess into FLStock
-if (!isGeneric("merge")) {
-    setGeneric("merge", useAsDefault = merge)
+if (!isGeneric("merge",where=".GlobalEnv")) {
+    setGeneric("merge", useAsDefault=merge)
 }
 
 setMethod("merge", signature(x="FLStock", y="FLSAM"),

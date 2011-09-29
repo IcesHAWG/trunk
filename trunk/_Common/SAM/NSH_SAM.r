@@ -29,8 +29,6 @@ FnPrint     <-  function(string) {
 	cat(string)
 }
 FnPrint("\nNSH SAM Assessment Wrapper\n==========================\n")
-do.simulate <- FALSE
-if(do.simulate) FnPrint("Simulated run\n")
 
 ### ============================================================================
 ### Import externals
@@ -55,53 +53,42 @@ NSH.ctrl@f.vars["catch",] <- 1                          #All have the same varia
 #Log N random walk variances
 NSH.ctrl@logN.vars <- c(1,rep(2,9))
 #Catchability models
-NSH.ctrl@catchabilities["HERAS",ac(1:9)] <- c(1:4, rep(5,5))    #Set linear catchability model
-NSH.ctrl@catchabilities["IBTS-Q1",ac(1:5)] <- 6:10
-NSH.ctrl@catchabilities["IBTS0","0"] <- 11
+NSH.ctrl@catchabilities["IBTS0","0"] <- 1
+NSH.ctrl@catchabilities["IBTS-Q1",ac(1:5)] <- 2:6
+NSH.ctrl@catchabilities["HERAS",ac(1:9)] <- c(7:10, rep(11,5))    #Set linear catchability model
 #Observation model parameters
 NSH.ctrl@obs.vars["catch",] <- c(1,rep(2,9))
-NSH.ctrl@obs.vars["IBTS0",] <- 5
+NSH.ctrl@obs.vars["IBTS0",] <- 3
 NSH.ctrl@obs.vars["IBTS-Q1",] <- 4
-NSH.ctrl@obs.vars["HERAS",] <- 3
+NSH.ctrl@obs.vars["HERAS",] <- 5
+
+#Remove 2010 data to be fully comparable with development version (baserun)
+NSH@catch.n[,"2010"] <- NA
+NSH.tun[["HERAS"]]@index[,"2010"] <- NA
+NSH.tun[["MLAI"]]@index[,"2010"] <- NA
 
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
-stck <- NSH
-tun  <- NSH.tun
-ctrl <- NSH.ctrl
+#NSH.ctrl@simulate <- TRUE
 
-#Remove 2010 data to be fully comparable with development version (baserun)
-stck@catch.n[,"2010"] <- NA
-tun[["HERAS"]]@index[,"2010"] <- NA
-tun[["MLAI"]]@index[,"2010"] <- NA
-
-#Write configuration file
-wkdir <- file.path(".","run")
-write.ADMB.dat(stck,tun,file.path(wkdir,"ssass.dat"))
-write.ADMB.cfg(ctrl,file.path(wkdir,"model.cfg"))
-write.ADMB.init(ctrl,file.path(wkdir,"model.init"))
-write.ADMB.reduced(ctrl,file.path(wkdir,"reduced.cfg"))
-
-#Run the assessment
-if(!do.simulate) {
-  olddir <- setwd(wkdir)
-  if(.Platform$OS.type=="windows") {
-    shell("ssass.exe -nr 2 -noinit -iprint 1",mustWork=TRUE)
-  } else {
-    system(file.path(".","ssass -nr 2 -noinit -iprint 1"))
-  }
-  setwd(olddir)
-}
-
-#Load results
-NSH.sam.out <- read.ADMB.outputs(file.path(".","run","ssass"),stck,ctrl)
+#Perform assessment
+NSH.sam.out <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 
 #Update stock object
 NSH.sam <- NSH + NSH.sam.out
 
-#Run diagnostics
-#diagnostics(NSH.sam.out)
+### ============================================================================
+### Diagnostic plots
+### ============================================================================
+#Survey fits
+#survey.diagnostics(NSH.sam.out)
+
+#Bubble plots
+res.dat <- NSH.sam.out@residuals
+res.dat$data <- res.dat$std.res
+p <-bubbles(age~year | fleet,res.dat)
+print(p)
 
 ### ============================================================================
 ### Compare results
