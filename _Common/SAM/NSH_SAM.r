@@ -34,10 +34,13 @@ FnPrint("\nNSH SAM Assessment Wrapper\n==========================\n")
 ### Import externals
 ### ============================================================================
 library(FLCore);
-#Load NSH assessessment objects
-load(file.path("..","..","NSAS","results","NSH Assessment Assessment.RData"))
 
-#FLSAM package (uncompiled)
+#Load old ICA-based NSH assessessment objects
+#Normally you would use the FLCore functions to read the data
+#files and create the objects. This is just a shortcut to achieve that
+load(file.path(".","FLSAM","data","NSH.ica.RData"))
+
+#Source uncompiled FLSAM package
 FLSAM.dir <- file.path(".","FLSAM")
 FLSAM.r.srcs <- dir(file.path(FLSAM.dir,"R"),pattern="r$",full.names=TRUE)
 dmp <- lapply(FLSAM.r.srcs,source)
@@ -45,8 +48,9 @@ dmp <- lapply(FLSAM.r.srcs,source)
 ### ============================================================================
 ### Configure assessment
 ### ============================================================================
-#Setup configuration
+#Setup configuration - creates an empty control object with appropriate structure
 NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
+
 #Fishing mortality random walk coupling
 NSH.ctrl@states["catch",] <- c(1:5,rep(6,5))            #Couple age 5+ Fs
 NSH.ctrl@f.vars["catch",] <- 1                          #All have the same variance
@@ -70,8 +74,6 @@ NSH.tun[["MLAI"]]@index[,"2010"] <- NA
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
-#NSH.ctrl@simulate <- TRUE
-
 #Perform assessment
 NSH.sam.out <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 
@@ -84,7 +86,7 @@ NSH.sam <- NSH + NSH.sam.out
 #Survey fits
 #survey.diagnostics(NSH.sam.out)
 
-#Bubble plots
+#Bubble plots - bit rough at moment, but anyway
 res.dat <- NSH.sam.out@residuals
 res.dat$data <- res.dat$std.res
 p <-bubbles(age~year | fleet,res.dat)
