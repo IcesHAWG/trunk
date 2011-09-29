@@ -142,11 +142,11 @@ FLSAM <-function(stck,tun,ctrl,run.dir="missing") {
   if(!ctrl@simulate) {
     admb.args <-  "-nr 2 -noinit -iprint 1"
     #Platform specific issues
-    if (R.version$os=="linux-gnu") {
+    if (.Platform$OS.type=="unix") {
       admb.exec <- file.path(system.file("bin", "linux", package="FLSAM", 
                      mustWork=TRUE), admb.stem)
       file.copy(admb.exec, run.dir)
-    } else if (R.verison$os == "windows") {
+    } else if (.Platform$OS.type == "windows") {
       admb.exec <- file.path(system.file("bin", "windows", package="FLSAM", mustWork=TRUE),
         sprintf("%s.exe",admb.stem))
       file.copy(admb.exec, run.dir)

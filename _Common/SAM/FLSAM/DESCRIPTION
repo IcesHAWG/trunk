@@ -3,7 +3,7 @@ Type: Package
 Title: State-space Stock Assessment Model for FLR
 Version: 0.10
 Date: 2011-09-29
-Author: person("M.R.","Payne",email="mpa@aqua.dtu.dk")
+Author: M.R. Payne <mpa@aqua.dtu.dk>
 Maintainer: M.R. Payne <mpa@aqua.dtu.dk>
 Description: FLR wrapper to Anders Nielsens state-space assessment model
 Depends: R(>= 2.10.1), FLCore(>= 2.2)
