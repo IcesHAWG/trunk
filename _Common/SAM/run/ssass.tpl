@@ -286,7 +286,7 @@ PRELIMINARY_CALCS_SECTION
 PROCEDURE_SECTION
   time_t currentTime;
   time(& currentTime);
-  if(difftime(currentTime,StartTime)>1200){ // Terminate after 20 minutes 
+  if(difftime(currentTime,StartTime)>3600){ // Terminate after 60 minutes 
     cout<<endl;
     cout<<"############################################################"<<endl; 
     cout<<"############################################################"<<endl; 
