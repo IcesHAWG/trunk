@@ -139,13 +139,25 @@ FLSAM <-function(stck,tun,ctrl,run.dir="missing",admb.stem="missing",miss.val=-9
   # We're ready! Run the executable
   #---------------------------------------------------
   if(!ctrl@simulate) {
-    olddir <- setwd(run.dir)
+    #Handle platform specific issues
     if(.Platform$OS.type=="windows") {
-      shell("ssass.exe -nr 2 -noinit -iprint 1",mustWork=TRUE)
+      admb.exec <- sprintf("%s.exe",admb.stem)
+    } else if(.Platform$OS.type=="unix") {
+      admb.exec <- sprintf("./%s",admb.stem) 
     } else {
-      system(file.path(".","ssass -nr 2 -noinit -iprint 1"))
+      stop(sprintf("Platform type, %s, is not currently supported.",.Platform$OS.type))
     }
-    setwd(olddir)
+    admb.args <-  "-nr 2 -noinit -iprint 1"
+    
+    #Check executable exists    
+    if(!file.exists(file.path(run.dir,admb.exec))) {
+      stop(sprintf("Cannot find ADMB executable (%s): have you compiled the tpl?",admb.exec))
+    }
+
+    #Run!
+    cmd <- sprintf("cd %s \n %s",run.dir, paste(admb.exec,admb.args))
+    rtn <- system(cmd)
+    browser()
    } else {
     cat("Simulated run.\n")
    }
