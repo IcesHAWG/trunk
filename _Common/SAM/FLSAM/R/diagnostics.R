@@ -12,10 +12,10 @@
 #  {
 
 #Load external data sources etc
-library(FLCore)
-source("FLSAM.class.r")
-source("FLSAM.control.r")
-load(file.path("..","data","NSH.sam.RData"))
-x <- NSH.sam.out
+#library(FLCore)
+#source("FLSAM.class.r")
+#source("FLSAM.control.r")
+#load(file.path("..","data","NSH.sam.RData"))
+#x <- NSH.sam.out
 
 #Your plots, start here!
