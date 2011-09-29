@@ -139,27 +139,34 @@ FLSAM <-function(stck,tun,ctrl,run.dir="missing",admb.stem="missing",miss.val=-9
   # We're ready! Run the executable
   #---------------------------------------------------
   if(!ctrl@simulate) {
-    #Handle platform specific issues
+    admb.args <-  "-nr 2 -noinit -iprint 1"
+    #Platform specific issues
     if(.Platform$OS.type=="windows") {
       admb.exec <- sprintf("%s.exe",admb.stem)
+      cmd <- paste(admb.exec,admb.args)
     } else if(.Platform$OS.type=="unix") {
-      admb.exec <- sprintf("./%s",admb.stem) 
+      admb.exec <- admb.stem
+      cmd <- sprintf("./%s %s",admb.exec,admb.args)
     } else {
       stop(sprintf("Platform type, %s, is not currently supported.",.Platform$OS.type))
     }
-    admb.args <-  "-nr 2 -noinit -iprint 1"
-    
-    #Check executable exists    
+
+    #Check file exists
     if(!file.exists(file.path(run.dir,admb.exec))) {
-      stop(sprintf("Cannot find ADMB executable (%s): have you compiled the tpl?",admb.exec))
+      stop(sprintf("Cannot find the ADMB executable (%s/%s): have you compiled the tpl?",
+            run.dir,admb.exec))
     }
 
-    #Run!
-    cmd <- sprintf("cd %s \n %s",run.dir, paste(admb.exec,admb.args))
+    #Now run!
+    olddir <- setwd(run.dir)
     rtn <- system(cmd)
-   } else {
-    cat("Simulated run.\n")
-   }
+    setwd(olddir)
+    if(rtn!=0) {
+      stop(sprintf("An error occurred while running ADMB. Return code %s.",rtn))
+    }
+  } else {
+     cat("Simulated run.\n")
+  }
 
   #---------------------------------------------------
   # Now read the results from the assessment
