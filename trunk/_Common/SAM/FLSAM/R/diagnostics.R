@@ -1,3 +1,5 @@
+#Currently under development by Sussan Lusseau
+
 ### Methods #############################################################
 # diagnostics {{{
 # prepare diagnostic plots from a FLSAM object
@@ -13,8 +15,7 @@
 library(FLCore)
 source("FLSAM.class.r")
 source("FLSAM.control.r")
-load(file.path("..","data","NSH.RData"))
+load(file.path("..","data","NSH.sam.RData"))
 x <- NSH.sam.out
 
 #Your plots, start here!
-#Note that the FLSAM object should be called "x"
