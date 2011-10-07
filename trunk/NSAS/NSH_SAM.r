@@ -10,9 +10,8 @@
 # NSAS herring. Most of the interfacing is taken care of by the FLR packages
 #
 # Developed with:
-#   - R version 2.8.1
-#   - FLCore 2.2
-#   - FLAssess, version 1.99-102
+#   - R version 2.13.1
+#   - FLCore 2.4
 #
 # To be done:
 #
@@ -70,10 +69,10 @@ NSH.tun[["MLAI"]]@index[,"2010"] <- NA
 ### Run the assessment
 ### ============================================================================
 #Perform assessment
-sam.out <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 
 #Update stock object
-stck <- NSH + sam.out
+NSH.sam.ass <- NSH + NSH.sam
 
 ### ============================================================================
 ### Plots
@@ -82,16 +81,16 @@ stck <- NSH + sam.out
 #survey.diagnostics(sam.out)
 
 #Bubble plots - bit rough at moment, but anyway
-res.dat <- sam.out@residuals
+res.dat <- NSH.sam@residuals
 res.dat$data <- res.dat$std.res
 p <-bubbles(age~year | fleet,res.dat)
 print(p)
 
 #Plot result
-plot(stck)
+plot(NSH.sam.ass)
 
 ### ============================================================================
 ### Compare results
 ### ============================================================================
-save(sam.out,file="NSH_sam_assessment.RData")
+save(NSH.sam,NSH.ctrl,NSH.sam.ass,file="NSH.sam.RData")
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
