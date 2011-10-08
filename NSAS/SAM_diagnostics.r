@@ -44,7 +44,7 @@ x <- NSH.sam
   ## Work on working title for plots (ttl)
   ## In legend for plot 1, how to fill in symbol?
   ## Legend intrudes on several plot 1's
-  ## Need to get rid of windows() in line 83
+  ## Need to get rid of windows() in line 83- DONE - MPA
   #######################################################################
 
 
@@ -91,7 +91,6 @@ x <- NSH.sam
 
 
 #Setup plots
-  windows()
   par(mfrow=c(3,2),las=0,oma=c(0,0,3,0),mgp=c(1.75,0.5,0),
                           mar=c(3,3,2.5,1),cex.main=1,tck=-0.01)
 
