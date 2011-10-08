@@ -81,7 +81,7 @@ NSH.sam.ass <- NSH + NSH.sam
 #survey.diagnostics(sam.out)
 
 #Bubble plots - bit rough at moment, but anyway
-res.dat <- NSH.sam@residuals
+res.dat <- residuals(NSH.sam)
 res.dat$data <- res.dat$std.res
 p <-bubbles(age~year | fleet,res.dat)
 print(p)
