@@ -1,5 +1,5 @@
 ################################################################################
-# NSH Scan Age Binding
+# Scan Catchability Binding
 #
 # $Rev$
 # $Date$
@@ -29,38 +29,21 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
 }
-log.msg("\nNSH scan age bindings\n=====================\n")
+log.msg("\nScan Catchability Bindings\n==========================\n")
 
 ### ============================================================================
 ### Import externals
 ### ============================================================================
 log.msg("IMPORTING EXTERNAL RESOURCES...\n")
 library(FLSAM)
-source("NSH_setup_objects.r")
+source("Setup_objects.r")
 
 ### ============================================================================
-### Configure the default assessment
+### Modify the default assessment
 ### ============================================================================
 log.msg("CONFIGURING ASSESSMENT......\n")
-#Setup configuration - creates an empty control object with appropriate structure
-NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
 
-#Fishing mortality random walk coupling
-NSH.ctrl@states["catch",] <- c(1:5,rep(6,5))            #Couple age 5+ Fs
-NSH.ctrl@f.vars["catch",] <- 1                          #All have the same variance
-#Log N random walk variances
-NSH.ctrl@logN.vars <- c(1,rep(2,9))
-#Catchability models
-NSH.ctrl@catchabilities["IBTS0","0"] <- 1
-NSH.ctrl@catchabilities["IBTS-Q1",ac(1:5)] <- 2:6
-NSH.ctrl@catchabilities["HERAS",ac(1:9)] <- c(7:10, rep(11,5))    #Set linear catchability model
-#Observation model parameters
-NSH.ctrl@obs.vars["catch",] <- c(1,rep(2,9))
-NSH.ctrl@obs.vars["IBTS0",] <- 3
-NSH.ctrl@obs.vars["IBTS-Q1",] <- 4
-NSH.ctrl@obs.vars["HERAS",] <- 5
-
-#Now scan through the HERAS ages, tying them sequentlly together
+#Scan through the HERAS ages, tying them sequentlly together
 HERAS.ctrls <- list()
 for(i in 1:9) {
   ctrl <- NSH.ctrl
@@ -88,7 +71,7 @@ names(IBTS.ctrls) <- sapply(IBTS.ctrls,slot,"name")
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
-#Perform assessment
+#Perform assessments
 HERAS.sams <- lapply(HERAS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 IBTS.sams <- lapply(IBTS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 
@@ -99,18 +82,24 @@ IBTS.sams <- lapply(IBTS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 HERAS <- HERAS.sams[!sapply(HERAS.sams,is.null)]
 IBTS <- IBTS.sams[!sapply(IBTS.sams,is.null)]
 
+#Build stock objects
+HERAS.stcks <- do.call(FLStocks,lapply(HERAS,"+",NSH))
+IBTS.stcks <- do.call(FLStocks,lapply(IBTS,"+",NSH))
+
 #Extract AICs
 HERAS.AICs <- sapply(HERAS,AIC)
 IBTS.AICs  <- sapply(IBTS,AIC)
 
 #Plot
-pdf("AICs.pdf")
+pdf(file.path(resdir,"Catchability_scan.pdf"))
 plot(HERAS.AICs,main="HERAS",ylab="AIC")
+plot(HERAS.stcks,main="HERAS obs var scan")
 plot(IBTS.AICs,main="IBTS",ylab="AIC")
+plot(IBTS.stcks,main="IBTS obs var scan")
 dev.off()
 
 ### ============================================================================
 ### Compare results
 ### ============================================================================
-save(HERAS.sams,IBTS.sams,file="NSH_catchability_scan.RData")
-FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
+save(HERAS.sams,IBTS.sams,file=file.path(resdir,"Catchability_scan.RData"))
+log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
