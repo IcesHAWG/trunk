@@ -70,20 +70,47 @@ for(i in 1:9) {
   ctrl@desc <- sprintf("Age %i+ catchabilities bound together",i)
   HERAS.ctrls[[i]] <- ctrl
 }
-stop()
+names(HERAS.ctrls) <- sapply(HERAS.ctrls,slot,"name")
+
+#And ditto for the IBTS ages
+IBTS.ctrls <- list()
+for(i in 1:5) {
+  ctrl <- NSH.ctrl
+  ctrl@catchabilities["IBTS-Q1",ac(1:5)] <- 2:6
+  ctrl@catchabilities["IBTS-Q1",ac(i:5)] <- 1+i
+  ctrl@catchabilities["HERAS",ac(1:9)] <- 1+i+c(1:4, rep(5,5))
+  ctrl@name <- ac(i)
+  ctrl@desc <- sprintf("Age %i+ catchabilities bound together",i)
+  IBTS.ctrls[[i]] <- ctrl
+}
+names(IBTS.ctrls) <- sapply(IBTS.ctrls,slot,"name")
+
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
 #Perform assessment
 HERAS.sams <- lapply(HERAS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
+IBTS.sams <- lapply(IBTS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 
 ### ============================================================================
 ### Analyse the results
 ### ============================================================================
+#Drop any that failed to converge
+HERAS <- HERAS.sams[!sapply(HERAS.sams,is.null)]
+IBTS <- IBTS.sams[!sapply(IBTS.sams,is.null)]
 
+#Extract AICs
+HERAS.AICs <- sapply(HERAS,AIC)
+IBTS.AICs  <- sapply(IBTS,AIC)
+
+#Plot
+pdf("AICs.pdf")
+plot(HERAS.AICs,main="HERAS",ylab="AIC")
+plot(IBTS.AICs,main="IBTS",ylab="AIC")
+dev.off()
 
 ### ============================================================================
 ### Compare results
 ### ============================================================================
-save(HERAS.sams,file="HERAS_age_scan.RData")
+save(HERAS.sams,IBTS.sams,file="NSH_catchability_scan.RData")
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
