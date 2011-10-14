@@ -64,18 +64,18 @@ NSH.ctrl@obs.vars["HERAS",] <- 5
 HERAS.ctrls <- list()
 for(i in 1:9) {
   ctrl <- NSH.ctrl
-  ctrl@catchabilities["HERAS",ac(1:9)] <- 7
+  ctrl@catchabilities["HERAS",ac(1:9)] <- 7:15
   ctrl@catchabilities["HERAS",ac(i:9)] <- 6+i
   ctrl@name <- ac(i)
   ctrl@desc <- sprintf("Age %i+ catchabilities bound together",i)
   HERAS.ctrls[[i]] <- ctrl
 }
-
+stop()
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
 #Perform assessment
-HERAS.sams <- lapply(HERAS.ctrls,FLSAM,stck=NSH,tun=NSH.tun)
+HERAS.sams <- lapply(HERAS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 
 ### ============================================================================
 ### Analyse the results
