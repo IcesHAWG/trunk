@@ -27,7 +27,7 @@ log.msg     <-  function(string) {
 	cat(string);
  flush.console()
 }
-log.msg("\nNSH SAM Diagnostics developemtn\n==========================\n")
+log.msg("\nNSH SAM Diagnostics development\n==========================\n")
 
 ### ============================================================================
 ### Import externals
@@ -39,12 +39,11 @@ x <- NSH.sam
   #######################################################################
   ## Need to do:
   ##
-  ## Find out how to use expression() to superscript in the labels
-  ## Find nicer way to do x axis in plot 1,3,5
+  ## Incorporate catch residuals
+  ## Add smoother to plot d
   ## Work on working title for plots (ttl)
-  ## In legend for plot 1, how to fill in symbol?
-  ## Legend intrudes on several plot 1's
-  ## Need to get rid of windows() in line 83- DONE - MPA
+  ## Find nicer way to do x axis in plot a,c,e 
+  ## Legend intrudes on several plot a's 
   #######################################################################
 
 
@@ -62,7 +61,11 @@ x <- NSH.sam
   index.res.l   <-  split(index.res,list(index.res$age,index.res$fleet),drop=TRUE)
 
 
-# Run through each combination of survey and age
+#Setup plots
+oldpar <-  par(mfrow=c(3,2),las=0,oma=c(0,0,3,0),mgp=c(1.75,0.5,0),
+                          mar=c(3,3,2.5,1),cex.main=1,tck=-0.01)
+
+# Run through each combination of survey and age                                                                         
 
   for (i in 1:length(index.res.l)){
 
@@ -90,25 +93,23 @@ x <- NSH.sam
   res.lim       <- c(-max(res.range),max(res.range))
 
 
-#Setup plots
-  par(mfrow=c(3,2),las=0,oma=c(0,0,3,0),mgp=c(1.75,0.5,0),
-                          mar=c(3,3,2.5,1),cex.main=1,tck=-0.01)
-
 
 #plot 1 obs and mdl index time series plotted on a log scale
 
-  plot(obs ~ year, index.res.l[[i]], log="y",ylim=idx.lim,xlab="Year", ylab=idx.label,pch=21,bg="black")
+  plot(obs ~ year, index.res.l[[i]], log="y",ylim=idx.lim,xlab="Year", ylab=idx.label,pch=16)
   points(mdl ~ year, index.res.l[[i]],pch=4)
   points(mdl ~ year, index.res.l[[i]],type="l")
-  legend("topleft",c("Observed","Fitted"),pch=c(21,4),lty=c(NA,1),horiz=TRUE)
+  legend("topleft",c("Observed","Fitted"),pch=c(16,4),lty=c(NA,1),horiz=TRUE)
   title("a) Observed and fitted index time series")
 
 
 # plot 2 observed against modelled directly, both axes log scale.
 
-  plot(obs~mdl,index.res.l[[i]],log="xy",ylim=idx.lim,xlim=idx.lim,pch=21,
-                      bg="black",ylab=paste("Observed ",idx.label,sep=""),
+  plot(obs~mdl,index.res.l[[i]],log="xy",ylim=idx.lim,xlim=idx.lim,pch=16,
+                      ylab=paste("Observed ",idx.label,sep=""),
                       xlab=paste("Fitted ",idx.label,sep=""))
+  abline(0,1,col="black")                    
+  legend("topleft","1:1 line",lty=1,horiz=TRUE)
   title("b) Observed vs fitted values")
 
 
@@ -121,23 +122,40 @@ x <- NSH.sam
   title("c) Standardised residuals over time")
 
 
-# Plot 4   Standardised residuals vs Fitted index values, x-axis is log scaled
+# Plot 4   Tukey-Anscombe plot, Standardised residuals vs Fitted index values, x-axis is log scaled
 
   plot(std.res ~mdl, index.res.l[[i]], ylab="Standardised Residuals", ylim=res.lim, xlim=idx.lim,
         xlab=paste("Fitted ",idx.label,sep=""),log="x")
         points(std.res ~mdl, index.res.l[[i]], pch=19,cex=0.75)
         abline(h=0)
 
-  title("d) Index residuals vs fitted index values")
+  title("d) Tukey-Anscombe plot")
 
 
 #plot 5 Normal Q-Q plot
 
-  qqnorm(index.res.l[[i]]$std.res,ylim=res.lim,xlab="Normal Quantiles",ylab="Standardised Residuals",pch=19,main="")
+  qqnorm(index.res.l[[i]]$std.res,ylim=res.lim,xlab="Quantiles of the Normal Distribution",ylab="Standardised Residuals",pch=19,main="")
+  qqline(index.res.l[[i]]$std.res,col="red")
   title("e) Normal Q-Q plot")
+
+#Plot 6 Autocorrelation function plot
+  
+        acf(as.ts(index.res.l[[i]]$std.res),ylab="ACF",xlab="Lag (yrs)",type=c("partial"),
+        ci.col="black",main="")
+        legend("topright",legend=c("95% Conf. Int."),lty=c(2),pch=c(NA),horiz=TRUE,box.lty=0)
+  
+  title("f) Autocorrelation of Residuals")  
+
 
   # Add a main titel to the plots with Survey and age information
   title(main=ttl,outer=TRUE)
 
+
   }
+
+### ============================================================================
+### Finishing up
+### ============================================================================
+
+  par(oldpar)
 
