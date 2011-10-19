@@ -39,9 +39,7 @@ x <- NSH.sam
   #######################################################################
   ## Need to do:
   ##
-  ## Incorporate catch residuals
   ## Add smoother to plot d
-  ## Work on working title for plots (ttl)
   ## Find nicer way to do x axis in plot a,c,e 
   ## Legend intrudes on several plot a's 
   #######################################################################
@@ -49,7 +47,7 @@ x <- NSH.sam
 
 
 # extracts residuals dataframe from x and drops all rows where fleet is catch
-  index.res <- x@residuals[x@residuals$fleet!="catch",]
+  index.res <- x@residuals
 
 
 # Back transform log transformed observed and modelled to normal space
@@ -58,19 +56,22 @@ x <- NSH.sam
 
 
 # split dataframe by age and survey (fleet)
-  index.res.l   <-  split(index.res,list(index.res$age,index.res$fleet),drop=TRUE)
+  index.res.l   <- split(index.res,list(index.res$age,index.res$fleet),drop=TRUE)
 
 
 #Setup plots
 oldpar <-  par(mfrow=c(3,2),las=0,oma=c(0,0,3,0),mgp=c(1.75,0.5,0),
-                          mar=c(3,3,2.5,1),cex.main=1,tck=-0.01)
+                          mar=c(3,3,2.5,1),cex.main=1,tck=-0.01,ask=TRUE)
 
 # Run through each combination of survey and age                                                                         
 
   for (i in 1:length(index.res.l)){
 
-# create working titel to identify plots with age and survey information
-  ttl <- names(index.res.l[i])
+# create working titel to identify age and survey
+
+  ind.age   <- unlist(strsplit(names(index.res.l[i]), "\\."))
+  ttl <- ifelse(ind.age[2]!="MLAI",paste("Diagnostics ",ind.age[2]," age ",
+                  ind.age[1],sep=""),paste("Diagnostics ",ind.age[2],sep=""))
 
 
 #Scale index axes
@@ -78,7 +79,9 @@ oldpar <-  par(mfrow=c(3,2),las=0,oma=c(0,0,3,0),mgp=c(1.75,0.5,0),
   idx.lim       <-  range(c(0,idx.rng))
   idx.exp       <-  floor(log10(max(pretty(idx.lim)))/3)*3
   idx.div       <-  10^idx.exp
-  idx.label     <-  paste("Index ","[","10^",idx.exp,"]",sep="")
+  idx.label     <-  ifelse(idx.exp>1,paste("values ","[","10^",idx.exp,"]",
+                    sep=""),paste("values "))
+
   index.res.l[[i]]$obs <-  index.res.l[[i]]$obs/idx.div
   index.res.l[[i]]$mdl <-  index.res.l[[i]]$mdl/idx.div
   idx.rng       <-  idx.rng/idx.div
@@ -94,13 +97,14 @@ oldpar <-  par(mfrow=c(3,2),las=0,oma=c(0,0,3,0),mgp=c(1.75,0.5,0),
 
 
 
-#plot 1 obs and mdl index time series plotted on a log scale
+#plot 1 obs and mdl time series plotted on a log scale
 
-  plot(obs ~ year, index.res.l[[i]], log="y",ylim=idx.lim,xlab="Year", ylab=idx.label,pch=16)
+  plot(obs ~ year, index.res.l[[i]], log="y",ylim=idx.lim,xlab="Year", 
+        ylab=idx.label,pch=16)
   points(mdl ~ year, index.res.l[[i]],pch=4)
   points(mdl ~ year, index.res.l[[i]],type="l")
   legend("topleft",c("Observed","Fitted"),pch=c(16,4),lty=c(NA,1),horiz=TRUE)
-  title("a) Observed and fitted index time series")
+  title("a) Observed and fitted values time series")
 
 
 # plot 2 observed against modelled directly, both axes log scale.
@@ -122,7 +126,7 @@ oldpar <-  par(mfrow=c(3,2),las=0,oma=c(0,0,3,0),mgp=c(1.75,0.5,0),
   title("c) Standardised residuals over time")
 
 
-# Plot 4   Tukey-Anscombe plot, Standardised residuals vs Fitted index values, x-axis is log scaled
+# Plot 4 Tukey-Anscombe plot, Standardised residuals vs Fitted values, log x-axis
 
   plot(std.res ~mdl, index.res.l[[i]], ylab="Standardised Residuals", ylim=res.lim, xlim=idx.lim,
         xlab=paste("Fitted ",idx.label,sep=""),log="x")
@@ -134,8 +138,11 @@ oldpar <-  par(mfrow=c(3,2),las=0,oma=c(0,0,3,0),mgp=c(1.75,0.5,0),
 
 #plot 5 Normal Q-Q plot
 
-  qqnorm(index.res.l[[i]]$std.res,ylim=res.lim,xlab="Quantiles of the Normal Distribution",ylab="Standardised Residuals",pch=19,main="")
+  qqnorm(index.res.l[[i]]$std.res,ylim=res.lim,xlab="Quantiles of the Normal Distribution",
+                                    ylab="Standardised Residuals",pch=19,main="")
   qqline(index.res.l[[i]]$std.res,col="red")
+  abline(0,1,lty=2)
+  legend("topleft",c("qqline","1:1 line"),lty=c(1,2),col=c("red","black"),horiz=TRUE)
   title("e) Normal Q-Q plot")
 
 #Plot 6 Autocorrelation function plot
