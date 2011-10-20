@@ -33,6 +33,7 @@ log.msg("\nNSH SAM Assessment\n==========================\n")
 ### ============================================================================
 library(FLSAM)
 source("Setup_objects.r")
+source("Setup_FLSAM_control.r")
 source("SUSAM_diagnostics.r")
 
 ### ============================================================================
@@ -43,7 +44,7 @@ NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 
 #Update stock object
 NSH.sam.ass <- NSH + NSH.sam
-NSH.stocks <- FLStocks(NSH.sam.ass, NSH)
+NSH.stocks <- FLStocks(FLSAM=NSH.sam.ass, FLICA=NSH)
 
 ### ============================================================================
 ### Plots
@@ -51,17 +52,9 @@ NSH.stocks <- FLStocks(NSH.sam.ass, NSH)
 pdf(file.path(resdir,"NSH_SAM_assessment.pdf"))
 
 #Plot result
-print(plot(NSH.sam.ass))
-print(plot(NSH.stocks))
-
-#Survey fits
-residual.diagnostics(NSH.sam)
-
-#Bubble plots - bit rough at moment, but anyway
-res.dat <- residuals(NSH.sam)
-res.dat$data <- res.dat$std.res
-p <-bubbles(age~year | fleet,res.dat)
-print(p)
+NSH.sam@name <- "North Sea Herring FLSAM Assessment"
+print(plot(NSH.sam))
+print(plot(NSH.stocks,key=TRUE,main="Comparison of assessments"))
 
 #Plot catchabilities values
 catch <- catchabilities(NSH.sam)
@@ -79,6 +72,22 @@ print(barchart(exp(value) ~ age | fleet,obv,
        col="grey",ylim=range(pretty(c(0,exp(obv$value)))),
        as.table=TRUE,scale=list(alternating=FALSE),
        main="Observation Variances",ylab="Observation Variances",xlab="Age"))
+
+#Plot selectivity pattern over time
+sel.pat <- merge(as.data.frame(harvest(NSH.sam)),as.data.frame(fbar(NSH.sam)),
+             by="year",suffixes=c(".f",".fbar"))
+sel.pat$sel <- sel.pat$data.f/sel.pat$data.fbar
+print(xyplot(sel ~ year|sprintf("Age %02i",age.f),sel.pat,
+         type="l",as.table=TRUE,
+         main="Selectivity of the Fishery",xlab="Year",ylab="F/Fbar",
+         scale=list(alternating=FALSE)))
+print(xyplot(sel ~ age.f|sprintf("%i's",floor(year/5)*5),sel.pat,
+         groups=year,type="l",as.table=TRUE,
+         scale=list(alternating=FALSE),
+         main="Selectivity of the Fishery by Pentade",xlab="Age",ylab="F/Fbar"))
+
+#Survey fits
+residual.diagnostics(NSH.sam)
 
 ### ============================================================================
 ### Finish

@@ -37,6 +37,7 @@ log.msg("\nScan obs. variance bindings\n===========================\n")
 log.msg("IMPORTING EXTERNAL RESOURCES...\n")
 library(FLSAM)
 source("Setup_objects.r")
+source("Setup_FLSAM_control.r")
 
 ### ============================================================================
 ### Modify the default assessment
