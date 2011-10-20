@@ -90,12 +90,22 @@ IBTS.stcks <- do.call(FLStocks,lapply(IBTS,"+",NSH))
 HERAS.AICs <- sapply(HERAS,AIC)
 IBTS.AICs  <- sapply(IBTS,AIC)
 
+#Extract catchabilities to plot
+HERAS.qs <- do.call(rbind,lapply(HERAS,catchabilities))
+IBTS.qs  <- do.call(rbind,lapply(IBTS,catchabilities)) 
+
 #Plot
 pdf(file.path(resdir,"Catchability_scan.pdf"))
 plot(HERAS.AICs,main="HERAS",ylab="AIC")
-plot(HERAS.stcks,main="HERAS obs var scan")
+plot(HERAS.stcks,main="HERAS catchability scan")
+p<-xyplot(value ~ age,HERAS.qs,subset=fleet=="HERAS",
+      type="l",groups=name)
+print(p)
 plot(IBTS.AICs,main="IBTS",ylab="AIC")
-plot(IBTS.stcks,main="IBTS obs var scan")
+plot(IBTS.stcks,main="IBTS catchability scan")
+p<-xyplot(value ~ age,IBTS.qs,subset=fleet=="IBTS-Q1",
+      type="l",groups=name)
+print(p)
 dev.off()
 
 ### ============================================================================

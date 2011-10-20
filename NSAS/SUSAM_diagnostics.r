@@ -19,22 +19,10 @@
 ################################################################################
 
 ### ============================================================================
-### Initialise system, including convenience functions and title display
-### ============================================================================
-rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
-options(stringsAsFactors=FALSE)
-log.msg     <-  function(string) {
-	cat(string);
- flush.console()
-}
-log.msg("\nNSH SAM Diagnostics development\n==========================\n")
-
-### ============================================================================
 ### Import externals
 ### ============================================================================
 library(FLSAM)
 data(NSH.sam)   #Load result
-x <- NSH.sam
 
   #######################################################################
   ## Need to do:
@@ -45,7 +33,7 @@ x <- NSH.sam
   #######################################################################
 
 
-
+residual.diagnostics <- function(x) {
 # extracts residuals dataframe from x and drops all rows where fleet is catch
   index.res <- x@residuals
 
@@ -61,7 +49,7 @@ x <- NSH.sam
 
 #Setup plots
 oldpar <-  par(mfrow=c(3,2),las=0,oma=c(0,0,3,0),mgp=c(1.75,0.5,0),
-                          mar=c(3,3,2.5,1),cex.main=1,tck=-0.01,ask=TRUE)
+                          mar=c(3,3,2.5,1),cex.main=1,tck=-0.01)
 
 # Run through each combination of survey and age                                                                         
 
@@ -165,4 +153,8 @@ oldpar <-  par(mfrow=c(3,2),las=0,oma=c(0,0,3,0),mgp=c(1.75,0.5,0),
 ### ============================================================================
 
   par(oldpar)
+}
 
+
+#Now run the code
+#residual.diagnostics(NSH.sam)
