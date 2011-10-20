@@ -63,6 +63,23 @@ res.dat$data <- res.dat$std.res
 p <-bubbles(age~year | fleet,res.dat)
 print(p)
 
+#Plot catchabilities values
+catch <- catchabilities(NSH.sam)
+catch$ubn <- catch$value + 1.96*catch$std.dev
+catch$lbn <- catch$value - 1.96*catch$std.dev
+print(xyplot(exp(value)+exp(ubn)+exp(lbn) ~ age | fleet,catch,
+          scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
+          type="l",lwd=c(2,1,1),col=c("black","grey","grey"),
+          subset=fleet %in% c("HERAS","IBTS-Q1"),
+          main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
+
+#Plot obs_variance (weightings)
+obv <- obs.var(NSH.sam)
+print(barchart(exp(value) ~ age | fleet,obv,
+       col="grey",ylim=range(pretty(c(0,exp(obv$value)))),
+       as.table=TRUE,scale=list(alternating=FALSE),
+       main="Observation Variances",ylab="Observation Variances",xlab="Age"))
+
 ### ============================================================================
 ### Finish
 ### ============================================================================
