@@ -36,6 +36,7 @@ source("Setup_objects.r")
 source("Setup_FLSAM_control.r")
 source("SUSAM_diagnostics.r")
 
+
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
@@ -44,7 +45,12 @@ NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 
 #Update stock object
 NSH.sam.ass <- NSH + NSH.sam
-NSH.stocks <- FLStocks(FLSAM=NSH.sam.ass, FLICA=NSH)
+
+#Load ICA assessment
+ICA.env <- new.env()
+NSH.ica <- get(data(NSH,envir=ICA.env),ICA.env)
+rm(ICA.env)
+NSH.stocks <- FLStocks(FLSAM=NSH.sam.ass, FLICA=NSH.ica)
 
 ### ============================================================================
 ### Plots
