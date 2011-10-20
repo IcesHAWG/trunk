@@ -33,6 +33,7 @@ log.msg("\nNSH SAM Assessment\n==========================\n")
 ### ============================================================================
 library(FLSAM)
 source("Setup_objects.r")
+source("SUSAM_diagnostics.r")
 
 ### ============================================================================
 ### Run the assessment
@@ -42,23 +43,25 @@ NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 
 #Update stock object
 NSH.sam.ass <- NSH + NSH.sam
+NSH.stocks <- FLStocks(NSH.sam.ass, NSH)
 
 ### ============================================================================
 ### Plots
 ### ============================================================================
 pdf(file.path(resdir,"NSH_SAM_assessment.pdf"))
 
+#Plot result
+print(plot(NSH.sam.ass))
+print(plot(NSH.stocks))
+
 #Survey fits
-#survey.diagnostics(sam.out)
+residual.diagnostics(NSH.sam)
 
 #Bubble plots - bit rough at moment, but anyway
 res.dat <- residuals(NSH.sam)
 res.dat$data <- res.dat$std.res
 p <-bubbles(age~year | fleet,res.dat)
 print(p)
-
-#Plot result
-plot(NSH.sam.ass)
 
 ### ============================================================================
 ### Finish

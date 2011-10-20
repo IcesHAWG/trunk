@@ -55,11 +55,15 @@ NSH.ctrl@logN.vars <- c(1,rep(2,9))
 #Catchability models
 NSH.ctrl@catchabilities["IBTS0","0"] <- 1
 NSH.ctrl@catchabilities["IBTS-Q1",ac(1:5)] <- 2:6
-NSH.ctrl@catchabilities["HERAS",ac(1:9)] <- c(7:10, rep(11,5))    #Set linear catchability model
+#NSH.ctrl@catchabilities["HERAS",ac(1:9)] <- c(7:10, rep(11,5))    #Set linear catchability model
+NSH.ctrl@catchabilities["HERAS",ac(1:9)] <- 7:15
+#NSH.ctrl@catchabilities["MLAI","6"] <- 16
+#NSH.ctrl@power.law.exps["MLAI","6"] <- 1
 
 #Observation model parameters
 NSH.ctrl@obs.vars["catch",] <- c(1,rep(2,9))
 NSH.ctrl@obs.vars["IBTS0","0"] <- 3
 NSH.ctrl@obs.vars["IBTS-Q1",ac(1:5)] <- 4
 NSH.ctrl@obs.vars["HERAS",ac(1:9)] <- 5
+#NSH.ctrl@obs.vars["MLAI","6"] <- 6
 
