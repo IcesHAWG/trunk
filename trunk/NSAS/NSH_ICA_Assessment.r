@@ -39,22 +39,23 @@ try(setwd(path))
 #in need of something extra
 
 options(stringsAsFactors=FALSE)
-FnPrint     <-  function(string) {
+log.msg     <-  function(string) {
 	cat(string)
 }
-FnPrint("\nNSH FLICA Assessment\n=====================\n")
+log.msg("\nNSH FLICA Assessment\n=====================\n")
 
 ### ======================================================================================================
-### Incorporate Common modules
-### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output
+### Incorporate external sources
+### Uses the common HAWG FLICA Assessment module to do the graphing, diagnostics and output, together with
+### the common NSAS object setups
 ### ======================================================================================================
 source(file.path("..","_Common","HAWG Common assessment module.r"))
+source("Setup_objects.r")
 ### ======================================================================================================
 
 ### ======================================================================================================
 ### Define parameters for use in the assessment code here
 ### ======================================================================================================
-data.source         <-  file.path(".","data")                   #Data source, not code or package source!!!
 output.dir          <-  file.path(".","results")                #Output directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
 n.retro.years       <-  10                                      #Number of years for which to run the retrospective
@@ -71,80 +72,20 @@ trellis.par.set(fontsize=list(text=24,points=20))
 
 ### ======================================================================================================
 ### Prepare control object for assessment
-### We use here two different options - the first is the simpler and more normal:, just setting the control
-### directly in the code. The second is reading in the configuration from a file - this is normally not
-### necessary, but is a handy feature for using the code on stockassessment.org
 ### ======================================================================================================
-FnPrint("PREPARING CONTROL OBJECTS...\n")
-#Set control object straight up (option 1)
-#-----------------------------------------
-
+log.msg("PREPARING CONTROL OBJECTS...\n")
 #Setup FLICA control object
 NSH.ctrl <- FLICA.control(sep.nyr=5, sep.age=4, sep.sel=1.0, sr.age=1, sr=TRUE,
                           lambda.age=c(0.1, 0.1, 3.67, 2.87, 2.23, 1.74, 1.37, 1.04, 0.94, 0.91),
                           lambda.yr=c(1.0, 1.0, 1.0, 1.0, 1.0),
                           lambda.sr=0.1,
-                          index.model=c("l","l","l","p"), index.cor=FALSE)  #index model: Acoustic, IBTS, MIK, MLAI
-### don't forget to reorder the index models too!!                          
-NSH.ctrl@index.model <- rev(NSH.ctrl@index.model)
-
-### ======================================================================================================
-### Prepare stock object for assessment
-### ======================================================================================================
-FnPrint("PREPARING STOCK OBJECT...\n")
-NSH                               <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE)
-
-#- Catch is calculated from: catch.wt * catch.n, however, the reported landings are
-#   normally different (due to SoP corrections). Hence we overwrite the calculate landings
-NSH@catch                         <- NSH@landings
-units(NSH)[1:17]                  <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
-
-#- Set fbar ages
-range(NSH)[c("minfbar","maxfbar")]<- c(2,6)
-
-#- Set stock object name - this is propagated through into the figure titles
-NSH@name                          <- "North Sea Herring"
-
-#- Set plus group
-NSH                               <- setPlusGroup(NSH,NSH@range["max"])
-
-#- No catches of age 10 in 1977 s0 stock.wt does not get filled there.
-#   Hence, we copy the stock weight for that age from the previous year
-NSH@stock.wt[10,"1977"]           <- NSH@stock.wt[10,"1976"]
-
-
-### ======================================================================================================
-### Prepare index object for assessment
-### ======================================================================================================
-FnPrint("PREPARING INDEX OBJECT...\n")
-#Load and modify all index data
-NSH.tun                         <- readFLIndices(file.path(data.source,"/fleet.txt"),file.path(data.source,"/ssb.txt"),type="ICA")
-
-#Set names, and parameters etc
-NSH.tun[[1]]@type               <- "number"
-NSH.tun[[2]]@type               <- "number"
-NSH.tun[[3]]@type               <- "number"
-NSH.tun[[3]]@range["plusgroup"] <- NA
-
-NSH.tun                         <- rev(NSH.tun)
-if (NSH.tun[[1]]@name != "MLAI") print("Error - MLAI not as the first index")
-### give 1/weighting factors as variance
-NSH.tun[[4]]@index.var[]        <- 1.0/FLQuant(c(0.63,0.62,0.17,0.10,0.09,0.08,0.07,0.07,0.05),dimnames=dimnames(NSH.tun[[4]]@index)) #Acoustic
-NSH.tun[[3]]@index.var[]        <- 1.0/FLQuant(c(0.47,0.28,0.01,0.01,0.01),dimnames=dimnames(NSH.tun[[3]]@index)) #IBTS
-NSH.tun[[2]]@index.var[]        <- 1.0/FLQuant(0.63,dimnames=dimnames(NSH.tun[[2]]@index)) #MIK
-NSH.tun[[1]]@index.var[]        <- 1.0/FLQuant(0.60,dimnames=dimnames(NSH.tun[[1]]@index)) #MLAI
-
-#Set names
-NSH.tun[[1]]@name               <- "MLAI"
-NSH.tun[[2]]@name               <- "IBTS0"
-NSH.tun[[3]]@name               <- "IBTS-Q1"
-NSH.tun[[4]]@name               <- "HERAS"
-names(NSH.tun)                  <- lapply(NSH.tun,name)
+                          index.model=c("p","l","l","l"), #index model: MLAI, MIK, IBTS, Acoustic
+                          index.cor=FALSE)
 
 ### ======================================================================================================
 ### Perform the assessment
 ### ======================================================================================================
-FnPrint("PERFORMING ASSESSMENT...\n")
+log.msg("PERFORMING ASSESSMENT...\n")
 #Now perform the asssessment
 NSH.ica                         <-  FLICA(NSH,NSH.tun,NSH.ctrl)
 NSH                             <-  NSH + NSH.ica
@@ -164,7 +105,7 @@ NSH.retro <- do.retrospective.plots(NSH,NSH.tun,NSH.ctrl,4)
 ### ======================================================================================================
 ### Custom plots
 ### ======================================================================================================
-FnPrint("GENERATING CUSTOM PLOTS...\n")
+log.msg("GENERATING CUSTOM PLOTS...\n")
 
 # Plot the mature and immature part of the stock
 mat.immat.ratio(NSH)
@@ -265,7 +206,7 @@ legend("bottomright",c("MIK 0wr vs. IBTS 1wr",paste(range(NSH.tun[[2]])["maxyear
 ### ======================================================================================================
 ### Document Assessment
 ### ======================================================================================================
-FnPrint("GENERATING DOCUMENTATION...\n")
+log.msg("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
 old.opt           <- options("width","scipen")
 options("width"=80,"scipen"=1000)
@@ -284,7 +225,7 @@ writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.sum"),type="ICAsum")
 ### ======================================================================================================
 ### Intermediate year
 ### ======================================================================================================
-FnPrint("PERFORMING INTERMEDIATE YEAR CALCULATION...\n")
+log.msg("PERFORMING INTERMEDIATE YEAR CALCULATION...\n")
 REC               <- NSH.ica@param["Recruitment prediction","Value"]
 TAC               <- 215000 #overshoot = approximately 13% every year + 1000 tons of transfer             #194233 in 2009  #It does not matter what you fill out here as it only computes the suvivors
 NSH.stf           <- FLSTF.control(fbar.min=2,fbar.max=6,nyrs=1,fbar.nyrs=1,f.rescale=TRUE,rec=REC,catch.constraint=TAC)
@@ -330,11 +271,11 @@ write.table(tbl,file=paste(output.base,"Summary Table.txt"),row.names=FALSE,quot
 ### ======================================================================================================
 ### Save workspace and Finish Up
 ### ======================================================================================================
-FnPrint("SAVING WORKSPACES...\n")
+log.msg("SAVING WORKSPACES...\n")
 save(NSH,NSH.stock11,NSH.tun,NSH.ctrl,file=paste(output.base,"Assessment.RData"))
 save.image(file=paste(output.base,"Assessment Workspace.RData"))
 dev.off()
-FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
+log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
 
 ### ======================================================================================================
 ### Create the figures for the advice sheet and the summary table and reference points
