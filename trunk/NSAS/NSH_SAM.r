@@ -31,11 +31,12 @@ log.msg("\nNSH SAM Assessment\n==========================\n")
 ### ============================================================================
 ### Import externals
 ### ============================================================================
+objdir <- file.path(".","objects")
 library(FLSAM)
-source("Setup_objects.r")
-source("Setup_FLSAM_control.r")
+load(file.path(objdir,"NSH.RData"))
+load(file.path(objdir,"NSH.tun.RData"))
+load(file.path(objdir,"NSH.ctrl.RData"))
 source("SUSAM_diagnostics.r")
-
 
 ### ============================================================================
 ### Run the assessment
