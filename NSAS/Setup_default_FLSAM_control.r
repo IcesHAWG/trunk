@@ -21,6 +21,26 @@
 ################################################################################
 
 ### ============================================================================
+### Initialise system, including convenience functions and title display
+### ============================================================================
+rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
+options(stringsAsFactors=FALSE)
+log.msg     <-  function(string) {
+	cat(string);flush.console()
+}
+log.msg("\nSetup FLSAM config\n==================\n")
+
+### ============================================================================
+### Misc
+### ============================================================================
+objdir       <- file.path(".","objects")
+
+#Initialise
+library(FLSAM)
+load(file.path(objdir,"NSH.RData"))
+load(file.path(objdir,"NSH.tun.RData"))
+
+### ============================================================================
 ### Setup default assessment configuration
 ### ============================================================================
 #Setup configuration - creates an empty control object with appropriate structure
@@ -52,3 +72,9 @@ NSH.ctrl@obs.vars["IBTS-Q1",ac(1:5)] <- 12:16
 NSH.ctrl@obs.vars["HERAS",ac(1:9)] <- 17:25
 #NSH.ctrl@obs.vars["MLAI","6"] <- 6
 
+### ============================================================================
+### Save results
+### ============================================================================
+save(NSH.ctrl,file=file.path(".",objdir,"NSH.ctrl.RData"))
+
+log.msg("COMPLETE.\n")

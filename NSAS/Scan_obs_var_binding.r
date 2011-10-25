@@ -36,8 +36,10 @@ log.msg("\nScan obs. variance bindings\n===========================\n")
 ### ============================================================================
 log.msg("IMPORTING EXTERNAL RESOURCES...\n")
 library(FLSAM)
-source("Setup_objects.r")
-source("Setup_FLSAM_control.r")
+objdir <- file.path(".","objects")
+load(file.path(objdir,"NSH.RData"))
+load(file.path(objdir,"NSH.tun.RData"))
+load(file.path(objdir,"NSH.ctrl.RData"))
 
 ### ============================================================================
 ### Modify the default assessment
