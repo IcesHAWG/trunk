@@ -22,23 +22,10 @@
 ################################################################################
 
 ### ============================================================================
-### Initialise system, including convenience functions and title display
-### ============================================================================
-rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
-options(stringsAsFactors=FALSE)
-log.msg     <-  function(string) {
-	cat(string);flush.console()
-}
-log.msg("\nSetup assessment objects\n========================\n")
-
-### ============================================================================
 ### Misc
 ### ============================================================================
-objdir       <- file.path(".","objects")
+resdir       <- file.path(".","results")
 data.source  <-  file.path(".","data")    #Data source, not code or package source!!!
-
-#Initialise
-library(FLCore)
 
 ### ============================================================================
 ### Prepare stock object for assessment
@@ -99,10 +86,3 @@ NSH.tun[["MLAI"]]@index.var[]   <- 1.0/FLQuant(0.60,
 NSH.tun  <- rev(NSH.tun)
 if (NSH.tun[[1]]@name != "MLAI") print("Error - MLAI not as the first index")
 
-### ============================================================================
-### Save results
-### ============================================================================
-save(NSH,file=file.path(".",objdir,"NSH.RData"))
-save(NSH.tun,file=file.path(".",objdir,"NSH.tun.RData"))
-
-log.msg("COMPLETE.\n")
