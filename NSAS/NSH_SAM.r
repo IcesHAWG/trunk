@@ -33,9 +33,7 @@ log.msg("\nNSH SAM Assessment\n==========================\n")
 ### ============================================================================
 library(FLSAM)
 source("Setup_objects.r")
-source("Setup_FLSAM_control.r")
-source("SUSAM_diagnostics.r")
-
+source("Setup_default_FLSAM_control.r")
 
 ### ============================================================================
 ### Run the assessment
