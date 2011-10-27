@@ -30,7 +30,6 @@ data.source  <-  file.path(".","data")    #Data source, not code or package sour
 ### ============================================================================
 ### Prepare stock object for assessment
 ### ============================================================================
-log.msg("PREPARING STOCK OBJECT...\n")
 NSH    <- readFLStock(file.path(data.source, "index.txt"),no.discards=TRUE)
 
 #Catch is calculated from: catch.wt * catch.n, however, the reported landings are
@@ -52,8 +51,6 @@ NSH@stock.wt["9","1977"]           <- NSH@stock.wt["9","1976"]
 ### ============================================================================
 ### Prepare index object for assessment
 ### ============================================================================
-log.msg("PREPARING INDEX OBJECT...\n")
-
 #Load and modify all index data
 NSH.tun   <- readFLIndices(file.path(data.source,"/fleet.txt"),
                            file.path(data.source,"/ssb.txt"),type="ICA")

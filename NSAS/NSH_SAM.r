@@ -81,14 +81,18 @@ print(barchart(exp(value) ~ age | fleet,obv,
 sel.pat <- merge(as.data.frame(harvest(NSH.sam)),as.data.frame(fbar(NSH.sam)),
              by="year",suffixes=c(".f",".fbar"))
 sel.pat$sel <- sel.pat$data.f/sel.pat$data.fbar
-print(xyplot(sel ~ year|sprintf("Age %02i",age.f),sel.pat,
-         type="l",as.table=TRUE,
+print(xyplot(data.f ~ year,sel.pat,groups=sprintf("Age %02i",age.f),
+         type="l",as.table=TRUE,auto.key=list(space="right"),
+         main="Fishing pressure over time",xlab="Year",ylab="F",
+         scale=list(alternating=FALSE)))
+print(xyplot(sel ~ year,sel.pat,groups=sprintf("Age %02i",age.f),
+         type="l",as.table=TRUE,auto.key=list(space="right"),
          main="Selectivity of the Fishery",xlab="Year",ylab="F/Fbar",
          scale=list(alternating=FALSE)))
 print(xyplot(sel ~ age.f|sprintf("%i's",floor(year/5)*5),sel.pat,
          groups=year,type="l",as.table=TRUE,
          scale=list(alternating=FALSE),
-         main="Selectivity of the Fishery by Pentade",xlab="Age",ylab="F/Fbar"))
+         main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar"))
 
 #Survey fits
 residual.diagnostics(NSH.sam)
@@ -97,5 +101,6 @@ residual.diagnostics(NSH.sam)
 ### Finish
 ### ============================================================================
 dev.off()
-save(NSH.sam,NSH.ctrl,NSH.sam.ass,file=file.path(resdir,"NSH.sam.RData"))
+save(NSH,NSH.tun,file=file.path(resdir,"NSH.RData"))
+save(NSH.sam,NSH.ctrl,file=file.path(resdir,"NSH.sam.RData"))
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
