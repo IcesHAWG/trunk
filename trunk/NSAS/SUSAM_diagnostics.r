@@ -29,7 +29,7 @@
   ##
   ## Add smoother to plot d
   ## Find nicer way to do x axis in plot a,c,e 
-  ## Legend intrudes on several plot a's 
+  ## 
   #######################################################################
 
 
