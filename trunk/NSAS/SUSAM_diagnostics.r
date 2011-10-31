@@ -121,6 +121,21 @@ residual.diagnostics <- function(x) {
         abline(h=0)        
   title("d) Tukey-Anscombe plot")
 
+# Add a smoothed line
+  
+  #fitting loess smoother
+  resid.loess   <- loess(std.res ~ mdl,data=index.res.l[[i]])
+  
+  #Range for which the smoother should predict values
+  resid.scale   <-seq(min(index.res.l[[i]]$mdl),max(index.res.l[[i]]$mdl),
+                  (max(index.res.l[[i]]$mdl)-min(index.res.l[[i]]$mdl))/50)
+  
+  #Predict smoothed residuals for chosen set of values 
+  resid.predict <- predict(resid.loess,data.frame(mdl=resid.scale))
+  
+  #draw smooth line on plot
+  lines(resid.predict~resid.scale,col="red")
+
 
 #plot 5 Normal Q-Q plot
 
