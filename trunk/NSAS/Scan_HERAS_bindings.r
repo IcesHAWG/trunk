@@ -1,13 +1,16 @@
 ################################################################################
-# Looi run
+# Scan HERAS bindings
 #
 # $Rev$
 # $Date$
 #
 # Author: HAWG model devlopment group
 #
-# Applies a systematic scan of leave-one-in, leave-one-out and various subsets
-# there of.
+# The FLSAM model has the ability to bind the observation variances (weightings)
+# and catchabilities of age groups together, effectively using one parameter 
+# for many age groups. 
+# The appropriate bindings can be identified by performing a series of assessments 
+# for each combination and then comparing the results using AIC / LR tests.
 #
 # Developed with:
 #   - R version 2.13.2
@@ -27,7 +30,7 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
 }
-log.msg("\nLOOI run\n===========================\n")
+log.msg("\nScan HERAS bindings\n===========================\n")
 
 ### ============================================================================
 ### Import externals
@@ -38,18 +41,50 @@ source("Setup_objects.r")
 source("Setup_default_FLSAM_control.r")
 
 ### ============================================================================
+### Modify the default assessment
+### ============================================================================
+#Now scan through the HERAS ages, tying them sequentlly together
+HERAS.ctrls <- list()
+for(i in 1:9) {
+  ctrl <- NSH.ctrl
+  ctrl@obs.vars["HERAS",ac(i:9)] <- 100
+  ctrl@catchabilities["HERAS",ac(i:9)] <- 100
+  ctrl@name <- sprintf("%i+",i)
+  ctrl@desc <- sprintf("Age %i+ params bound together",i)
+  HERAS.ctrls[[i]] <- update(ctrl)
+}
+names(HERAS.ctrls) <- sapply(HERAS.ctrls,slot,"name")
+
+### ============================================================================
 ### Run the assessment
 ### ============================================================================
 #Perform assessment
-LOI.sams <- looi(NSH,NSH.tun,NSH.ctrl,type="LOI")
-LOO.sams <- looi(NSH,NSH.tun,NSH.ctrl,type="LOO")
+HERAS.sams <- lapply(HERAS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
+
+#Convert to FLSAMs
+HERAS.sams <- do.call(FLSAMs,HERAS.sams)
 
 ### ============================================================================
 ### Analyse the results
 ### ============================================================================
+#Drop any that failed to converge
+HERAS <- HERAS.sams[!sapply(HERAS.sams,is.null)]
+
+#Build stock objects
+HERAS.stcks <- do.call(FLStocks,lapply(HERAS,"+",NSH))
+
+#Extract AICs
+HERAS.AICs  <- sapply(HERAS,AIC)
+
+#Plot
+pdf(file.path(resdir,"HERAS_bindings_scan.pdf"))
+plot(HERAS.AICs,main="HERAS",ylab="AIC")
+plot(HERAS.stcks,main="HERAS bindings scan")
+
+dev.off()
 
 ### ============================================================================
-### Save results
+### Compare results
 ### ============================================================================
-save(LOI.sams,LOO.sams,file=file.path(resdir,"LOOI.sams.RData"))
+save(HERAS.sams,file=file.path(resdir,"HERAS.sams.RData"))
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
