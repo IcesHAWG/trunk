@@ -45,9 +45,7 @@ NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 NSH.sam.ass <- NSH + NSH.sam
 
 #Load ICA assessment
-ICA.env <- new.env()
-NSH.ica <- get(data(NSH,envir=ICA.env),ICA.env)
-rm(ICA.env)
+load(file.path(".","data","NSH.ica.RData"))
 NSH.stocks <- FLStocks(FLSAM=NSH.sam.ass, FLICA=NSH.ica)
 
 ### ============================================================================
