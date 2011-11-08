@@ -59,27 +59,25 @@ names(IBTS.ctrls) <- sapply(IBTS.ctrls,slot,"name")
 ### Run the assessment
 ### ============================================================================
 #Perform assessment
-IBTS.sams <- lapply(IBTS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
+IBTS.res <- lapply(IBTS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 
-#Convert to FLSAMs
-IBTS.sams <- do.call(FLSAMs,IBTS.sams)
+#Drop any that failed to converge, then create an FLSAMs object
+IBTS.sams <- FLSAMs(IBTS.res[!sapply(IBTS.res,is.null)])
 
 ### ============================================================================
 ### Analyse the results
 ### ============================================================================
-#Drop any that failed to converge
-IBTS <- IBTS.sams[!sapply(IBTS.sams,is.null)]
-
 #Build stock objects
-IBTS.stcks <- do.call(FLStocks,lapply(IBTS,"+",NSH))
+IBTS.stcks <- NSH+IBTS.sams
 
 #Extract AICs
-IBTS.AICs  <- sapply(IBTS,AIC)
+IBTS.AICs  <- AIC(IBTS.sams)
 
 #Plot
 pdf(file.path(resdir,"IBTS_bindings_scan.pdf"))
-plot(IBTS.AICs,main="IBTS",ylab="AIC")
-plot(IBTS.stcks,main="IBTS bindings scan")
+plot(IBTS.AICs,main="IBTS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
+axis(1,labels=names(IBTS.AICs),at=seq(IBTS.AICs))
+plot(IBTS.stcks,main="IBTS bindings scan",key=TRUE)
 
 dev.off()
 

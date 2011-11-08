@@ -59,27 +59,25 @@ names(HERAS.ctrls) <- sapply(HERAS.ctrls,slot,"name")
 ### Run the assessment
 ### ============================================================================
 #Perform assessment
-HERAS.sams <- lapply(HERAS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
+HERAS.res <- lapply(HERAS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 
-#Convert to FLSAMs
-HERAS.sams <- do.call(FLSAMs,HERAS.sams)
+#Drop any that failed to converge, then create an FLSAMs object
+HERAS.sams <- FLSAMs(HERAS.res[!sapply(HERAS.res,is.null)])
 
 ### ============================================================================
 ### Analyse the results
 ### ============================================================================
-#Drop any that failed to converge
-HERAS <- HERAS.sams[!sapply(HERAS.sams,is.null)]
-
 #Build stock objects
-HERAS.stcks <- do.call(FLStocks,lapply(HERAS,"+",NSH))
+HERAS.stcks <- HERAS.sams + NSH
 
 #Extract AICs
-HERAS.AICs  <- sapply(HERAS,AIC)
+HERAS.AICs  <- AIC(HERAS.sams)
 
 #Plot
 pdf(file.path(resdir,"HERAS_bindings_scan.pdf"))
-plot(HERAS.AICs,main="HERAS",ylab="AIC")
-plot(HERAS.stcks,main="HERAS bindings scan")
+plot(HERAS.AICs,main="HERAS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
+axis(1,labels=names(HERAS.AICs),at=seq(HERAS.AICs))
+plot(HERAS.stcks,main="HERAS bindings scan",key=TRUE)
 
 dev.off()
 
