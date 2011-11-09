@@ -80,32 +80,34 @@ IBTS.sams <- lapply(IBTS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 ### Analyse the results
 ### ============================================================================
 #Drop any that failed to converge
-HERAS <- HERAS.sams[!sapply(HERAS.sams,is.null)]
-IBTS <- IBTS.sams[!sapply(IBTS.sams,is.null)]
+HERAS <- FLSAMs(HERAS.sams[!sapply(HERAS.sams,is.null)])
+IBTS <- FLSAMs(IBTS.sams[!sapply(IBTS.sams,is.null)])
 
 #Build stock objects
-HERAS.stcks <- do.call(FLStocks,lapply(HERAS,"+",NSH))
-IBTS.stcks <- do.call(FLStocks,lapply(IBTS,"+",NSH))
+HERAS.stcks <- HERAS+NSH
+IBTS.stcks <- IBTS + NSH
 
 #Extract AICs
-HERAS.AICs <- sapply(HERAS,AIC)
-IBTS.AICs  <- sapply(IBTS,AIC)
+HERAS.AICs <- AIC(HERAS)
+IBTS.AICs  <- AIC(IBTS)
 
 #Extract catchabilities to plot
-HERAS.qs <- do.call(rbind,lapply(HERAS,catchabilities))
-IBTS.qs  <- do.call(rbind,lapply(IBTS,catchabilities)) 
+HERAS.qs <- catchabilities(HERAS)
+IBTS.qs  <- catchabilities(IBTS)
 
 #Plot
 pdf(file.path(resdir,"Catchability_scan.pdf"))
-plot(HERAS.AICs,main="HERAS",ylab="AIC")
+plot(HERAS.AICs,main="HERAS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
+axis(1,labels=names(HERAS.AICs),at=seq(HERAS.AICs))
 plot(HERAS.stcks,main="HERAS catchability scan")
 p<-xyplot(value ~ age,HERAS.qs,subset=fleet=="HERAS",
-      type="l",groups=name)
+      type="l",groups=name,main="HERAS catchabilities",key=TRUE)
 print(p)
-plot(IBTS.AICs,main="IBTS",ylab="AIC")
+plot(IBTS.AICs,main="IBTS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
+axis(1,labels=names(IBTS.AICs),at=seq(IBTS.AICs))
 plot(IBTS.stcks,main="IBTS catchability scan")
 p<-xyplot(value ~ age,IBTS.qs,subset=fleet=="IBTS-Q1",
-      type="l",groups=name)
+      type="l",groups=name,main="IBTS catchabilities",key=TRUE)
 print(p)
 dev.off()
 
