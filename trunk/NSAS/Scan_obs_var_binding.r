@@ -78,22 +78,29 @@ IBTS.sams <- lapply(IBTS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 ### Analyse the results
 ### ============================================================================
 #Drop any that failed to converge
-HERAS <- HERAS.sams[!sapply(HERAS.sams,is.null)]
-IBTS <- IBTS.sams[!sapply(IBTS.sams,is.null)]
+HERAS <- FLSAMs(HERAS.sams[!sapply(HERAS.sams,is.null)])
+IBTS <- FLSAMs(IBTS.sams[!sapply(IBTS.sams,is.null)])
 
 #Build stock objects
-HERAS.stcks <- do.call(FLStocks,lapply(HERAS,"+",NSH))
-IBTS.stcks <- do.call(FLStocks,lapply(IBTS,"+",NSH))
+HERAS.stcks <- HERAS + NSH
+IBTS.stcks <- IBTS + NSH
 
 #Extract AICs
-HERAS.AICs <- sapply(HERAS,AIC)
-IBTS.AICs  <- sapply(IBTS,AIC)
+HERAS.AICs <- AIC(HERAS)
+IBTS.AICs  <- AIC(IBTS)
 
 #Plot
 pdf(file.path(resdir,"Obs_var_scan.pdf"))
-plot(HERAS.AICs,main="HERAS",ylab="AIC")
+plot(HERAS.AICs,main="HERAS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
+axis(1,labels=names(HERAS.AICs),at=seq(HERAS.AICs))
+print(xyplot(value ~ age | fleet,data=obs.var(HERAS),group=name,
+      main="HERAS obs_var bindings")
 plot(HERAS.stcks,main="HERAS obs var scan")
-plot(IBTS.AICs,main="IBTS",ylab="AIC")
+
+plot(IBTS.AICs,main="IBTS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
+axis(1,labels=names(IBTS.AICs),at=seq(IBTS.AICs))
+print(xyplot(value ~ age | fleet,data=obs.var(IBTS),group=name,
+      main="IBTS obs_var bindings")
 plot(IBTS.stcks,main="IBTS obs var scan")
 
 dev.off()
@@ -101,5 +108,5 @@ dev.off()
 ### ============================================================================
 ### Compare results
 ### ============================================================================
-save(HERAS.sams,IBTS.sams,file=file.path(resdir,"Obs_var_scan.RData"))
+save(HERAS,IBTS,file=file.path(resdir,"Obs_var_scan.RData"))
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))

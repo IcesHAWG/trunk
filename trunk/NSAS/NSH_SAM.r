@@ -60,9 +60,7 @@ print(plot(NSH.stocks,key=TRUE,main="Comparison of assessments"))
 
 #Plot catchabilities values
 catch <- catchabilities(NSH.sam)
-catch$ubn <- catch$value + 1.96*catch$std.dev
-catch$lbn <- catch$value - 1.96*catch$std.dev
-print(xyplot(exp(value)+exp(ubn)+exp(lbn) ~ age | fleet,catch,
+print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
           scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
           type="l",lwd=c(2,1,1),col=c("black","grey","grey"),
           subset=fleet %in% c("HERAS","IBTS-Q1"),
@@ -70,24 +68,25 @@ print(xyplot(exp(value)+exp(ubn)+exp(lbn) ~ age | fleet,catch,
 
 #Plot obs_variance (weightings)
 obv <- obs.var(NSH.sam)
-print(barchart(exp(value) ~ age | fleet,obv,
-       col="grey",ylim=range(pretty(c(0,exp(obv$value)))),
-       as.table=TRUE,scale=list(alternating=FALSE),
+print(barchart(value ~ sprintf("%s",age)| fleet,obv,
+       col="grey",ylim=range(pretty(c(0,obv$value))),
+       as.table=TRUE,scale=list(alternating=FALSE),horizontal=FALSE,
        main="Observation Variances",ylab="Observation Variances",xlab="Age"))
 
 #Plot selectivity pattern over time
-sel.pat <- merge(as.data.frame(harvest(NSH.sam)),as.data.frame(fbar(NSH.sam)),
+sel.pat <- merge(f(NSH.sam),fbar(NSH.sam),
              by="year",suffixes=c(".f",".fbar"))
-sel.pat$sel <- sel.pat$data.f/sel.pat$data.fbar
-print(xyplot(data.f ~ year,sel.pat,groups=sprintf("Age %02i",age.f),
+sel.pat$sel <- sel.pat$value.f/sel.pat$value.fbar
+sel.pat$age <- as.numeric(as.character(sel.pat$age))
+print(xyplot(value.f ~ year,sel.pat,groups=sprintf("Age %02i",age),
          type="l",as.table=TRUE,auto.key=list(space="right"),
          main="Fishing pressure over time",xlab="Year",ylab="F",
          scale=list(alternating=FALSE)))
-print(xyplot(sel ~ year,sel.pat,groups=sprintf("Age %02i",age.f),
+print(xyplot(sel ~ year,sel.pat,groups=sprintf("Age %02i",age),
          type="l",as.table=TRUE,auto.key=list(space="right"),
          main="Selectivity of the Fishery",xlab="Year",ylab="F/Fbar",
          scale=list(alternating=FALSE)))
-print(xyplot(sel ~ age.f|sprintf("%i's",floor(year/5)*5),sel.pat,
+print(xyplot(sel ~ age|sprintf("%i's",floor(year/5)*5),sel.pat,
          groups=year,type="l",as.table=TRUE,
          scale=list(alternating=FALSE),
          main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar"))
