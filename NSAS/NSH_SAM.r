@@ -44,14 +44,21 @@ NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 #Update stock object
 NSH.sam.ass <- NSH + NSH.sam
 
-#Load ICA assessment
-load(file.path(".","data","NSH.ica.RData"))
-NSH.stocks <- FLStocks(FLSAM=NSH.sam.ass, FLICA=NSH.ica)
+### ============================================================================
+### Save results
+### ============================================================================
+save(NSH,NSH.tun,file=file.path(resdir,"NSH.RData"))
+save(NSH.sam,NSH.ctrl,file=file.path(resdir,"NSH.sam.RData"))
 
 ### ============================================================================
 ### Plots
 ### ============================================================================
-pdf(file.path(resdir,"NSH_SAM_assessment.pdf"))
+#Load ICA assessment
+load(file.path(".","data","NSH.ica.RData"))
+NSH.stocks <- FLStocks(FLSAM=NSH.sam.ass, FLICA=NSH.ica)
+
+#Setup plots
+pdf(file.path(resdir,"NSH_SAM.pdf"))
 
 #Plot result
 NSH.sam@name <- "North Sea Herring FLSAM Assessment"
@@ -98,6 +105,4 @@ residual.diagnostics(NSH.sam)
 ### Finish
 ### ============================================================================
 dev.off()
-save(NSH,NSH.tun,file=file.path(resdir,"NSH.RData"))
-save(NSH.sam,NSH.ctrl,file=file.path(resdir,"NSH.sam.RData"))
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))

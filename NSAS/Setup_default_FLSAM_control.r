@@ -34,13 +34,14 @@ NSH.ctrl@f.vars["catch",] <- 1                          #All have the same varia
 NSH.ctrl@logN.vars <- c(1,rep(2,9))
 
 #Catchability models
-NSH.ctrl@catchabilities["IBTS0","0"] <- 1
-NSH.ctrl@catchabilities["IBTS-Q1",ac(1:5)] <- 2:6
-NSH.ctrl@catchabilities["HERAS",ac(1:9)] <- 7:15
+NSH.ctrl@catchabilities["IBTS-Q1",ac(3:5)] <- 101
+NSH.ctrl@catchabilities["HERAS",ac(6:9)] <- 102
 
 #Observation model parameters
-NSH.ctrl@obs.vars["catch",] <- 1:10
-NSH.ctrl@obs.vars["IBTS0","0"] <- 11
-NSH.ctrl@obs.vars["IBTS-Q1",ac(1:5)] <- 12:16
-NSH.ctrl@obs.vars["HERAS",ac(1:9)] <- 17:25
+NSH.ctrl@obs.vars["IBTS-Q1",ac(3:5)] <- 103
+NSH.ctrl@obs.vars["HERAS",ac(6:9)] <- 104
+NSH.ctrl@obs.vars["catch",ac(6:9)] <- 105
+
+#Update
+NSH.ctrl <- update(NSH.ctrl)
 

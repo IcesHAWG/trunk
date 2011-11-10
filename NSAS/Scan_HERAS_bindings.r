@@ -65,6 +65,11 @@ HERAS.res <- lapply(HERAS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 HERAS.sams <- FLSAMs(HERAS.res[!sapply(HERAS.res,is.null)])
 
 ### ============================================================================
+### Save results
+### ============================================================================
+save(NSH,NSH,tun,HERAS.sams,file=file.path(resdir,"Scan_HERAS_bindings.RData"))
+
+### ============================================================================
 ### Analyse the results
 ### ============================================================================
 #Build stock objects
@@ -74,15 +79,14 @@ HERAS.stcks <- HERAS.sams + NSH
 HERAS.AICs  <- AIC(HERAS.sams)
 
 #Plot
-pdf(file.path(resdir,"HERAS_bindings_scan.pdf"))
+pdf(file.path(resdir,"Scan_HERAS_bindings.pdf"))
 plot(HERAS.AICs,main="HERAS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(HERAS.AICs),at=seq(HERAS.AICs))
-plot(HERAS.stcks,main="HERAS bindings scan",key=TRUE)
+print(plot(HERAS.stcks,main="HERAS bindings scan",key=TRUE))
 
 dev.off()
 
 ### ============================================================================
-### Compare results
+### Finish
 ### ============================================================================
-save(HERAS.sams,file=file.path(resdir,"HERAS.sams.RData"))
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))

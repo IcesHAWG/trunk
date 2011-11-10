@@ -46,26 +46,23 @@ log.msg("CONFIGURING ASSESSMENT......\n")
 
 #Scan through the HERAS ages, tying them sequentlly together
 HERAS.ctrls <- list()
-for(i in 1:9) {
+for(i in 8:9) {
   ctrl <- NSH.ctrl
-  ctrl@catchabilities["HERAS",ac(1:9)] <- 7:15
-  ctrl@catchabilities["HERAS",ac(i:9)] <- 6+i
+  ctrl@catchabilities["HERAS",ac(i:9)] <- 101
   ctrl@name <- ac(i)
   ctrl@desc <- sprintf("Age %i+ catchabilities bound together",i)
-  HERAS.ctrls[[i]] <- ctrl
+  HERAS.ctrls[[i]] <- update(ctrl)
 }
 names(HERAS.ctrls) <- sapply(HERAS.ctrls,slot,"name")
 
 #And ditto for the IBTS ages
 IBTS.ctrls <- list()
-for(i in 1:5) {
+for(i in 4:5) {
   ctrl <- NSH.ctrl
-  ctrl@catchabilities["IBTS-Q1",ac(1:5)] <- 2:6
-  ctrl@catchabilities["IBTS-Q1",ac(i:5)] <- 1+i
-  ctrl@catchabilities["HERAS",ac(1:9)] <- 1+i+c(1:4, rep(5,5))
+  ctrl@catchabilities["IBTS-Q1",ac(i:5)] <- 101
   ctrl@name <- ac(i)
   ctrl@desc <- sprintf("Age %i+ catchabilities bound together",i)
-  IBTS.ctrls[[i]] <- ctrl
+  IBTS.ctrls[[i]] <- update(ctrl)
 }
 names(IBTS.ctrls) <- sapply(IBTS.ctrls,slot,"name")
 
@@ -76,36 +73,41 @@ names(IBTS.ctrls) <- sapply(IBTS.ctrls,slot,"name")
 HERAS.sams <- lapply(HERAS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 IBTS.sams <- lapply(IBTS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 
-### ============================================================================
-### Analyse the results
-### ============================================================================
 #Drop any that failed to converge
-HERAS <- FLSAMs(HERAS.sams[!sapply(HERAS.sams,is.null)])
-IBTS <- FLSAMs(IBTS.sams[!sapply(IBTS.sams,is.null)])
+HERAS.sams <- FLSAMs(HERAS.sams[!sapply(HERAS.sams,is.null)])
+IBTS.sams <- FLSAMs(IBTS.sams[!sapply(IBTS.sams,is.null)])
 
+### ============================================================================
+### Save results
+### ============================================================================
+save(NSH,NSH.tun,HERAS.sams,IBTS.sams,file=file.path(resdir,"Scan_catchability_binding.RData"))
+
+### ============================================================================
+### Analyse and plot the results
+### ============================================================================
 #Build stock objects
-HERAS.stcks <- HERAS+NSH
-IBTS.stcks <- IBTS + NSH
+HERAS.stcks <- HERAS.sams+NSH
+IBTS.stcks <- IBTS.sams + NSH
 
 #Extract AICs
-HERAS.AICs <- AIC(HERAS)
-IBTS.AICs  <- AIC(IBTS)
+HERAS.AICs <- AIC(HERAS.sams)
+IBTS.AICs  <- AIC(IBTS.sams)
 
 #Extract catchabilities to plot
-HERAS.qs <- catchabilities(HERAS)
-IBTS.qs  <- catchabilities(IBTS)
+HERAS.qs <- catchabilities(HERAS.sams)
+IBTS.qs  <- catchabilities(IBTS.sams)
 
 #Plot
-pdf(file.path(resdir,"Catchability_scan.pdf"))
+pdf(file.path(resdir,"Scan_catchability_binding.pdf"))
 plot(HERAS.AICs,main="HERAS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(HERAS.AICs),at=seq(HERAS.AICs))
-plot(HERAS.stcks,main="HERAS catchability scan")
+print(plot(HERAS.stcks,main="HERAS catchability scan"))
 p<-xyplot(value ~ age,HERAS.qs,subset=fleet=="HERAS",
       type="l",groups=name,main="HERAS catchabilities",key=TRUE)
 print(p)
 plot(IBTS.AICs,main="IBTS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(IBTS.AICs),at=seq(IBTS.AICs))
-plot(IBTS.stcks,main="IBTS catchability scan")
+print(plot(IBTS.stcks,main="IBTS catchability scan"))
 p<-xyplot(value ~ age,IBTS.qs,subset=fleet=="IBTS-Q1",
       type="l",groups=name,main="IBTS catchabilities",key=TRUE)
 print(p)
@@ -114,5 +116,4 @@ dev.off()
 ### ============================================================================
 ### Compare results
 ### ============================================================================
-save(HERAS.sams,IBTS.sams,file=file.path(resdir,"Catchability_scan.RData"))
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))

@@ -65,6 +65,11 @@ IBTS.res <- lapply(IBTS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 IBTS.sams <- FLSAMs(IBTS.res[!sapply(IBTS.res,is.null)])
 
 ### ============================================================================
+### Save results
+### ============================================================================
+save(NSH,NSH.tun,IBTS.sams,file=file.path(resdir,"Scan_IBTS_bindings.RData"))
+
+### ============================================================================
 ### Analyse the results
 ### ============================================================================
 #Build stock objects
@@ -74,15 +79,14 @@ IBTS.stcks <- NSH+IBTS.sams
 IBTS.AICs  <- AIC(IBTS.sams)
 
 #Plot
-pdf(file.path(resdir,"IBTS_bindings_scan.pdf"))
+pdf(file.path(resdir,"Scan_IBTS_bindings.pdf"))
 plot(IBTS.AICs,main="IBTS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(IBTS.AICs),at=seq(IBTS.AICs))
-plot(IBTS.stcks,main="IBTS bindings scan",key=TRUE)
+print(plot(IBTS.stcks,main="IBTS bindings scan",key=TRUE))
 
 dev.off()
 
 ### ============================================================================
-### Compare results
+### Finish
 ### ============================================================================
-save(IBTS.sams,file=file.path(resdir,"IBTS.sams.RData"))
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
