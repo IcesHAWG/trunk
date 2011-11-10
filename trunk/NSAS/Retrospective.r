@@ -1,16 +1,15 @@
 ################################################################################
-# Looi run
+# NSH_SAM Retrospective
 #
 # $Rev$
 # $Date$
 #
 # Author: HAWG model devlopment group
 #
-# Applies a systematic scan of leave-one-in, leave-one-out and various subsets
-# there of.
+# Performs a retrospective analysis of the NSAS Herring stock using the SAM method
 #
 # Developed with:
-#   - R version 2.13.2
+#   - R version 2.13.1
 #   - FLCore 2.4
 #
 # To be done:
@@ -27,12 +26,11 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
 }
-log.msg("\nLOOI run\n===========================\n")
+log.msg("\nNSH SAM Retrospective Analysis\n==========================\n")
 
 ### ============================================================================
 ### Import externals
 ### ============================================================================
-log.msg("IMPORTING EXTERNAL RESOURCES...\n")
 library(FLSAM)
 source("Setup_objects.r")
 source("Setup_default_FLSAM_control.r")
@@ -41,17 +39,26 @@ source("Setup_default_FLSAM_control.r")
 ### Run the assessment
 ### ============================================================================
 #Perform assessment
-LOI.sams <- looi(NSH,NSH.tun,NSH.ctrl,type="LOI")
-LOO.sams <- looi(NSH,NSH.tun,NSH.ctrl,type="LOO")
-
-### ============================================================================
-### Analyse the results
-### ============================================================================
-pdf(file.path(resdir,"LOOI_run.pdf"))
-dev.off()
+NSH.retros <- retro(NSH,NSH.tun,NSH.ctrl,retro=2)
 
 ### ============================================================================
 ### Save results
 ### ============================================================================
-save(LOI.sams,LOO.sams,file=file.path(resdir,"LOOI.sams.RData"))
+save(NSH,NSH.tun,NSH.retros,file=file.path(resdir,"Retrospective.RData"))
+
+### ============================================================================
+### Analysis
+### ============================================================================
+#Make FLStocks
+NSH.stcks <- NSH + NSH.retros
+
+pdf(file.path(resdir,"Retrospective.pdf"))
+#Plot result
+print(plot(NSH.stcks,key=TRUE,main="Retrospective analysis"))
+dev.off()
+
+### ============================================================================
+### Finish
+### ============================================================================
+save(NSH.sam,NSH.ctrl,file=file.path(resdir,"Retrospective.RData"))
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
