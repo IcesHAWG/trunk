@@ -2,9 +2,9 @@ RES_DIR=./results
 ASS_FILE= NSH_SAM.pdf
 LOOI_FILE= LOOI_run.pdf
 RETRO_FILE= Retrospective.pdf
-SCAN_FILES = $(patsubst %.r,%.pdf,$(wildcard Scan_*))
+SCAN_FILES = $(patsubst %.r,%.pdf,$(wildcard Scan_*.r))
 
-ALL_FILES= $(BINDINGS_FILES) $(ASS_FILE) $(LOOI_FILE) $(RETRO_FILE)
+ALL_FILES= $(SCAN_FILES) $(ASS_FILE) $(LOOI_FILE) $(RETRO_FILE)
 PLOT_FILES_PATH = $(addprefix $(RES_DIR)/,$(ALL_FILES))
 R=/usr/local/bin/R --slave --vanilla
 
@@ -20,7 +20,7 @@ retro: $(RES_DIR)/$(RETRO_FILE)
        	
 
 $(RES_DIR)/%.pdf: %.r
-	$R -f $< > $(RES_DIR)/$*.log
+	$R -f $< > $(RES_DIR)/$*.log 2>&1
 
 clean:
 	rm -f *~

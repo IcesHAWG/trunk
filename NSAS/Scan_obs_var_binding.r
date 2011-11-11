@@ -24,7 +24,7 @@
 ### ============================================================================
 ### Initialise system, including convenience functions and title display
 ### ============================================================================
-rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
+rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
@@ -44,23 +44,23 @@ source("Setup_default_FLSAM_control.r")
 ### ============================================================================
 #Now scan through the HERAS ages, tying them sequentlly together
 HERAS.ctrls <- list()
-for(i in 1:9) {
+for(i in 8:9) {
   ctrl <- NSH.ctrl
   ctrl@obs.vars["HERAS",ac(i:9)] <- 100
   ctrl@name <- sprintf("%i+",i)
   ctrl@desc <- sprintf("Age %i+ observation variances bound together",i)
-  HERAS.ctrls[[i]] <- ctrl
+  HERAS.ctrls[[ac(i)]] <- update(ctrl)
 }
 names(HERAS.ctrls) <- sapply(HERAS.ctrls,slot,"name")
 
 #And ditto for the IBTS ages
 IBTS.ctrls <- list()
-for(i in 1:5) {
+for(i in 4:5) {
   ctrl <- NSH.ctrl
   ctrl@obs.vars["IBTS-Q1",ac(i:5)] <- 100
   ctrl@name <- sprintf("%i+",i)
   ctrl@desc <- sprintf("Age %i+ observation variances bound together",i)
-  IBTS.ctrls[[i]] <- update(ctrl)
+  IBTS.ctrls[[ac(i)]] <- update(ctrl)
 }
 names(IBTS.ctrls) <- sapply(IBTS.ctrls,slot,"name")
 
@@ -95,14 +95,14 @@ IBTS.AICs  <- AIC(IBTS.sams)
 pdf(file.path(resdir,"Scan_obs_var_binding.pdf"))
 plot(HERAS.AICs,main="HERAS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(HERAS.AICs),at=seq(HERAS.AICs))
-print(xyplot(value ~ age | fleet,data=obs.var(HERAS),group=name,
-      main="HERAS obs_var bindings")
+print(xyplot(value ~ age | fleet,data=obs.var(HERAS.sams),group=name,
+      main="HERAS obs_var bindings"))
 print(plot(HERAS.stcks,main="HERAS obs var scan"))
 
 plot(IBTS.AICs,main="IBTS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(IBTS.AICs),at=seq(IBTS.AICs))
-print(xyplot(value ~ age | fleet,data=obs.var(IBTS),group=name,
-      main="IBTS obs_var bindings")
+print(xyplot(value ~ age | fleet,data=obs.var(IBTS.sams),group=name,
+      main="IBTS obs_var bindings"))
 print(plot(IBTS.stcks,main="IBTS obs var scan"))
 
 dev.off()

@@ -31,7 +31,7 @@
 ### ======================================================================================================
 ### Initialise system, including convenience functions and title display
 ### ======================================================================================================
-rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
+rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 
 path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2011/assessment2/NSAS/"
 try(setwd(path))

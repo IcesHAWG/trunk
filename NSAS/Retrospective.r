@@ -21,7 +21,7 @@
 ### ============================================================================
 ### Initialise system, including convenience functions and title display
 ### ============================================================================
-rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
+rm(list=ls());  graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
@@ -60,5 +60,4 @@ dev.off()
 ### ============================================================================
 ### Finish
 ### ============================================================================
-save(NSH.sam,NSH.ctrl,file=file.path(resdir,"Retrospective.RData"))
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
