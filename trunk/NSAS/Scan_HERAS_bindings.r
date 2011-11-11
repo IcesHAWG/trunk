@@ -25,7 +25,7 @@
 ### ============================================================================
 ### Initialise system, including convenience functions and title display
 ### ============================================================================
-rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
+rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
@@ -45,13 +45,13 @@ source("Setup_default_FLSAM_control.r")
 ### ============================================================================
 #Now scan through the HERAS ages, tying them sequentlly together
 HERAS.ctrls <- list()
-for(i in 1:9) {
+for(i in 8:9) {
   ctrl <- NSH.ctrl
   ctrl@obs.vars["HERAS",ac(i:9)] <- 100
   ctrl@catchabilities["HERAS",ac(i:9)] <- 100
   ctrl@name <- sprintf("%i+",i)
   ctrl@desc <- sprintf("Age %i+ params bound together",i)
-  HERAS.ctrls[[i]] <- update(ctrl)
+  HERAS.ctrls[[ac(i)]] <- update(ctrl)
 }
 names(HERAS.ctrls) <- sapply(HERAS.ctrls,slot,"name")
 
@@ -67,7 +67,7 @@ HERAS.sams <- FLSAMs(HERAS.res[!sapply(HERAS.res,is.null)])
 ### ============================================================================
 ### Save results
 ### ============================================================================
-save(NSH,NSH,tun,HERAS.sams,file=file.path(resdir,"Scan_HERAS_bindings.RData"))
+save(NSH,NSH.tun,HERAS.sams,file=file.path(resdir,"Scan_HERAS_bindings.RData"))
 
 ### ============================================================================
 ### Analyse the results

@@ -25,7 +25,7 @@
 ### ============================================================================
 ### Initialise system, including convenience functions and title display
 ### ============================================================================
-rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
+rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
@@ -45,13 +45,13 @@ source("Setup_default_FLSAM_control.r")
 ### ============================================================================
 #Now scan through the IBTS ages, tying them sequentlly together
 IBTS.ctrls <- list()
-for(i in 1:5) {
+for(i in 4:5) {
   ctrl <- NSH.ctrl
   ctrl@obs.vars["IBTS-Q1",ac(i:5)] <- 100
   ctrl@catchabilities["IBTS-Q1",ac(i:5)] <- 100
   ctrl@name <- sprintf("%i+",i)
   ctrl@desc <- sprintf("Age %i+ params bound together",i)
-  IBTS.ctrls[[i]] <- update(ctrl)
+  IBTS.ctrls[[ac(i)]] <- update(ctrl)
 }
 names(IBTS.ctrls) <- sapply(IBTS.ctrls,slot,"name")
 

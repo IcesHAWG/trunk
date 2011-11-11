@@ -24,7 +24,7 @@
 ### ============================================================================
 ### Initialise system, including convenience functions and title display
 ### ============================================================================
-rm(list=ls()); gc(); graphics.off(); start.time <- proc.time()[3]
+rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
@@ -51,7 +51,7 @@ for(i in 8:9) {
   ctrl@catchabilities["HERAS",ac(i:9)] <- 101
   ctrl@name <- ac(i)
   ctrl@desc <- sprintf("Age %i+ catchabilities bound together",i)
-  HERAS.ctrls[[i]] <- update(ctrl)
+  HERAS.ctrls[[ac(i)]] <- update(ctrl)
 }
 names(HERAS.ctrls) <- sapply(HERAS.ctrls,slot,"name")
 
@@ -62,7 +62,7 @@ for(i in 4:5) {
   ctrl@catchabilities["IBTS-Q1",ac(i:5)] <- 101
   ctrl@name <- ac(i)
   ctrl@desc <- sprintf("Age %i+ catchabilities bound together",i)
-  IBTS.ctrls[[i]] <- update(ctrl)
+  IBTS.ctrls[[ac(i)]] <- update(ctrl)
 }
 names(IBTS.ctrls) <- sapply(IBTS.ctrls,slot,"name")
 
@@ -101,16 +101,15 @@ IBTS.qs  <- catchabilities(IBTS.sams)
 pdf(file.path(resdir,"Scan_catchability_binding.pdf"))
 plot(HERAS.AICs,main="HERAS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(HERAS.AICs),at=seq(HERAS.AICs))
-print(plot(HERAS.stcks,main="HERAS catchability scan"))
-p<-xyplot(value ~ age,HERAS.qs,subset=fleet=="HERAS",
-      type="l",groups=name,main="HERAS catchabilities",key=TRUE)
-print(p)
+print(plot(HERAS.stcks,main="HERAS catchability scan",key=TRUE))
+print(xyplot(value ~ age,data=HERAS.qs,subset=fleet=="HERAS",
+      type="l",groups=name,main="HERAS catchabilities",auto.key=TRUE))
+
 plot(IBTS.AICs,main="IBTS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(IBTS.AICs),at=seq(IBTS.AICs))
-print(plot(IBTS.stcks,main="IBTS catchability scan"))
-p<-xyplot(value ~ age,IBTS.qs,subset=fleet=="IBTS-Q1",
-      type="l",groups=name,main="IBTS catchabilities",key=TRUE)
-print(p)
+print(plot(IBTS.stcks,main="IBTS catchability scan",key=TRUE))
+print(xyplot(value ~ age,IBTS.qs,subset=fleet=="IBTS-Q1",
+      type="l",groups=name,main="IBTS catchabilities",auto.key=TRUE))
 dev.off()
 
 ### ============================================================================
