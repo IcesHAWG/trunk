@@ -55,8 +55,14 @@ pdf(file.path(out.dir,"MIK_index_checks.pdf"),width=210/25.4,height=210/25.4)
 #load data
 db <- read.IBTS0()
 
+#Filter out data mean the mean length is too short
+#In particular exclude small Downs hauls. This approach
+#follows that of PM in the SAS code and the standard
+#approach to calculating the MIK index
+dat <- subset(db,!(meanlength<20 & LatDec < 54)) 
+
 #Calculate index using defaults
-calc.MIK.idx <- calc.MIK.index(db) 
+calc.MIK.idx <- calc.MIK.index(dat) 
 
 ### ==========================================================================
 ### Compare the old and the new calculations

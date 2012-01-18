@@ -116,14 +116,10 @@ read.IBTS0 <- function(src=src.file) {
 ### Calculate in the standard manne
 ### i.e. Following the SAS code of P. Munk 
 ### ==========================================================================
-calc.MIK.index <- function(dat,min.len=20,boundary=54) { 
+calc.MIK.index <- function(dat) { 
    #Display details
    log.msg("Calculating MIK index...")
 
-   #Filter out data mean the mean length is too short
-   #In particular exclude small Downs hauls
-   dat <- subset(dat,!(meanlength<min.len & LatDec < boundary)) 
-    
    #Split the data into MIK areas and years
    yr.area.l <- split(dat,list(year=dat$Year,area=dat$MIK.area),drop=TRUE)
  
