@@ -45,7 +45,7 @@ source("Setup_default_FLSAM_control.r")
 ### ============================================================================
 #Now scan through the HERAS ages, tying them sequentlly together
 HERAS.ctrls <- list()
-for(i in 8:9) {
+for(i in 1:9) {
   ctrl <- NSH.ctrl
   ctrl@obs.vars["HERAS",ac(i:9)] <- 100
   ctrl@catchabilities["HERAS",ac(i:9)] <- 100

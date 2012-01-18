@@ -45,7 +45,7 @@ source("Setup_default_FLSAM_control.r")
 ### ============================================================================
 #Now scan through the IBTS ages, tying them sequentlly together
 IBTS.ctrls <- list()
-for(i in 4:5) {
+for(i in 1:5) {
   ctrl <- NSH.ctrl
   ctrl@obs.vars["IBTS-Q1",ac(i:5)] <- 100
   ctrl@catchabilities["IBTS-Q1",ac(i:5)] <- 100
