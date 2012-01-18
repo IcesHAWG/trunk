@@ -46,7 +46,7 @@ log.msg("CONFIGURING ASSESSMENT......\n")
 
 #Scan through the HERAS ages, tying them sequentlly together
 HERAS.ctrls <- list()
-for(i in 8:9) {
+for(i in 1:9) {
   ctrl <- NSH.ctrl
   ctrl@catchabilities["HERAS",ac(i:9)] <- 101
   ctrl@name <- ac(i)
@@ -57,7 +57,7 @@ names(HERAS.ctrls) <- sapply(HERAS.ctrls,slot,"name")
 
 #And ditto for the IBTS ages
 IBTS.ctrls <- list()
-for(i in 4:5) {
+for(i in 1:5) {
   ctrl <- NSH.ctrl
   ctrl@catchabilities["IBTS-Q1",ac(i:5)] <- 101
   ctrl@name <- ac(i)

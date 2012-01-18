@@ -44,7 +44,7 @@ source("Setup_default_FLSAM_control.r")
 ### ============================================================================
 #Now scan through the HERAS ages, tying them sequentlly together
 HERAS.ctrls <- list()
-for(i in 8:9) {
+for(i in 1:9) {
   ctrl <- NSH.ctrl
   ctrl@obs.vars["HERAS",ac(i:9)] <- 100
   ctrl@name <- sprintf("%i+",i)
@@ -55,7 +55,7 @@ names(HERAS.ctrls) <- sapply(HERAS.ctrls,slot,"name")
 
 #And ditto for the IBTS ages
 IBTS.ctrls <- list()
-for(i in 4:5) {
+for(i in 1:5) {
   ctrl <- NSH.ctrl
   ctrl@obs.vars["IBTS-Q1",ac(i:5)] <- 100
   ctrl@name <- sprintf("%i+",i)
@@ -96,13 +96,13 @@ pdf(file.path(resdir,"Scan_obs_var_binding.pdf"))
 plot(HERAS.AICs,main="HERAS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(HERAS.AICs),at=seq(HERAS.AICs))
 print(xyplot(value ~ age | fleet,data=obs.var(HERAS.sams),group=name,
-      main="HERAS obs_var bindings"))
+      main="HERAS obs_var bindings",auto.key=TRUE))
 print(plot(HERAS.stcks,main="HERAS obs var scan"))
 
 plot(IBTS.AICs,main="IBTS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(IBTS.AICs),at=seq(IBTS.AICs))
 print(xyplot(value ~ age | fleet,data=obs.var(IBTS.sams),group=name,
-      main="IBTS obs_var bindings"))
+      main="IBTS obs_var bindings",auto.key=TRUE))
 print(plot(IBTS.stcks,main="IBTS obs var scan"))
 
 dev.off()
