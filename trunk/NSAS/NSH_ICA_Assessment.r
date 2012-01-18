@@ -33,7 +33,7 @@
 ### ======================================================================================================
 rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 
-path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2011/assessment2/NSAS/"
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2012/assessment/NSAS/"
 try(setwd(path))
 
 #in need of something extra

@@ -1,8 +1,8 @@
 ################################################################################
 # Scan HERAS bindings
 #
-# $Rev$
-# $Date$
+# $Rev: 630 $
+# $Date: 2012-01-18 10:22:41 +0100 (wo, 18 jan 2012) $
 #
 # Author: HAWG model devlopment group
 #
