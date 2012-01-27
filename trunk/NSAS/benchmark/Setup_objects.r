@@ -127,24 +127,19 @@ MLAI.idx <-  readFLIndices(file.path(data.source,"fleet.txt"),
 SCAI.idx <-  readFLIndices(file.path(data.source,"fleet.txt"),
                    file.path(data.source,"scai.txt"),type="ICA")[-seq(NSH.tun)]
 
-#Combine all surveys into one object
+#Combine all surveys into one object and set names
 NSH.tun   <- FLIndices(c(MLAI.idx,SCAI.idx,NSH.tun))
 names(NSH.tun) <- sapply(NSH.tun,name)
 
 #Set a-priori weighting factors from Simmonds 2003. These are included
 #as variances in the indices object
-NSH.tun[["HERAS"]]@index.var[] <- 1.0/FLQuant(c(0.63,0.62,0.17,0.10,
-  0.09,0.08,0.07,0.07,0.05),dimnames=dimnames(NSH.tun[["HERAS"]]@index)) #Acoustic
-NSH.tun[["IBTS-Q1"]]@index.var[]  <- 1.0/FLQuant(c(0.47,0.28,0.01,0.01,0.01),
-  dimnames=dimnames(NSH.tun[["IBTS-Q1"]]@index)) #IBTS
-NSH.tun[["IBTS-Q3"]]@index.var[]  <- 1.0/FLQuant(c(0.47,0.28,0.01,0.01,0.01),
-  dimnames=dimnames(NSH.tun[["IBTS-Q3"]]@index)) #IBTS-Q3: assume same variance as IBTS-Q1
-NSH.tun[["IBTS0"]]@index.var[]  <- 1.0/FLQuant(0.63,
-  dimnames=dimnames(NSH.tun[["IBTS0"]]@index)) #MIK
-NSH.tun[["MLAI"]]@index.var[]   <- 1.0/FLQuant(0.60,
-  dimnames=dimnames(NSH.tun[["MLAI"]]@index)) #MLAI
-NSH.tun[["SCAI"]]@index.var[]   <- 1.0/FLQuant(0.60,
-  dimnames=dimnames(NSH.tun[["SCAI"]]@index)) #SCAI - assume same as MLAI
+#Assume that IBTS-Q3 has same variance as IBTS-Q1 and SCAI same as MLAI
+NSH.tun[["HERAS"]]@index.var[]    <- 1.0/c(0.63,0.62,0.17,0.10,0.09,0.08,0.07,0.07,0.05)
+NSH.tun[["IBTS-Q1"]]@index.var[]  <- 1.0/c(0.47,0.28,0.01,0.01,0.01)
+NSH.tun[["IBTS-Q3"]]@index.var[]  <- 1.0/c(0.47,0.28,0.01,0.01,0.01)
+NSH.tun[["IBTS0"]]@index.var[]    <- 1.0/0.63
+NSH.tun[["MLAI"]]@index.var[]     <- 1.0/0.60
+NSH.tun[["SCAI"]]@index.var[]     <- 1.0/0.60
 
 #FLICA requires that biomass indices ie MLAI, is the first index. Check this is ok
 if (NSH.tun[[1]]@name != "MLAI") warning("MLAI not as the first index")
