@@ -22,24 +22,6 @@
 ################################################################################
 
 ### ============================================================================
-### Initialise system, including convenience functions and title display
-### ============================================================================
-rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
-options(stringsAsFactors=FALSE)
-log.msg     <-  function(string) {
-	cat(string);flush.console()
-}
-log.msg("\nScan obs. variance bindings\n===========================\n")
-
-### ============================================================================
-### Import externals
-### ============================================================================
-log.msg("IMPORTING EXTERNAL RESOURCES...\n")
-library(FLSAM)
-source("Setup_objects.r")
-source("Setup_default_FLSAM_control.r")
-
-### ============================================================================
 ### Modify the default assessment
 ### ============================================================================
 #Now scan through the HERAS ages, tying them sequentlly together
@@ -72,13 +54,13 @@ HERAS.sams <- lapply(HERAS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 IBTS.sams <- lapply(IBTS.ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 
 #Drop any that failed to converge
-HERAS.sams <- FLSAMs(HERAS.sams[!sapply(HERAS.sams,is.null)])
-IBTS.sams <- FLSAMs(IBTS.sams[!sapply(IBTS.sams,is.null)])
+HERAS.sams <- FLSAMs(HERAS.sams[!sapply(HERAS.sams,is.null)]); ifelse(length(which(sapply(HERAS.sams,is.null)==T)>0),warnings("HERAS obs.vars binding run(s) failed"),"")
+IBTS.sams <- FLSAMs(IBTS.sams[!sapply(IBTS.sams,is.null)]) ; ifelse(length(which(sapply(IBTS.sams,is.null)==T)>0),warnings("IBTS obs.vars binding run(s) failed"),"")
 
 ### ============================================================================
 ### Save results
 ### ============================================================================
-save(NSH,NSH.tun,HERAS.sams,IBTS.sams,file=file.path(resdir,"Scan_obs_var_binding.RData"))
+save(NSH,NSH.tun,HERAS.sams,IBTS.sams,file=file.path(".","benchmark","resultsSAM","Scan_obs_var_binding.RData"))
 
 ### ============================================================================
 ### Analyse the results
@@ -92,7 +74,7 @@ HERAS.AICs <- AIC(HERAS.sams)
 IBTS.AICs  <- AIC(IBTS.sams)
 
 #Plot
-pdf(file.path(resdir,"Scan_obs_var_binding.pdf"))
+pdf(file.path(".","benchmark","resultsSAM","Scan_obs_var_binding.pdf"))
 plot(HERAS.AICs,main="HERAS bindings scan",ylab="AIC",xaxt="n",xlab="Model",pch=16)
 axis(1,labels=names(HERAS.AICs),at=seq(HERAS.AICs))
 print(xyplot(value ~ age | fleet,data=obs.var(HERAS.sams),group=name,

@@ -35,7 +35,7 @@ NSH                 <- readFLStock(file.path(data.source, "index.txt"),no.discar
 #Catch is calculated from: catch.wt * catch.n, however, the reported landings are
 #normally different (due to SoP corrections). Hence we overwrite the calculate landings
 NSH@catch           <- NSH@landings
-units(NSH)[1:17]    <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",5)))
+units(NSH)[1:17]    <- as.list(c(rep(c("tonnes","thousands","kg"),4), rep("NA",2),"f",rep("NA",2)))
 
 #Set object details
 NSH@name                              <- "North Sea Herring"
@@ -94,7 +94,7 @@ NSH.tun[["HERAS"]]@index.var[] <- 1.0/FLQuant(c(0.63,0.62,0.17,0.10,
 NSH.tun[["IBTS-Q1"]]@index.var[]  <- 1.0/FLQuant(c(0.47,0.28,0.01,0.01,0.01),
   dimnames=dimnames(NSH.tun[["IBTS-Q1"]]@index)) #IBTS
 NSH.tun[["IBTS-Q3"]]@index.var[]  <- 1.0/FLQuant(c(0.47,0.28,0.01,0.01,0.01),
-  dimnames=dimnames(NSH.tun[["IBTS-Q1"]]@index)) #IBTS-Q3: assume same variance as IBTS-Q1
+  dimnames=dimnames(NSH.tun[["IBTS-Q3"]]@index)) #IBTS-Q3: assume same variance as IBTS-Q1
 NSH.tun[["IBTS0"]]@index.var[]  <- 1.0/FLQuant(0.63,
   dimnames=dimnames(NSH.tun[["IBTS0"]]@index)) #MIK
 NSH.tun[["MLAI"]]@index.var[]   <- 1.0/FLQuant(0.60,
@@ -104,5 +104,5 @@ NSH.tun[["MLAI"]]@index.var[]   <- 1.0/FLQuant(0.60,
 
 #FLICA requires that biomass indices ie MLAI, is the first index
 NSH.tun  <- rev(NSH.tun)
-if (NSH.tun[[1]]@name != "MLAI") print("Error - MLAI not as the first index")
+if (NSH.tun[[1]]@name != "MLAI") warning("MLAI not as the first index")
 
