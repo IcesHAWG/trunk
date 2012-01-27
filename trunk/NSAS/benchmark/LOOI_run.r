@@ -20,24 +20,6 @@
 ################################################################################
 
 ### ============================================================================
-### Initialise system, including convenience functions and title display
-### ============================================================================
-rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
-options(stringsAsFactors=FALSE)
-log.msg     <-  function(string) {
-	cat(string);flush.console()
-}
-log.msg("\nLOOI run\n===========================\n")
-
-### ============================================================================
-### Import externals
-### ============================================================================
-log.msg("IMPORTING EXTERNAL RESOURCES...\n")
-library(FLSAM)
-source("Setup_objects.r")
-source("Setup_default_FLSAM_control.r")
-
-### ============================================================================
 ### Run the assessment
 ### ============================================================================
 #Perform assessment
