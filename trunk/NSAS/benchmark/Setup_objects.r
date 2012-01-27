@@ -53,6 +53,42 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
                                           NSH@stock.wt[,2:(dim(NSH@stock.wt)[2]-1)] +
                                           NSH@stock.wt[,1:(dim(NSH@stock.wt)[2]-2)]) / 3
 
+### ============================================================================
+### Read in the new M's
+### ============================================================================
+
+M2            <- read.csv(file.path(".","data","SMoothedM_NotExtrapolated_NSAS.csv"),header=T)
+colnames(M2)  <- sub("X","",colnames(M2))
+rownames(M2)  <- M2[,1]
+M2            <- M2[,-1] #Trim off first column as it contains 'ages'
+M2            <- M2[,apply(M2,2,function(x){all(is.na(x))==F})]
+
+### ============================================================================
+### Modify the default assessment
+### ============================================================================
+
+NSHM2       <- NSH
+NSHM2@m[]   <- NA
+yrs         <- dimnames(NSHM2@m)$year
+yrs         <- yrs[which(yrs %in% colnames(M2))]
+NSHM2@m[,yrs][] <- as.matrix(M2)
+
+#- Apply 5 year running average
+extryrs <- dimnames(NSHM2@m)$year[which(!dimnames(NSHM2@m)$year %in% yrs)]
+ages    <- dimnames(NSHM2@m)$age
+extrags <- names(which(apply(M2,1,function(x){all(is.na(x))==T})==T))
+yrAver  <- 5
+for(iYr in as.numeric(rev(extryrs))){
+  for(iAge in ages[!ages%in%extrags]){
+    NSHM2@m[ac(iAge),ac(iYr)] <- yearMeans(NSHM2@m[ac(iAge),ac((iYr+1):(iYr+yrAver)),],na.rm=T)
+  }
+}
+for(iAge in extrags)
+  NSHM2@m[ac(iAge),]          <- NSHM2@m[ac(as.numeric(min(sort(extrags)))-1),]
+  
+#Write new M values into the original stock object
+NSH@m     <- NSHM2@m
+
 
 ### ============================================================================
 ### Prepare index object for assessment
