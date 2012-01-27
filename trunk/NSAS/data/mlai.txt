@@ -1,4 +1,4 @@
-Herring in Sub-area IV, Divisions VIId & IIIa (autumn-spawners)
+Multiplicative Larval Abunance Index
  1     38     2
 'YEAR'     'VPA'     'MLAI'
   1973     1     12.892
