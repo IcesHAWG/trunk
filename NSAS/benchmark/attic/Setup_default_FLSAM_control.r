@@ -27,7 +27,7 @@
 NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
 
 #Fishing mortality random walk coupling
-NSH.ctrl@states["catch",] <- c(1:7,rep(8,3))            #Couple age 7+ Fs
+#NSH.ctrl@states["catch",] <- c(1:7,rep(8,3))            #Couple age 7+ Fs
 #NSH.ctrl@f.vars["catch",] <- 1                          #All have the same variance
 #
 ##Log N random walk variances
