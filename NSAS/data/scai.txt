@@ -1,4 +1,4 @@
-Herring in Sub-area IV, Divisions VIId & IIIa (autumn-spawners)
+Spawning Component Abundance Index
  1     38     2
 'YEAR'     'VPA'     'SCAI'
   1972  1   3393.380692
