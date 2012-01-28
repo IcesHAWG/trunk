@@ -7,9 +7,22 @@
 #
 ####################################################################################################
 
+rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
+
+path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2012/assessment/NSAS/"
+#path <- "/media/n/Projecten/ICES WG/Haring werkgroep HAWG/2012/assessment/NSAS/"
+try(setwd(path))
+
+options(stringsAsFactors=FALSE)
+log.msg     <-  function(string) {cat(string);}
+log.msg("\nNSH Benchmark Assessment\n=====================\n")
+
 ### ======================================================================================================
 ### ICA first to go
 ### ======================================================================================================
+if(floor(an(R.Version()$minor))==8){
+  source(file.path("..","_Common","HAWG Common assessment module.r"))
+  source(file.path("benchmark","Setup_objects.r"))
 
   ### ======================================================================================================
   ### Prepare control object for assessment
@@ -29,6 +42,18 @@
   ### ======================================================================================================
 
   NSH.tun   <- NSH.tun[c(2,3,5,6)] #Remove SCAI and IBTS-Q3
+  
+  ### ======================================================================================================
+  ### Make sure natural mortality equals the fixed version
+  ### ======================================================================================================
+
+  NSH@m[]   <- c(1,1,0.3,0.2,rep(0.1,6))
+  
+  ### ======================================================================================================
+  ### Trim the timeseries to 1960-2010
+  ### ======================================================================================================
+
+  NSH       <- window(NSH,start=1960,end=2010)
 
   ### ======================================================================================================
   ### Perform the assessment
@@ -40,12 +65,13 @@
 
   save(NSH,     file=paste(file.path(".","benchmark","resultsICA"),"/NSH.RData",sep=""))
   save(NSH.ica, file=paste(file.path(".","benchmark","resultsICA"),"/NSH.ica.RData",sep=""))
-
+}
 ### ======================================================================================================
 ### SAM second to go
 ### ======================================================================================================
-
+if(floor(an(R.Version()$minor))>=13){
   library(FLSAM)
+  source(file.path("benchmark","Setup_objects.r"))
 
   ### ======================================================================================================
   ### Select the default indices
@@ -54,28 +80,16 @@
   NSH.tun   <- NSH.tun[c(2,3,5,6)] #remove the SCAI and IBTS-Q3
 
   ### ======================================================================================================
-  ### Prepare control object for assessment
-  ### ======================================================================================================
-  source(file.path(".","benchmark","Setup_default_FLSAM_control.r"))
-
-  ### ======================================================================================================
-  ### Perform the scans for bindings
-  ### ======================================================================================================
-  source(file.path(".","benchmark","Scan_catchability_binding.r"))
-  source(file.path(".","benchmark","Scan_obs_var_binding.r"))
-  source(file.path(".","benchmark","Scan_HERAS_binding.r"))
-  source(file.path(".","benchmark","Scan_IBTS_binding.r"))
-
-  ### ======================================================================================================
-  ### Compare the results and make a decision
+  ### Make sure natural mortality equals the fixed version
   ### ======================================================================================================
 
-
-
+  NSH@m[]   <- c(1,1,0.3,0.2,rep(0.1,6))
 
   ### ======================================================================================================
-  ### Adapt the Setup_default_FLSAM_control.r
+  ### Trim the timeseries to 1960-2010
   ### ======================================================================================================
+
+  NSH       <- window(NSH,start=1960,end=2010)
 
   ### ======================================================================================================
   ### Perform the assessment
@@ -87,7 +101,7 @@
 
   save(NSH,     file=paste(file.path(".","benchmark","resultsSAM"),"/NSH.RData",sep=""))
   save(NSH.sam, file=paste(file.path(".","benchmark","resultsSAM"),"/NSH.sam.RData",sep=""))
-
+}
 ### ======================================================================================================
 ### Compare ICA and SAM
 ### ======================================================================================================
