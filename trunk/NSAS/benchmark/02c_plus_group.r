@@ -52,11 +52,12 @@ default.pg.sam@name <- sprintf("Age %i PG",default.pg.sam@range["plusgroup"])
 ### ============================================================================
 ### Run the assessment for a different plus group
 ### ============================================================================
-pgs <- c(7,8)
+pgs <- c(8)
 
 #Loop over truncated years
 pg.sams <- list()
 for(pg in sort(pgs)) {
+  log.msg(sprintf("\n\nPlus group %i....\n",pg))
   pg.stck <- setPlusGroup(NSH,pg)
   pg.tun <- NSH.tun
   pg.tun[["HERAS"]] <- trim(pg.tun[["HERAS"]],age=1:pg)

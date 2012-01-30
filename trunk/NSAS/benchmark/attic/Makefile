@@ -22,6 +22,7 @@ clean:
 
 clean_all:
 	rm -f $(RES_DIR)/*
+	-rm nohup.out
 
 variables:
 	@echo "STEP2_SRCS : $(STEP2_SRCS)"
