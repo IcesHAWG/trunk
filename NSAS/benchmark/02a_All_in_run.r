@@ -81,8 +81,11 @@ print(barchart(value ~ sprintf("%s",age)| fleet,obv,
        col="grey",ylim=range(pretty(c(0,obv$value))),
        as.table=TRUE,scale=list(alternating=FALSE),horizontal=FALSE,
        main="Observation Variances",ylab="Observation Variances",xlab="Age"))
-barplot(obv$value,ylab="Observation Variance",names.arg=obv$str,
-       main="Observation variances by survey",col=factor(obv$fleet),las=3)
+
+bp <- barplot(obv$value,ylab="Observation Variance",
+       main="Observation variances by survey",col=factor(obv$fleet))
+axis(1,at=bp,labels=obv$str,las=3,lty=0,mgp=c(0,0,0))
+legend("topleft",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
 
 #Compare weights against Simmonds wts
 sim.wts <- read.csv(file.path(".","data","simmonds_wts.csv"))

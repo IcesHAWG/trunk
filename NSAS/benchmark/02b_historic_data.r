@@ -101,7 +101,7 @@ print(bwplot(std.res ~ decade | sprintf("Age %02i",age),catch.resids,
           panel.bwplot(...)}))
 
 #Comparison of assessments with and without historic data
-plot(variable.len.sams,xlim=c(1990,2011))
+plot(variable.len.sams,xlim=c(1990,2011),main="Variable data lengths")
 
 ### ============================================================================
 ### Finish
