@@ -38,7 +38,7 @@ NSH.ctrl@logN.vars <- c(1,rep(2,9))
 #NSH.ctrl@catchabilities["HERAS",ac(6:9)] <- 102
 #
 ##Log N random walk variances
-NSH.ctrl@f.vars <- c(rep(1,10))
+NSH.ctrl@f.vars["catch",] <- c(rep(1,10))
 
 ##Observation model parameters
 #NSH.ctrl@obs.vars["IBTS-Q1",ac(3:5)] <- 103
