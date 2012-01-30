@@ -22,7 +22,7 @@
 ### Setup assessment
 ### ============================================================================
 #Exclude MLAI index
-NSH.tun  <- NSH.tun[-which(names(NSH.tun)=="MLAI")] 
+NSH.tun  <- NSH.tun[setdiff(names(NSH.tun),"MLAI")] 
 NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
 
 #Modify default settings of control object
