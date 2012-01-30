@@ -79,7 +79,7 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 ### Prepare Natural Mortality estimates 
 ### ============================================================================
 #Read in estimates from external file
-M2            <- read.csv(file.path(".","data","SMoothedM_NotExtrapolated_NSAS.csv"),
+M2            <- read.csv(file.path(".","data","SmoothedM_NotExtrapolated_NSAS.csv"),
                      header=TRUE)
 colnames(M2)  <- sub("X","",colnames(M2))
 rownames(M2)  <- M2[,1]
