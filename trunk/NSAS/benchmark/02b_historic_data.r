@@ -34,10 +34,10 @@ log.msg("\nNSH SAM Historic period analysis\n================================\n"
 ### ============================================================================
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
-respref <- "02b_historic_period" #Prefix for output files
+respref <- "02b_historic_data" #Prefix for output files
 
 #Dependencies
-full.history.file <- file.path(resdir,"02a_All_in.RData")
+full.history.file <- file.path(resdir,"02a_All_in_run.RData")
 if(!file.exists(full.history.file)) {
   stop(paste("Cannot find dependency",full.history.file,
       "Please run appropriate script to generate this file"))

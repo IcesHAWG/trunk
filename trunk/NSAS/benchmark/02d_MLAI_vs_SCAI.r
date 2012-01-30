@@ -36,7 +36,7 @@ resdir <- file.path("benchmark","resultsSAM")
 respref <- "02d_MLAI_vs_SCAI" #Prefix for output files
 
 #Dependencies
-all.in.file <- file.path(resdir,"02a_All_in.RData")
+all.in.file <- file.path(resdir,"02a_All_in_run.RData")
 if(!file.exists(all.in.file)) {
   stop(paste("Cannot find dependency",all.in.file,
       "Please run appropriate script to generate this file"))
