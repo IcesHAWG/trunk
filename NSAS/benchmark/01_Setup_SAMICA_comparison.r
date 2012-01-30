@@ -31,14 +31,14 @@ NSH.ctrl@states["catch",] <- c(1:10)            #Couple age 7+ Fs
 #NSH.ctrl@f.vars["catch",] <- 1                 #All have the same variance
 #
 ##Log N random walk variances
-NSH.ctrl@logN.vars <- c(1:10) #c(1,rep(2,9))
+NSH.ctrl@logN.vars <- c(1,rep(2,9)) #give freedom to recruits
 #
 ##Catchability models
 #NSH.ctrl@catchabilities["IBTS-Q1",ac(3:5)] <- 101
 #NSH.ctrl@catchabilities["HERAS",ac(6:9)] <- 102
 #
-##Log N random walk variances
-NSH.ctrl@f.vars["catch",] <- c(1:10) #c(rep(1,10))
+##Log f random walk variances
+NSH.ctrl@f.vars["catch",] <- c(rep(1,2),rep(2,7),3)  #barplot(apply(apply(log(NSH@stock.n[,ac(1985:2005)]),1,diff),2,var))    #not seperably period selected
 
 ##Observation model parameters
 #NSH.ctrl@obs.vars["IBTS-Q1",ac(3:5)] <- 103
