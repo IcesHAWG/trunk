@@ -88,7 +88,7 @@ catch.resids$pentad <- floor((catch.resids$year+2)/5)*5
 catch.resids$decade <- sprintf("%02i",(floor(catch.resids$year/10)*10)%%100)
 catch.resids$decade <- factor(catch.resids$decade,levels=unique(catch.resids$decade))
 boxplot(std.res ~ pentad,catch.resids,xlab="Pentad",ylab="Standardised residuals",
-  main="Variability of catch residuals by pentad",panel.first=grid())
+  main="Variability of catch residuals by pentad")
 print(bwplot(std.res ~ decade | sprintf("Age %02i",age),catch.resids,
         xlab="Decade",ylab="Standardised residuals",main="Catch-residual variability",
         as.table=TRUE,horizontal=FALSE,pch="|",lty=1,fill="grey",
