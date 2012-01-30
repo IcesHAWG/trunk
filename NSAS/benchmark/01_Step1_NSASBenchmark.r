@@ -9,7 +9,7 @@
 
 rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 
-path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2012/assessment/NSAS/"
+path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
 #path <- "/media/n/Projecten/ICES WG/Haring werkgroep HAWG/2012/assessment/NSAS/"
 try(setwd(path))
 
@@ -41,7 +41,7 @@ if(floor(an(R.Version()$minor))==8){
   ### Select the default indices
   ### ======================================================================================================
 
-  NSH.tun   <- NSH.tun[c(2,3,5,6)] #Remove SCAI and IBTS-Q3
+  NSH.tun   <- NSH.tun[-c("SCAI","IBTS-Q3")] #Remove SCAI and IBTS-Q3
   
   ### ======================================================================================================
   ### Make sure natural mortality equals the fixed version
@@ -77,7 +77,7 @@ if(floor(an(R.Version()$minor))>=13){
   ### Select the default indices
   ### ======================================================================================================
 
-  NSH.tun   <- NSH.tun[c(2,3,5,6)] #remove the SCAI and IBTS-Q3
+  NSH.tun   <- NSH.tun[-c("SCAI","IBTS-Q3"] #remove the SCAI and IBTS-Q3
 
   ### ======================================================================================================
   ### Make sure natural mortality equals the fixed version
@@ -95,7 +95,7 @@ if(floor(an(R.Version()$minor))>=13){
   ### Perform the assessment
   ### ======================================================================================================
 
-  source(file.path(".","benchmark","Setup_default_FLSAM_control.r"))
+  source(file.path(".","benchmark","attic","Setup_default_FLSAM_control.r"))
   NSH.sam   <- FLSAM(NSH,NSH.tun,NSH.ctrl)
   NSH       <- NSH + NSH.sam
 
