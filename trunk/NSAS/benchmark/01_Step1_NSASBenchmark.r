@@ -10,7 +10,7 @@
 rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 
 path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
-#path <- "/media/n/Projecten/ICES WG/Haring werkgroep HAWG/2012/assessment/NSAS/"
+#path <- "/media/n/Projecten/ICES WG/Haring werkgroep HAWG/2012/tmpRepos/NSAS/"
 try(setwd(path))
 
 options(stringsAsFactors=FALSE)
@@ -42,14 +42,14 @@ if(floor(an(R.Version()$minor))==8){
   ### Select the default indices
   ### ======================================================================================================
 
-  NSH.tun   <- NSH.tun[-c("SCAI","IBTS-Q3")] #Remove SCAI and IBTS-Q3
-  
+  NSH.tun   <- NSH.tun[-which(names(NSH.tun) %in% c("SCAI","IBTS-Q3"))] #remove the SCAI and IBTS-Q3
+
   ### ======================================================================================================
   ### Make sure natural mortality equals the fixed version
   ### ======================================================================================================
 
   NSH@m[]   <- c(1,1,0.3,0.2,rep(0.1,6))
-  
+
   ### ======================================================================================================
   ### Trim the timeseries to 1960-2010
   ### ======================================================================================================
@@ -64,8 +64,8 @@ if(floor(an(R.Version()$minor))==8){
   range(NSH.ica)                  <-  range(NSH)[1:5]
   NSH@stock                       <-  computeStock(NSH)
 
-  save(NSH,     file=paste(file.path(".","benchmark","resultsICA"),"/NSH.RData",sep=""))
-  save(NSH.ica, file=paste(file.path(".","benchmark","resultsICA"),"/NSH.ica.RData",sep=""))
+  save(NSH,     file=paste(file.path(".","benchmark","resultsICA"),"/NSH_step1.RData",sep=""))
+  save(NSH.ica, file=paste(file.path(".","benchmark","resultsICA"),"/NSH_step1.ica.RData",sep=""))
 }
 ### ======================================================================================================
 ### SAM second to go
@@ -96,65 +96,39 @@ if(floor(an(R.Version()$minor))>=13){
   ### Perform the assessment
   ### ======================================================================================================
 
-  source(file.path(".","benchmark","attic","Setup_default_FLSAM_control.r"))
+  source(file.path(".","benchmark","01_Setup_SAMICA_comparison.r"))
   NSH.sam   <- FLSAM(NSH,NSH.tun,NSH.ctrl)
   NSH       <- NSH + NSH.sam
 
-  save(NSH,     file=paste(file.path(".","benchmark","resultsSAM"),"/NSH.RData",sep=""))
-  save(NSH.sam, file=paste(file.path(".","benchmark","resultsSAM"),"/NSH.sam.RData",sep=""))
+  save(NSH,     file=paste(file.path(".","benchmark","resultsSAM"),"/NSH_step1.RData",sep=""))
+  save(NSH.sam, file=paste(file.path(".","benchmark","resultsSAM"),"/NSH_step1.sam.RData",sep=""))
 }
 ### ======================================================================================================
 ### Compare ICA and SAM
 ### ======================================================================================================
 
 #Load ICA assessment
-load(file.path(".","benchmark","resultsICA","NSH.RData"))
+load(file.path(".","benchmark","resultsICA","NSH_step1.RData")); NSH.ica  <- NSH
 #Load SAM assessment
-load(file.path(".","benchmark","resultsSAM","NSH.RData"))
+load(file.path(".","benchmark","resultsSAM","NSH_step1.RData")); NSH.sam  <- NSH
 
 #Store the two assessments together
 NSH.stocks <- FLStocks(FLSAM=NSH.sam, FLICA=NSH.ica)
 
 #Setup plots
-pdf(file.path(".","benchmark","SAM_ICA_comparison",".pdf"))
+pdf(file.path(".","benchmark","01_SAM_ICA_comparison.pdf"))
 
 #Plot result
 NSH.sam@name <- "North Sea Herring FLSAM Assessment"
 print(plot(NSH.sam))
 print(plot(NSH.stocks,key=TRUE,main="Comparison of assessments"))
 
-#Plot catchabilities values
-catch <- catchabilities(NSH.sam)
-print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
-          scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
-          type="l",lwd=c(2,1,1),col=c("black","grey","grey"),
-          subset=fleet %in% c("HERAS","IBTS-Q1"),
-          main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
+#diagnostics of ICA
+diagnostics(NSH.ICA)
 
-#Plot obs_variance (weightings)
-obv <- obs.var(NSH.sam)
-print(barchart(value ~ sprintf("%s",age)| fleet,obv,
-       col="grey",ylim=range(pretty(c(0,obv$value))),
-       as.table=TRUE,scale=list(alternating=FALSE),horizontal=FALSE,
-       main="Observation Variances",ylab="Observation Variances",xlab="Age"))
-
-#Plot selectivity pattern over time
-sel.pat <- merge(f(NSH.sam),fbar(NSH.sam),
-             by="year",suffixes=c(".f",".fbar"))
-sel.pat$sel <- sel.pat$value.f/sel.pat$value.fbar
-sel.pat$age <- as.numeric(as.character(sel.pat$age))
-print(xyplot(value.f ~ year,sel.pat,groups=sprintf("Age %02i",age),
-         type="l",as.table=TRUE,auto.key=list(space="right"),
-         main="Fishing pressure over time",xlab="Year",ylab="F",
-         scale=list(alternating=FALSE)))
-print(xyplot(sel ~ year,sel.pat,groups=sprintf("Age %02i",age),
-         type="l",as.table=TRUE,auto.key=list(space="right"),
-         main="Selectivity of the Fishery",xlab="Year",ylab="F/Fbar",
-         scale=list(alternating=FALSE)))
-print(xyplot(sel ~ age|sprintf("%i's",floor(year/5)*5),sel.pat,
-         groups=year,type="l",as.table=TRUE,
-         scale=list(alternating=FALSE),
-         main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar"))
-
-#Survey fits
+#diagnostics of SAM
 residual.diagnostics(NSH.sam)
+
+#Compare weightings with John's weighting
+obs.var(NSH.sam)
+dev.off()
