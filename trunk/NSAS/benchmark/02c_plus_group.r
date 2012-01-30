@@ -60,16 +60,8 @@ for(pg in sort(pgs)) {
   pg.stck <- setPlusGroup(NSH,pg)
   pg.tun <- NSH.tun
   pg.tun[["HERAS"]] <- trim(pg.tun[["HERAS"]],age=1:pg)
-  pg.ctrl <- NSH.ctrl
+  pg.ctrl <- drop.from.control(NSH.ctrl,ages=(pg+1):NSH.ctrl@range["max"])
   pg.ctrl@range[c("max","plusgroup")] <- pg
-  for(slt.name in slotNames(pg.ctrl)) {
-    slt <- slot(pg.ctrl,slt.name)
-    if(is.matrix(slt)) {
-      slot(pg.ctrl,slt.name) <- slt[,ac(0:pg)]
-    }
-  }
-  pg.ctrl@logN.vars <- pg.ctrl@logN.vars[ac(0:pg)]
-  pg.ctrl <- update(pg.ctrl)
   
   #Perform assessment
   pg.sam <- FLSAM(pg.stck,pg.tun,pg.ctrl)
