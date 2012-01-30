@@ -39,14 +39,7 @@ respref <- "02a_All_in" #Prefix for output files
 #Import externals
 library(FLSAM)
 source(file.path("benchmark","Setup_objects.r"))
-
-#Exclude MLAI index
-NSH.tun  <- NSH.tun[-which(names(NSH.tun)=="MLAI")] 
-NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
-
-#Modify default settings of control object
-NSH.ctrl@states["catch",] <- seq(dims(NSH)$age) #number at age states move freely
-NSH.ctrl@logN.vars[] <- c(1,rep(2,dims(NSH)$age-1)) #Recruitment gets separate variance
+source(file.path("benchmark","02_Setup_All_in_runs.r"))
 
 ### ============================================================================
 ### Run the assessment
