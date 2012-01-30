@@ -27,16 +27,19 @@
 NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
 
 #Fishing mortality random walk coupling
-#NSH.ctrl@states["catch",] <- c(1:7,rep(8,3))            #Couple age 7+ Fs
-#NSH.ctrl@f.vars["catch",] <- 1                          #All have the same variance
+NSH.ctrl@states["catch",] <- c(1:10)            #Couple age 7+ Fs
+#NSH.ctrl@f.vars["catch",] <- 1                 #All have the same variance
 #
 ##Log N random walk variances
-#NSH.ctrl@logN.vars <- c(1,rep(2,9))
+NSH.ctrl@logN.vars <- c(1,rep(2,9))
 #
 ##Catchability models
 #NSH.ctrl@catchabilities["IBTS-Q1",ac(3:5)] <- 101
 #NSH.ctrl@catchabilities["HERAS",ac(6:9)] <- 102
 #
+##Log N random walk variances
+NSH.ctrl@f.vars <- c(rep(1,10))
+
 ##Observation model parameters
 #NSH.ctrl@obs.vars["IBTS-Q1",ac(3:5)] <- 103
 #NSH.ctrl@obs.vars["HERAS",ac(6:9)] <- 104
