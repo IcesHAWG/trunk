@@ -36,7 +36,7 @@ resdir <- file.path("benchmark","resultsSAM")
 respref <- "02c_plus_group" #Prefix for output files
 
 #Dependencies
-default.pg.file <- file.path(resdir,"02a_All_in.RData")
+default.pg.file <- file.path(resdir,"02a_All_in_run.RData")
 if(!file.exists(default.pg.file)) {
   stop(paste("Cannot find dependency",default.pg.file,
       "Please run appropriate script to generate this file"))

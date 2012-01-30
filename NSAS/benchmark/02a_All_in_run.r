@@ -34,7 +34,7 @@ log.msg("\nNSH SAM 'All-in' Assessment\n===========================\n")
 ### ============================================================================
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
-respref <- "02a_All_in" #Prefix for output files
+respref <- "02a_All_in_run" #Prefix for output files
 
 #Import externals
 library(FLSAM)
