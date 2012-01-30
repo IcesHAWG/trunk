@@ -1,4 +1,4 @@
-######################################################################################################
+##############################################################################
 # SCAI model
 #
 # $Rev$
@@ -7,13 +7,15 @@
 # Author: Mark Payne, mpa@aqua.dtu.dk
 # DTU-Aqua, Charlottenlund, DK
 # 
-# Sets up and plots the results of the SCAI Random Effects Model of the IHLS larval abundance indices
+# Sets up and plots the results of the SCAI Random Effects Model 
+# of the IHLS larval abundance indices
 #
 # Developed with:
 #   - R version 2.9.1
 #   - ADMB v 9.0
 #
 # Changes:
+#   r667   - Added outputs written to VPA suite
 #   r404   - Added retrospective analysis
 #   V 2.01 - Tweaks to output figures
 #   V 2.00 - Simplifed for inclusion in HAWG repository
@@ -39,11 +41,11 @@
 # If we meet some day, and you think still this stuff is worth it, you
 # can buy me a beer in return. Mark Payne (with kudos to Poul-Henning Kamp)
 # ----------------------------------------------------------------------------
-####################################################################################################
+##############################################################################
 
-### ======================================================================================================
+### ==========================================================================
 ### Initialise system
-### ======================================================================================================
+### ==========================================================================
 # Start with house cleaning
 rm(list = ls()); gc(); graphics.off()
 ver <- "SCAI Model $Rev$"
@@ -52,11 +54,11 @@ cat(paste("\n",ver,"\n",sep=""));cat(paste(ver.datetime,"\n\n",sep=""))
 start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 
-### ======================================================================================================
+### ==========================================================================
 ### Parameters
-### ======================================================================================================
+### ==========================================================================
 #Load data
-LAI.in <- read.table(file.path("..","data","lai.txt"),header=TRUE)
+LAI.in <- read.table(file.path("..","lai.txt"),header=TRUE)
 
 #Abbreviations
 areas <- c("OrkShe"="B",Buchan="C",Banks="D",Downs="E")
@@ -71,11 +73,10 @@ output.dir <- file.path(".","SCAIoutputs")
 
 #output device
 pdf(file.path(output.dir,"SCAI_outputs.pdf"),width=200/25.4,height=200/25.4,pointsize=16,onefile=TRUE)
-#png(file.path(output.dir,"SCAI_outputs_%02d.png"),units = "px", height=900,width=900,pointsize = 24,bg = "white")
 
-### ======================================================================================================
+### ==========================================================================
 ### Prepare input data
-### ======================================================================================================
+### ==========================================================================
 #Filter "dot" years and zero years - this is not the ideal approach, but is probably
 #the best that we can do at the moment.
 LAI.dat <- subset(LAI.in,LAI.in$L..9!="." | LAI.in$L..9=="0")
@@ -86,9 +87,9 @@ LAI.dat$LAI  <- as.numeric(LAI.dat$L..9)
 LAI.tbl <- xtabs(as.numeric(LAI) ~  year + LAIUnit,LAI.dat)
 LAI.tbl[LAI.tbl==0] <- NA
 
-### ======================================================================================================
+### ==========================================================================
 ### Model fitting function
-### ======================================================================================================
+### ==========================================================================
 fit.SCAI <- function(area.code,dat) {
     ### Write input to ADMB
     ### ====================
@@ -111,7 +112,7 @@ fit.SCAI <- function(area.code,dat) {
     opt$checksum <- c(42,42)
 
     #Write .dat file
-    opt.file <- file.path(wkdir,"SCAI.dat")
+    opt.file <- file.path(wkdir,"scai.dat")
     cat("",file=opt.file)
     lapply(names(opt), function(x) {
          cat(paste("#",x,"\n"),file=opt.file,append=TRUE)
@@ -121,9 +122,13 @@ fit.SCAI <- function(area.code,dat) {
     ### Run ADMB
     ### ========
     olddir <- setwd(wkdir)
+    #Platform specific run time
+    if (.Platform$OS.type=="unix") {
+      system("./SCAI")
+    } else if (.Platform$OS.type == "windows") {
     shell("scai.exe",mustWork=TRUE)
+    }
     setwd(olddir)
-
 
     ### Load results
     ### ============
@@ -155,14 +160,14 @@ fit.SCAI <- function(area.code,dat) {
     return(opt)
 }
 
-### ======================================================================================================
+### ==========================================================================
 ### Fit model
-### ======================================================================================================
+### ==========================================================================
 fit <- lapply(as.list(areas),fit.SCAI,LAI.dat)
 
-### ======================================================================================================
+### ==========================================================================
 ### Analysis of residuals
-### ======================================================================================================
+### ==========================================================================
 #Test residuals for randomness
 cat("\nTests for normally distributed residuals by sampling unit\n")
 for(a in names(areas)) {
@@ -190,9 +195,9 @@ for(a in names(areas)) {
 #Likelihoods for each component
 print(sapply(fit,function(d) d$jnll))
 
-### ======================================================================================================
+### ==========================================================================
 ### Retrospective analysis
-### ======================================================================================================
+### ==========================================================================
 #Strip results of a fit down to bare basis for use in retro
 strip.results <- function(ft) {
   res<- lapply(ft,function(b) {b$fit[,c("year","value")]})
@@ -218,9 +223,9 @@ for(i in retro.yrs) {
 retro.res <- do.call(rbind,c(list(base.res),retro.res))
 
 
-### ======================================================================================================
+### ==========================================================================
 ### Plot results
-### ======================================================================================================
+### ==========================================================================
 xlims <- range(pretty(LAI.dat$year))
 n.areas <- length(areas)
 
@@ -237,9 +242,9 @@ plot(LAI.tbl[,"E6"],LAI.tbl[,"E8"],log="xy",pch=19,xlab="Survey E6",ylab="Survey
 abline(a=0,b=1,lwd=2)
 
 
-### ======================================================================================================
+### ==========================================================================
 ### Model Fit diagnostic plots
-### ======================================================================================================
+### ==========================================================================
 #First plot the time series for each component, with observations
 #par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(3.5,5,4,0.5),las=1,mgp=c(4,1,0))
 pchs <- c(19,2,3,8)
@@ -321,9 +326,9 @@ lapply(names(fit),function(a) {
 title(xlab="Observed LAI",ylab="Residual",outer=TRUE,xpd=NA,line=0)
 title(main="Residuals vs Observed LAI",outer=TRUE,line=1)
 
-### ======================================================================================================
+### ==========================================================================
 ### Model parameters
-### ======================================================================================================
+### ==========================================================================
 
 #Plot model parameters for each component
 par(mfrow=c(3,1),mar=c(0,0,0,0),oma=c(5,4,4,2),las=1,mgp=c(3,1,0))
@@ -368,9 +373,9 @@ matplot(yrs,dat.to.plot,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),
 legend("topleft",legend=names(areas),pch=as.character(1:n.areas),col=1:6,lty=1,bg="white")
 
 
-### ======================================================================================================
+### ==========================================================================
 ### Component dynamics plots
-### ======================================================================================================
+### ==========================================================================
 #Plot proportions of SCAI for each sampling unit
 props <- lapply(names(fit),function(a) {
                 data.frame(component=a,subset(fit[[a]]$res,name==("props")))
@@ -468,11 +473,22 @@ legend("topright",col=c(1,1:6),lty=1,lwd=c(4,rep(2,4)),legend=colnames(diffs),pc
 #Close output
 if(length(grep("pdf|png|wmf",names(dev.cur())))!=0) dev.off()
 
-### ======================================================================================================
+### ==========================================================================
 ### Write out results
-### ======================================================================================================
+### ==========================================================================
+#Write to csv
 write.out <- data.frame(Year=fit[[1]]$fit$year,SCAI=sapply(fit,function(d) d$fit$SCAI),SE=sapply(fit,function(d) d$fit$std.dev))
 write.csv(write.out,file=file.path(output.dir,"SCAI_indices.csv"),row.names=FALSE)
+
+#Write to VPA suite file
+sumscai <- rowSums(sapply(fit,function(d) d$fit$SCAI) )
+VPA.out <- data.frame(Year=write.out$Year,VPA=1,SCAI=sumscai)
+VPA.out.file <- file.path(output.dir,"scai.txt")
+cat("Spawning component abundance index\n",file=VPA.out.file)
+cat(sprintf("1\t%i\t2\n",nrow(VPA.out)),file=VPA.out.file,append=TRUE) 
+write.table(VPA.out,file=VPA.out.file,append=TRUE,col.names=TRUE,row.names=FALSE)
+
+
 cat("Complete.\n")
 
 
