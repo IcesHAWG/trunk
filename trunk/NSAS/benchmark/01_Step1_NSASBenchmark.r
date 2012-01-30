@@ -9,8 +9,8 @@
 
 rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 
-path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
-#path <- "/media/n/Projecten/ICES WG/Haring werkgroep HAWG/2012/tmpRepos/NSAS/"
+if(substr(R.Version()$os,1,3)== "min")  path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
+if(substr(R.Version()$os,1,3)== "lin")  path <- "/media/n/Projecten/ICES WG/Haring werkgroep HAWG/2012/tmpRepos/NSAS/"
 try(setwd(path))
 
 options(stringsAsFactors=FALSE)
@@ -122,13 +122,28 @@ pdf(file.path(".","benchmark","01_SAM_ICA_comparison.pdf"))
 NSH.sam@name <- "North Sea Herring FLSAM Assessment"
 print(plot(NSH.sam))
 print(plot(NSH.stocks,key=TRUE,main="Comparison of assessments"))
+dev.off()
 
+pdf(file.path(".","benchmark","01_ICA_comparison.pdf"))
+load(file=paste(file.path(".","benchmark","resultsICA"),"/NSH_step1.ica.RData",sep=""))
 #diagnostics of ICA
-diagnostics(NSH.ICA)
+diagnostics(NSH.ica)
+dev.off()
 
+pdf(file.path(".","benchmark","01_SAM_comparison.pdf"))
+load(file=paste(file.path(".","benchmark","resultsSAM"),"/NSH_step1.sam.RData",sep=""))
 #diagnostics of SAM
 residual.diagnostics(NSH.sam)
 
 #Compare weightings with John's weighting
-obs.var(NSH.sam)
+sim.wts   <- read.csv(file.path(".","data","simmonds_wts.csv"))
+obv       <- obs.var(NSH.sam)
+obv$str   <- sprintf("%s_%i",obv$fleet,obv$age)
+obv       <- obv[order(obv$value),]
+wts       <- merge(sim.wts,obv)
+wts$fit.wts <- 1/wts$value
+plot(wts$simmonds_wts,wts$fit.wts,xlab="HAWG 2011 Weightings",
+  ylab="SAM Fitted Weights",type="n",log="xy",main="Comparison of weightings")
+text(wts$simmonds_wts,wts$fit.wts,wts$str,xpd=NA)
 dev.off()
+
