@@ -51,17 +51,17 @@ NSH                                   <- setPlusGroup(NSH,NSH@range["max"])
 #  - natural mortality at age 9 is 0.1 (same as age 8)
 #  - proportion mature at age 9 is 1.0 (same as age 8)
 #  - harvest.spwn and m.spwn are the same as elsewhere
-hist.yrs <- as.character(1947:1959)
-NSH@catch.wt <- NSH@landings.wt #Automatic population of catch.wt introduces NAs 
-NSH@catch.wt["9",hist.yrs] <- 0.271 
-NSH@landings.wt["9",hist.yrs] <- 0.271 
-NSH@catch.n["9",hist.yrs] <- NSH@catch.n["8",hist.yrs]/2
-NSH@catch.n["8",hist.yrs] <- NSH@catch.n["9",hist.yrs]
-NSH@landings.n["9",hist.yrs] <- NSH@landings.n["8",hist.yrs]/2
-NSH@landings.n["8",hist.yrs] <- NSH@landings.n["9",hist.yrs]
-NSH@stock.wt["9",hist.yrs] <- 0.312
-NSH@m["9",hist.yrs] <- 0.1
-NSH@mat["9",hist.yrs] <- 1
+hist.yrs                      <- as.character(1947:1959)
+NSH@catch.wt                  <- NSH@landings.wt #Automatic population of catch.wt introduces NAs
+NSH@catch.wt["9",hist.yrs]    <- 0.271
+NSH@landings.wt["9",hist.yrs] <- 0.271
+NSH@catch.n["9",hist.yrs]     <- NSH@catch.n["8",hist.yrs]/2
+NSH@catch.n["8",hist.yrs]     <- NSH@catch.n["9",hist.yrs]
+NSH@landings.n["9",hist.yrs]  <- NSH@landings.n["8",hist.yrs]/2
+NSH@landings.n["8",hist.yrs]  <- NSH@landings.n["9",hist.yrs]
+NSH@stock.wt["9",hist.yrs]    <- 0.312
+NSH@m["9",hist.yrs]           <- 0.1
+NSH@mat["9",hist.yrs]         <- 1
 
 #No catches of age 9 in 1977 so stock.wt does not get filled there.
 #Hence, we copy the stock weight for that age from the previous year.
