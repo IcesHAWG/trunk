@@ -1,33 +1,31 @@
-RES_DIR=./results
-ASS_FILE= NSH_SAM.pdf
-LOOI_FILE= LOOI_run.pdf
-RETRO_FILE= Retrospective.pdf
-SCAN_FILES = $(patsubst %.r,%.pdf,$(wildcard Scan_*.r))
+SRC_DIR=./benchmark
+RES_DIR=$(SRC_DIR)/resultsSAM
+STEP2_CFG  = $(SRC_DIR)/02_Setup_All_in_runs.r
+STEP2_SRCS = $(wildcard $(SRC_DIR)/02?_*.r)
+STEP2_PDFS = $(patsubst $(SRC_DIR)/%.r,$(RES_DIR)/%.pdf,$(STEP2_SRCS))
+STEP2_FIRST= $(filter $(RES_DIR)/02a%,$(STEP2_PDFS))
+STEP2_OTHERS= $(filter-out $(STEP2_FIRST), $(STEP2_PDFS))
 
-ALL_FILES= $(SCAN_FILES) $(ASS_FILE) $(LOOI_FILE) $(RETRO_FILE)
-PLOT_FILES_PATH = $(addprefix $(RES_DIR)/,$(ALL_FILES))
 R=/usr/local/bin/R --slave --vanilla
 
-all: $(PLOT_FILES_PATH)
+all:
 
-assessment: $(RES_DIR)/$(ASS_FILE)
+step2: $(STEP2_OTHERS)
 
-scans: $(addprefix $(RES_DIR)/,$(SCAN_FILES))
+$(STEP2_OTHERS): $(STEP2_FIRST) $(STEP2_CFG)
 
-looi: $(RES_DIR)/$(LOOI_FILE)
-
-retro: $(RES_DIR)/$(RETRO_FILE)
-       	
-
-$(RES_DIR)/%.pdf: %.r
+$(RES_DIR)/%.pdf: $(SRC_DIR)/%.r
 	$R -f $< > $(RES_DIR)/$*.log 2>&1
 
 clean:
-	rm -f *~
+	find . -name "*~" -print -delete
 
 clean_all:
 	rm -f $(RES_DIR)/*
 
 variables:
-	@echo "SCAN_FILES : $(SCAN_FILES)"
+	@echo "STEP2_SRCS : $(STEP2_SRCS)"
+	@echo "STEP2_PDFS : $(STEP2_PDFS)"
+	@echo "STEP2_FIRST : $(STEP2_FIRST)"
+	@echo "STEP2_OTHERS : $(STEP2_OTHERS)"
 
