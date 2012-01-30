@@ -16,6 +16,7 @@ try(setwd(path))
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Benchmark Assessment\n=====================\n")
+an <- function(x){return(as.numeric(x))}
 
 ### ======================================================================================================
 ### ICA first to go
@@ -77,7 +78,7 @@ if(floor(an(R.Version()$minor))>=13){
   ### Select the default indices
   ### ======================================================================================================
 
-  NSH.tun   <- NSH.tun[-c("SCAI","IBTS-Q3"] #remove the SCAI and IBTS-Q3
+  NSH.tun   <- NSH.tun[-c("SCAI","IBTS-Q3")] #remove the SCAI and IBTS-Q3
 
   ### ======================================================================================================
   ### Make sure natural mortality equals the fixed version
