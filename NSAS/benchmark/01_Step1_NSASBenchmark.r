@@ -147,3 +147,7 @@ plot(wts$simmonds_wts,wts$fit.wts,xlab="HAWG 2011 Weightings",
 text(wts$simmonds_wts,wts$fit.wts,wts$str,xpd=NA)
 dev.off()
 
+#Weighting by component
+a<-obs.var(NSH.sam)
+a$str<-paste(a$fleet,a$age)
+barplot(1/a$value,names.arg=a$str,col=a$fleet,las=3)
