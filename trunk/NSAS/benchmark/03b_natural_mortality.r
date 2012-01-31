@@ -84,6 +84,15 @@ plot(M.variations,main="Effects of variable natural mortality")
 plot(M.variations,xlim=c(1990,2011),
     main="Effects of variable vs. fixed natural mortality")
 
+#Comparison of weightings
+obvs <- obs.var(M.variations)
+obvs$str <- paste(obvs$fleet,ifelse(is.na(obvs$age),"",obvs$age))
+obvs.stack <- unstack(obvs,value ~ str)
+barplot(as.matrix(obvs.stack),beside=TRUE,las=3,
+   legend.text=levels(obvs$name),col=c("red","black"),
+   main="Variable vs fixed natural mortality",
+   ylab="Observation variance")
+
 #Plot diagnostics of both runs
 residual.diagnostics(variable.sam)
 residual.diagnostics(fixed.sam)
