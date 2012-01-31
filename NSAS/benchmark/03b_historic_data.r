@@ -34,10 +34,10 @@ log.msg("\nNSH SAM Historic period analysis\n================================\n"
 ### ============================================================================
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
-respref <- "02b_historic_data" #Prefix for output files
+respref <- "03b_historic_data" #Prefix for output files
 
 #Dependencies
-full.history.file <- file.path(resdir,"02a_All_in_run.RData")
+full.history.file <- file.path(resdir,"03a_selected_surveys.RData")
 if(!file.exists(full.history.file)) {
   stop(paste("Cannot find dependency",full.history.file,
       "Please run appropriate script to generate this file"))
@@ -46,7 +46,7 @@ if(!file.exists(full.history.file)) {
 #Import externals
 library(FLSAM)
 source(file.path("benchmark","Setup_objects.r"))
-source(file.path("benchmark","02_Setup_All_in_runs.r"))
+source(file.path("benchmark","03_Setup_selected_surveys.r"))
 full.history.sam <- local({load(full.history.file);return(NSH.sam)})
 full.history.sam@name <- "All data"
 

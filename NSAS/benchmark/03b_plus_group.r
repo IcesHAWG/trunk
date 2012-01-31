@@ -33,10 +33,10 @@ log.msg("\nNSH SAM Plus group analyis\n==========================\n")
 ### ============================================================================
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
-respref <- "02c_plus_group" #Prefix for output files
+respref <- "03b_plus_group" #Prefix for output files
 
 #Dependencies
-default.pg.file <- file.path(resdir,"02a_All_in_run.RData")
+default.pg.file <- file.path(resdir,"03a_selected_surveys.RData")
 if(!file.exists(default.pg.file)) {
   stop(paste("Cannot find dependency",default.pg.file,
       "Please run appropriate script to generate this file"))
@@ -45,7 +45,7 @@ if(!file.exists(default.pg.file)) {
 #Import externals
 library(FLSAM)
 source(file.path("benchmark","Setup_objects.r"))
-source(file.path("benchmark","02_Setup_All_in_runs.r"))
+source(file.path("benchmark","03_Setup_selected_surveys.r"))
 default.pg.sam <- local({load(default.pg.file);return(NSH.sam)})
 default.pg.sam@name <- sprintf("Age %i PG",default.pg.sam@range["plusgroup"])
 

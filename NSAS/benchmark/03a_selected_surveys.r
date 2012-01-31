@@ -27,19 +27,19 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
 }
-log.msg("\nNSH SAM 'All-in' Assessment\n===========================\n")
+log.msg("\nNSH SAM Selected surveys   \n===========================\n")
 
 ### ============================================================================
 ### Setup assessment
 ### ============================================================================
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
-respref <- "02a_All_in_run" #Prefix for output files
+respref <- "03a_selected_surveys" #Prefix for output files
 
 #Import externals
 library(FLSAM)
 source(file.path("benchmark","Setup_objects.r"))
-source(file.path("benchmark","02_Setup_All_in_runs.r"))
+source(file.path("benchmark","03_Setup_selected_surveys.r"))
 
 ### ============================================================================
 ### Run the assessment
