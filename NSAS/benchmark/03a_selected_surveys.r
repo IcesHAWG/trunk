@@ -77,13 +77,13 @@ print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
 obv <- obs.var(NSH.sam)
 obv$str <- paste(obv$fleet,ifelse(is.na(obv$age),"",obv$age))
 obv <- obv[order(obv$value),]
-print(barchart(value ~ sprintf("%s",age)| fleet,obv,
-       col="grey",ylim=range(pretty(c(0,obv$value))),
-       as.table=TRUE,scale=list(alternating=FALSE),horizontal=FALSE,
-       main="Observation Variances",ylab="Observation Variances",xlab="Age"))
-
 bp <- barplot(obv$value,ylab="Observation Variance",
-       main="Observation variances by survey",col=factor(obv$fleet))
+       main="Observation variances by data source",col=factor(obv$fleet))
+axis(1,at=bp,labels=obv$str,las=3,lty=0,mgp=c(0,0,0))
+legend("topleft",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
+
+bp <- barplot(1/obv$value,ylab="Weightings",
+       main="Data source weightings",col=factor(obv$fleet))
 axis(1,at=bp,labels=obv$str,las=3,lty=0,mgp=c(0,0,0))
 legend("topleft",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
 
