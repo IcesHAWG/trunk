@@ -70,7 +70,7 @@ catch <- catchabilities(NSH.sam)
 print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
           scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
           type="l",lwd=c(2,1,1),col=c("black","grey","grey"),
-          subset=fleet %in% c("HERAS","IBTS-Q1","IBTS-Q3"),
+          subset=fleet %in% c("HERAS"),
           main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
 
 #Plot obs_variance (weightings)
