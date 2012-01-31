@@ -28,6 +28,7 @@ NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
 
 #Modify default settings of control object
 NSH.ctrl@states["catch",] <- seq(dims(NSH)$age) #number at age states move freely
+NSH.ctrl@states["catch",ac(8:9)] <- 101   #but bind oldest groups
 NSH.ctrl@logN.vars[] <- c(1,rep(2,dims(NSH)$age-2),3) #Recruitment gets separate variance
 NSH.ctrl@f.vars["catch",] <- c(rep(1,2),rep(2,5),rep(3,3))
 
