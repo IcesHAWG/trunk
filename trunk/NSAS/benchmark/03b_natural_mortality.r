@@ -1,12 +1,12 @@
 ################################################################################
-# NSH_SAM MLAI vs SCAI
+# NSH_SAM Natural mortality
 #
 # $Rev: 618 $
 # $Date: 2011-11-11 16:42:31 +0100 (vr, 11 nov 2011) $
 #
 # Author: HAWG model devlopment group
 #
-# Examines the relationship between MLAI, SCAI and the assessment results
+# Examines the effect of introducing a variable natural mortality
 #
 # Developed with:
 #   - R version 2.13.0
@@ -26,17 +26,17 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
 }
-log.msg("\nNSH SAM MLAI vs SCAI\n==========================\n")
+log.msg("\nNSH SAM Natural Mortality\n================================\n")
 
 ### ============================================================================
 ### Setup assessment
 ### ============================================================================
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
-respref <- "02d_MLAI_vs_SCAI" #Prefix for output files
+respref <- "03b_natural_mortality" #Prefix for output files
 
 #Dependencies
-all.in.file <- file.path(resdir,"02a_All_in_run.RData")
+all.in.file <- file.path(resdir,"03a_selected_surveys.RData")
 if(!file.exists(all.in.file)) {
   stop(paste("Cannot find dependency",all.in.file,
       "Please run appropriate script to generate this file"))
@@ -56,16 +56,16 @@ NSH.tun.all <- NSH.tun
 ### ============================================================================
 #Drop IHLS data, setup new objects, perform assessment
 NSH.tun <- NSH.tun[setdiff(names(NSH.tun),c("SCAI","MLAI"))] 
-source(file.path("benchmark","02_Setup_All_in_runs.r"))
+source(file.path("benchmark","03_Setup_selected_surveys.r"))
 noIHLS.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 noIHLS.sam@name <- "no IHLS"
 
-#Now include the MLAI. The MLAI will only be dropped by "02_Setup_All_in_runs" if
+#Now include the MLAI. The MLAI will only be dropped by "03_Setup_selected_surveys" if
 #it is called "MLAI". We therefore rename it to "temp_MLAI" to avoid this problem
 NSH.tun <- NSH.tun.all
 NSH.tun[["temp_MLAI"]] <- NSH.tun[["MLAI"]]
 NSH.tun <- NSH.tun[setdiff(names(NSH.tun),c("SCAI","MLAI"))]  #Drop SCAI,MLAI 
-source(file.path("benchmark","02_Setup_All_in_runs.r"))
+source(file.path("benchmark","03_Setup_selected_surveys.r"))
 MLAI.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 MLAI.sam@name <- "MLAI"
 
