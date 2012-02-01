@@ -55,6 +55,7 @@ source(file.path("benchmark","03_Setup_selected_surveys.r"))
 ### ============================================================================
 #Scan through the survey ages, tying them sequentlly together
 ctrls <- list()
+NSH.ctrl@timeout <- 1800
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
@@ -63,6 +64,16 @@ for(bnd.name in names(binding.list)) {
    slot(ctrl.obj,scan.slot)[scan.surv,ac(bindings)] <- 100
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
+
+#Manually select some combinations
+three.groups <- new("FLSAM.control",NSH.ctrl,name="three.groups")
+three.groups@obs.vars["catch",ac(0:1)] <- 101
+three.groups@obs.vars["catch",ac(2:4)] <- 102
+three.groups@obs.vars["catch",ac(5:9)] <- 103
+
+#Finish
+ctrls <- list(three.groups,NSH.ctrl)
+ctrls <- lapply(ctrls,update)
 
 ### ============================================================================
 ### Run the assessments
@@ -92,6 +103,7 @@ print(plot(scan.sams,main=sprintf("%s %s scan",scan.surv,scan.slot)))
 #Write likelihood test table
 lr.tbl <- lr.test(scan.sams)
 write.table(lr.tbl,file=file.path(resdir,paste(respref,".txt",sep="")))
+
 
 ### ============================================================================
 ### Finish
