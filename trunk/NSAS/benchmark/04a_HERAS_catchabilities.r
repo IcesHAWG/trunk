@@ -38,8 +38,8 @@ log.msg("\nNSH SAM HERAS Bindings     \n===========================\n")
 #Scanning parameters
 scan.surv <- "HERAS"
 scan.slot <- "catchabilities"
-binding.list <- lapply(1:9,seq,to=9)
-names(binding.list) <- lapply(binding.list,function(x) sprintf("%i+",min(x)))
+binding.list <- lapply(1:9,seq,from=1)
+names(binding.list) <- lapply(binding.list,function(x) sprintf("-%i",max(x)))
 
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
