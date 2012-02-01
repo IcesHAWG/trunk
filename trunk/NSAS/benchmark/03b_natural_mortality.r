@@ -1,8 +1,8 @@
 ################################################################################
 # NSH_SAM Natural mortality
 #
-# $Rev: 618 $
-# $Date: 2011-11-11 16:42:31 +0100 (vr, 11 nov 2011) $
+# $Rev$
+# $Date$
 #
 # Author: HAWG model devlopment group
 #
