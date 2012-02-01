@@ -85,7 +85,7 @@ legend("topleft",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
 bp <- barplot(1/obv$value,ylab="Weightings",
        main="Data source weightings",col=factor(obv$fleet))
 axis(1,at=bp,labels=obv$str,las=3,lty=0,mgp=c(0,0,0))
-legend("topleft",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
+legend("topright",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
 
 #Compare weights against Simmonds wts
 sim.wts <- read.csv(file.path(".","data","simmonds_wts.csv"))
