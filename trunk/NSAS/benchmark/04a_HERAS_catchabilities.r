@@ -54,6 +54,7 @@ source(file.path("benchmark","03_Setup_selected_surveys.r"))
 ### Setup control objects
 ### ============================================================================
 #Scan through the survey ages, tying them sequentlly together
+NSH.ctrl@timeout <- 1800
 ctrls <- list()
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
