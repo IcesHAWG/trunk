@@ -34,4 +34,4 @@ NSH.ctrl@f.vars["catch",] <- c(rep(1,2),rep(2,5),rep(3,3))
 
 #Update control
 NSH.ctrl <- update(NSH.ctrl)
-
+NSH.ctrl@name <- "Step03"
