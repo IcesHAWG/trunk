@@ -38,8 +38,6 @@ log.msg("\nNSH SAM Catch obs.vars     \n===========================\n")
 #Scanning parameters
 scan.surv <- "catch"
 scan.slot <- "obs.vars"
-binding.list <- lapply(0:9,seq,to=9)
-names(binding.list) <- lapply(binding.list,function(x) sprintf("%i+",min(x)))
 
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
@@ -53,9 +51,13 @@ source(file.path("benchmark","03_Setup_selected_surveys.r"))
 ### ============================================================================
 ### Setup control objects
 ### ============================================================================
-#Scan through the survey ages, tying them sequentlly together
+#Setup defaults
 ctrls <- list()
 NSH.ctrl@timeout <- 1800
+
+#Scan through the survey ages, tying them sequentlly together
+binding.list <- lapply(0:8,seq,to=9)
+names(binding.list) <- lapply(binding.list,function(x) sprintf("%i+",min(x)))
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
@@ -66,14 +68,13 @@ for(bnd.name in names(binding.list)) {
 }
 
 #Manually select some combinations
-three.groups <- new("FLSAM.control",NSH.ctrl,name="three.groups")
-three.groups@obs.vars["catch",ac(0:1)] <- 101
-three.groups@obs.vars["catch",ac(2:4)] <- 102
-three.groups@obs.vars["catch",ac(5:9)] <- 103
+four.groups <- new("FLSAM.control",NSH.ctrl,name="01,24,58,9")
+four.groups@obs.vars["catch",] <- c(rep(100,2),rep(102,3),rep(103,4),109)
 
-#Finish
-ctrls <- list(three.groups,NSH.ctrl)
+#Update and finish control objects
+ctrls <- c(ctrls,NSH.ctrl,four.groups)
 ctrls <- lapply(ctrls,update)
+names(ctrls) <- lapply(ctrls,function(x) x@name)
 
 ### ============================================================================
 ### Run the assessments

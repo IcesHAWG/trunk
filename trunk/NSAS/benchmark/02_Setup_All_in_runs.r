@@ -23,13 +23,18 @@
 ### ============================================================================
 #Exclude MLAI index
 NSH.tun  <- NSH.tun[setdiff(names(NSH.tun),"MLAI")] 
+
+#Get default settings of control object
 NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
 
-#Modify default settings of control object
-NSH.ctrl@states["catch",] <- seq(dims(NSH)$age) #number at age states move freely
-NSH.ctrl@logN.vars[] <- c(1,rep(2,dims(NSH)$age-1)) #Recruitment gets separate variance
+#Set the variances. Separate variance for recruitment and plus group
+#Fishing mortality RWs are set from an analysis of ICA VPA results
+NSH.ctrl@logN.vars[] <- c(1,rep(2,dims(NSH)$age-2),3) 
+NSH.ctrl@f.vars["catch",] <- c(rep(1,2),rep(2,5),rep(3,3))
 
-#Bind states to ensure stablity
+#All fishing mortality states are free except 
+#oldest ages to ensure stablity
+NSH.ctrl@states["catch",] <- seq(dims(NSH)$age) 
 NSH.ctrl@states["catch",ac(8:9)] <- 101
 
 #Group observation variances of catches to ensure stability

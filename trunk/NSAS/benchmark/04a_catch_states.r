@@ -38,8 +38,6 @@ log.msg("\nNSH SAM Catch states     \n===========================\n")
 #Scanning parameters
 scan.surv <- "catch"
 scan.slot <- "states"
-binding.list <- c(lapply(1:2,seq,from=0),lapply(2:8,seq,to=9),9)
-names(binding.list) <- lapply(binding.list,function(x) sprintf("%i-%i",min(x),max(x)))
 
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
@@ -53,9 +51,13 @@ source(file.path("benchmark","03_Setup_selected_surveys.r"))
 ### ============================================================================
 ### Setup control objects
 ### ============================================================================
-#Scan through the survey ages, tying them sequentlly together
+#Setup defaults
 NSH.ctrl@timeout <- 1800  #Lets not mess around here 
 ctrls <- list()
+
+#Scan through the survey ages, tying them sequentlly together
+binding.list <- c(lapply(1:2,seq,from=0),lapply(2:8,seq,to=9))
+names(binding.list) <- lapply(binding.list,function(x) sprintf("%i-%i",min(x),max(x)))
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
@@ -64,6 +66,15 @@ for(bnd.name in names(binding.list)) {
    slot(ctrl.obj,scan.slot)[scan.surv,ac(bindings)] <- 100
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
+
+#ICA selectivity pattern
+ica.sel <- new("FLSAM.control",NSH.ctrl,name="ICA.sel")
+ica.sel@states["catch",] <- c(100,101,102,103,rep(104,5),109)
+
+#Update and finish control objects
+ctrls <- c(NSH.ctrl,ctrls,ica.sel)
+ctrls <- lapply(ctrls,update)
+names(ctrls) <- lapply(ctrls,function(x) x@name)
 
 ### ============================================================================
 ### Run the assessments
