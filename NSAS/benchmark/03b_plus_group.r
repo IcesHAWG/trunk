@@ -1,8 +1,8 @@
 ################################################################################
 # NSH_SAM Effect of plus group
 #
-# $Rev: 618 $
-# $Date: 2011-11-11 16:42:31 +0100 (vr, 11 nov 2011) $
+# $Rev$
+# $Date$
 #
 # Author: HAWG model devlopment group
 #
@@ -52,7 +52,7 @@ default.pg.sam@name <- sprintf("Age %i PG",default.pg.sam@range["plusgroup"])
 ### ============================================================================
 ### Run the assessment for a different plus group
 ### ============================================================================
-pgs <- c(8)
+pgs <- c(7,8)
 
 #Loop over truncated years
 pg.sams <- list()
@@ -60,9 +60,13 @@ for(pg in sort(pgs)) {
   log.msg(sprintf("\n\nPlus group %i....\n",pg))
   pg.stck <- setPlusGroup(NSH,pg)
   pg.tun <- NSH.tun
+  pg.tun[["HERAS"]]@index[ac(pg),] <- quantSums(pg.tun[["HERAS"]]@index[ac(pg:9),])
   pg.tun[["HERAS"]] <- trim(pg.tun[["HERAS"]],age=1:pg)
+  pg.tun[["HERAS"]]@range["plusgroup"] <- pg
   pg.ctrl <- drop.from.control(NSH.ctrl,ages=(pg+1):NSH.ctrl@range["max"])
+  pg.ctrl@states["catch",ac((pg-1):pg)] <- 101
   pg.ctrl@range[c("max","plusgroup")] <- pg
+  pg.ctrl <- update(pg.ctrl)
   
   #Perform assessment
   pg.sam <- FLSAM(pg.stck,pg.tun,pg.ctrl)
