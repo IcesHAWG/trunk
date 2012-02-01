@@ -38,8 +38,6 @@ log.msg("\nNSH SAM HERAS Bindings     \n===========================\n")
 #Scanning parameters
 scan.surv <- "HERAS"
 scan.slot <- "obs.vars"
-binding.list <- lapply(1:9,seq,to=9)
-names(binding.list) <- lapply(binding.list,function(x) sprintf("%i+",min(x)))
 
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
@@ -53,9 +51,13 @@ source(file.path("benchmark","03_Setup_selected_surveys.r"))
 ### ============================================================================
 ### Setup control objects
 ### ============================================================================
-#Scan through the survey ages, tying them sequentlly together
-NSH.ctrl@timeout <- 1800
+#Setup defaults
 ctrls <- list()
+NSH.ctrl@timeout <- 1800
+
+#Scan through the survey ages, tying them sequentlly together
+binding.list <- lapply(1:8,seq,to=9)
+names(binding.list) <- lapply(binding.list,function(x) sprintf("%i+",min(x)))
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
@@ -64,6 +66,11 @@ for(bnd.name in names(binding.list)) {
    slot(ctrl.obj,scan.slot)[scan.surv,ac(bindings)] <- 100
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
+
+#Update and finish control objects
+ctrls <- c(ctrls,NSH.ctrl)
+ctrls <- lapply(ctrls,update)
+names(ctrls) <- lapply(ctrls,function(x) x@name)
 
 ### ============================================================================
 ### Run the assessments
@@ -93,6 +100,14 @@ print(plot(scan.sams,main=sprintf("%s %s scan",scan.surv,scan.slot)))
 #Write likelihood test table
 lr.tbl <- lr.test(scan.sams)
 write.table(lr.tbl,file=file.path(resdir,paste(respref,".txt",sep="")))
+
+#Plot all observation variances
+obvs <- obs.var(scan.sams)
+print(xyplot(value ~ age,data=obvs,groups=name,
+          scale=list(alternating=FALSE),as.table=TRUE,
+          type="l",auto.key=list(space="right",points=FALSE,lines=TRUE),
+          subset=fleet %in% c("HERAS"),
+          main="HERAS observation variances",ylab="Observation Variance",xlab="Age"))
 
 ### ============================================================================
 ### Finish

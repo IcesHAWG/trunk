@@ -35,11 +35,9 @@ log.msg("\nNSH SAM HERAS Bindings     \n===========================\n")
 ### ============================================================================
 ### Setup assessment
 ### ============================================================================
-#Scanning parameters
+#Configuration
 scan.surv <- "HERAS"
 scan.slot <- "catchabilities"
-binding.list <- lapply(1:9,seq,from=1)
-names(binding.list) <- lapply(binding.list,function(x) sprintf("-%i",max(x)))
 
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
@@ -53,9 +51,13 @@ source(file.path("benchmark","03_Setup_selected_surveys.r"))
 ### ============================================================================
 ### Setup control objects
 ### ============================================================================
-#Scan through the survey ages, tying them sequentlly together
+#Setup defaults
 NSH.ctrl@timeout <- 1800
 ctrls <- list()
+
+#Scan through the survey ages, tying them sequentlly together from bottom
+binding.list <- lapply(2:9,seq,from=1)
+names(binding.list) <- lapply(binding.list,function(x) sprintf("-%i",max(x)))
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
@@ -64,6 +66,17 @@ for(bnd.name in names(binding.list)) {
    slot(ctrl.obj,scan.slot)[scan.surv,ac(bindings)] <- 100
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
+
+#Consider some good guesses based on selection pattern
+two.steps <- new("FLSAM.control",NSH.ctrl,name="1-7,8-9")
+two.steps@catchabilities["HERAS",ac(1:9)] <- c(rep(101,7),102,102) 
+three.steps <- new("FLSAM.control",NSH.ctrl,name="1-4,5-7,8-9")
+three.steps@catchabilities["HERAS",ac(1:9)] <- c(rep(101,4),rep(102,3),103,103) 
+
+#Update and finish control objects
+ctrls <- c(NSH.ctrl,ctrls,two.steps,three.steps)
+ctrls <- lapply(ctrls,update)
+names(ctrls) <- lapply(ctrls,function(x) x@name)
 
 ### ============================================================================
 ### Run the assessments
@@ -75,7 +88,7 @@ ass.res <- lapply(ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
 scan.sams <- FLSAMs(ass.res[!sapply(ass.res,is.null)]); 
 
 #Save results
-save(NSH,NSH.tun,scan.sams,file=file.path(resdir,paste(respref,".RData",sep="")))
+save(NSH,NSH.tun,NSH.ctrl,scan.sams,file=file.path(resdir,paste(respref,".RData",sep="")))
 
 ### ============================================================================
 ### Outputs
@@ -85,10 +98,19 @@ pdf(file.path(resdir,paste(respref,".pdf",sep="")))
 scan.AICs  <- AIC(scan.sams)
 plot(scan.AICs,main=sprintf("%s %s scan",scan.surv,scan.slot),
    ylab="AIC",xaxt="n",xlab="Model",pch=16)
-axis(1,labels=names(scan.AICs),at=seq(scan.AICs))
+axis(1,labels=names(scan.AICs),at=seq(scan.AICs),las=3)
 
 #Plot all assessments on one plot
 print(plot(scan.sams,main=sprintf("%s %s scan",scan.surv,scan.slot)))
+
+#Plot variable catchabilities for each set of bindings
+qs <- catchabilities(scan.sams)
+print(xyplot(value ~ age,data=qs,groups=name,
+          scale=list(alternating=FALSE),as.table=TRUE,
+          type="l",auto.key=list(space="right",points=FALSE,lines=TRUE),
+          subset=fleet %in% c("HERAS"),
+          main="HERAS catchability parameters",ylab="Catchability",xlab="Age"))
+
 
 #Write likelihood test table
 lr.tbl <- lr.test(scan.sams)
