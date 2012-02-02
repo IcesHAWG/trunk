@@ -68,13 +68,15 @@ for(bnd.name in names(binding.list)) {
 }
 
 #Consider some good guesses based on selection pattern
-two.steps <- new("FLSAM.control",NSH.ctrl,name="1-7,8-9")
+two.steps <- new("FLSAM.control",NSH.ctrl,name="17,89")
 two.steps@catchabilities["HERAS",ac(1:9)] <- c(rep(101,7),102,102) 
-three.steps <- new("FLSAM.control",NSH.ctrl,name="1-4,5-7,8-9")
+three.steps <- new("FLSAM.control",NSH.ctrl,name="14,57,89")
 three.steps@catchabilities["HERAS",ac(1:9)] <- c(rep(101,4),rep(102,3),103,103) 
+two.by.two <- new("FLSAM.control",NSH.ctrl,name="12,34,56,78,9")
+two.by.two@catchabilities["HERAS",ac(1:9)] <- c(101,101,103,103,105,105,107,107,109)
 
 #Update and finish control objects
-ctrls <- c(NSH.ctrl,ctrls,two.steps,three.steps)
+ctrls <- c(NSH.ctrl,ctrls,two.steps,three.steps,two.by.two)
 ctrls <- lapply(ctrls,update)
 names(ctrls) <- lapply(ctrls,function(x) x@name)
 

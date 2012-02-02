@@ -114,7 +114,7 @@ print(xyplot(sel ~ year,sel.pat,groups=sprintf("Age %02i",age),
          type="l",as.table=TRUE,auto.key=list(space="right"),
          main="Selectivity of the Fishery",xlab="Year",ylab="F/Fbar",
          scale=list(alternating=FALSE)))
-print(xyplot(sel ~ age|sprintf("%i's",floor(year/5)*5),sel.pat,
+print(xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
          groups=year,type="l",as.table=TRUE,
          scale=list(alternating=FALSE),
          main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar"))

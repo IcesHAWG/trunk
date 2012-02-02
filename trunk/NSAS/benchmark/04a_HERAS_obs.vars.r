@@ -67,8 +67,16 @@ for(bnd.name in names(binding.list)) {
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
 
+#Consider some good guesses based on selection pattern
+ends.free <- new("FLSAM.control",NSH.ctrl,name="1,28,9")
+ends.free@catchabilities["HERAS",ac(1:9)] <- c(101,rep(102,7),109) 
+ends.free2 <- new("FLSAM.control",NSH.ctrl,name="1,27,89")
+ends.free2@catchabilities["HERAS",ac(1:9)] <- c(101,rep(102,6),108,108) 
+ends.free3 <- new("FLSAM.control",NSH.ctrl,name="1,26,79")
+ends.free3@catchabilities["HERAS",ac(1:9)] <- c(101,rep(102,5),108,108,108) 
+
 #Update and finish control objects
-ctrls <- c(ctrls,NSH.ctrl)
+ctrls <- c(ctrls,NSH.ctrl,ends.free,ends.free2,ends.free3)
 ctrls <- lapply(ctrls,update)
 names(ctrls) <- lapply(ctrls,function(x) x@name)
 
