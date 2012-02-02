@@ -53,7 +53,7 @@ source(file.path("benchmark","03_Setup_selected_surveys.r"))
 ### ============================================================================
 #Setup defaults
 ctrls <- list()
-NSH.ctrl@timeout <- 1800
+NSH.ctrl@timeout <- 2700
 
 #Scan through the survey ages, tying them sequentlly together
 binding.list <- lapply(1:8,seq,to=9)
@@ -91,15 +91,15 @@ pdf(file.path(resdir,paste(respref,".pdf",sep="")))
 #Plot AICs
 scan.AICs  <- AIC(scan.sams)
 plot(scan.AICs,main=sprintf("%s %s scan",scan.surv,scan.slot),
-   ylab="AIC",xaxt="n",xlab="Model",pch=16)
+   ylab="AIC",xaxt="n",xlab="Model",pch=16,las=3)
 axis(1,labels=names(scan.AICs),at=seq(scan.AICs))
 
 #Plot all assessments on one plot
 print(plot(scan.sams,main=sprintf("%s %s scan",scan.surv,scan.slot)))
 
 #Write likelihood test table
-lr.tbl <- lr.test(scan.sams)
-write.table(lr.tbl,file=file.path(resdir,paste(respref,".txt",sep="")))
+#lr.tbl <- lr.test(scan.sams)
+#write.table(lr.tbl,file=file.path(resdir,paste(respref,".txt",sep="")))
 
 #Plot all observation variances
 obvs <- obs.var(scan.sams)

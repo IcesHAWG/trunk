@@ -52,7 +52,7 @@ source(file.path("benchmark","03_Setup_selected_surveys.r"))
 ### Setup control objects
 ### ============================================================================
 #Setup defaults
-NSH.ctrl@timeout <- 1800
+NSH.ctrl@timeout <- 2700
 ctrls <- list()
 
 #Scan through the survey ages, tying them sequentlly together from bottom
@@ -113,8 +113,8 @@ print(xyplot(value ~ age,data=qs,groups=name,
 
 
 #Write likelihood test table
-lr.tbl <- lr.test(scan.sams)
-write.table(lr.tbl,file=file.path(resdir,paste(respref,".txt",sep="")))
+#lr.tbl <- lr.test(scan.sams)
+#write.table(lr.tbl,file=file.path(resdir,paste(respref,".txt",sep="")))
 
 ### ============================================================================
 ### Finish

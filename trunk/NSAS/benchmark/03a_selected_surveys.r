@@ -35,6 +35,7 @@ log.msg("\nNSH SAM Selected surveys   \n===========================\n")
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
 respref <- "03a_selected_surveys" #Prefix for output files
+resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Import externals
 library(FLSAM)
@@ -44,16 +45,21 @@ source(file.path("benchmark","03_Setup_selected_surveys.r"))
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
-#Perform assessment
-NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+#If file exists don't run but load
+if(!file.exists(resfile)) {
+  #Perform assessment
+  NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 
-#Update stock object
-NSH.sam.ass <- NSH + NSH.sam
+  #Update stock object
+  NSH.sam.ass <- NSH + NSH.sam
 
-### ============================================================================
-### Save results
-### ============================================================================
-save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(resdir,paste(respref,".RData",sep="")))
+  # Save results
+  save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=resfile)
+
+} else {
+  #Load the file
+  load(resfile)
+}
 
 ### ============================================================================
 ### Plots
@@ -82,10 +88,9 @@ bp <- barplot(obv$value,ylab="Observation Variance",
 axis(1,at=bp,labels=obv$str,las=3,lty=0,mgp=c(0,0,0))
 legend("topleft",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
 
-bp <- barplot(1/obv$value,ylab="Weightings",
-       main="Data source weightings",col=factor(obv$fleet))
-axis(1,at=bp,labels=obv$str,las=3,lty=0,mgp=c(0,0,0))
-legend("topright",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
+plot(obv$value,obv$CV,xlab="Observation variance",ylab="CV of estimate",log="x",
+  pch=16,col=obv$fleet,main="Observation variance vs uncertainty")
+text(obv$value,obv$CV,obv$str,pos=4,cex=0.75,xpd=NA)
 
 #Compare weights against Simmonds wts
 sim.wts <- read.csv(file.path(".","data","simmonds_wts.csv"))
