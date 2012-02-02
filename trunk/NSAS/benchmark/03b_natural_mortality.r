@@ -34,6 +34,7 @@ log.msg("\nNSH SAM Natural Mortality\n================================\n")
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
 respref <- "03b_natural_mortality" #Prefix for output files
+resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Dependencies
 all.in.file <- file.path(resdir,"03a_selected_surveys.RData")
@@ -54,24 +55,30 @@ NSH.tun.all <- NSH.tun
 ### ============================================================================
 ### Run the assessment with variable natural mortality and fixed natural mortality
 ### ============================================================================
-#First run with variable natural mortality
-source(file.path("benchmark","03_Setup_selected_surveys.r"))
-variable.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-variable.sam@name <- "Variable M"
-
-#fix natural mortality
-NSH@m[]   <- c(1,1,0.3,0.2,rep(0.1,6))
-source(file.path("benchmark","03_Setup_selected_surveys.r"))
-fixed.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-fixed.sam@name <- "Fixed M"
-
-#Combine into one
-M.variations <- FLSAMs(variable.sam,fixed.sam)
-names(M.variations) <- sapply(M.variations,name)
-
-#Save any results
-save(NSH,NSH.tun.all,NSH.ctrl,M.variations,
-     file=file.path(resdir,paste(respref,".RData",sep="")))
+#Only do the assessment if we are running in batch mode, or
+#if the results file is missing
+if(!file.exists(resfile) | !interactive()) {
+   #First run with variable natural mortality
+   source(file.path("benchmark","03_Setup_selected_surveys.r"))
+   variable.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+   variable.sam@name <- "Variable M"
+   
+   #fix natural mortality
+   NSH@m[]   <- c(1,1,0.3,0.2,rep(0.1,6))
+   source(file.path("benchmark","03_Setup_selected_surveys.r"))
+   fixed.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+   fixed.sam@name <- "Fixed M"
+   
+   #Combine into one
+   M.variations <- FLSAMs(variable.sam,fixed.sam)
+   names(M.variations) <- sapply(M.variations,name)
+   
+   #Save any results
+   save(NSH,NSH.tun.all,NSH.ctrl,M.variations,file=resfile)
+} else {
+  #Load the file
+  load(resfile)
+}
 
 ### ============================================================================
 ### Plots

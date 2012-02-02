@@ -45,8 +45,9 @@ source(file.path("benchmark","03_Setup_selected_surveys.r"))
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
-#If file exists don't run but load
-if(!file.exists(resfile)) {
+#Only do the assessment if we are running in batch mode, or
+#if the results file is missing
+if(!file.exists(resfile) | !interactive()) {
   #Perform assessment
   NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
 

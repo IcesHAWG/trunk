@@ -35,6 +35,7 @@ log.msg("\nNSH SAM 'All-in' Assessment\n===========================\n")
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
 respref <- "02a_All_in_run" #Prefix for output files
+resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Import externals
 library(FLSAM)
@@ -44,16 +45,22 @@ source(file.path("benchmark","02_Setup_All_in_runs.r"))
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
-#Perform assessment
-NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+#Only do the assessment if we are running in batch mode, or
+#if the results file is missing
+if(!file.exists(resfile) | !interactive()) {
+   #Perform assessment
+   NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+   
+   #Update stock object
+   NSH.sam.ass <- NSH + NSH.sam
+   
+   # Save results
+   save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=resfile)
 
-#Update stock object
-NSH.sam.ass <- NSH + NSH.sam
-
-### ============================================================================
-### Save results
-### ============================================================================
-save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(resdir,paste(respref,".RData",sep="")))
+} else {
+  #Load the file
+  load(resfile)
+}
 
 ### ============================================================================
 ### Plots

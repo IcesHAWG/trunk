@@ -35,6 +35,7 @@ log.msg("\nNSH SAM Historic period analysis\n================================\n"
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
 respref <- "03b_historic_data" #Prefix for output files
+resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Dependencies
 full.history.file <- file.path(resdir,"03a_selected_surveys.RData")
@@ -53,28 +54,35 @@ full.history.sam@name <- "All data"
 ### ============================================================================
 ### Run the assessment for a truncated period
 ### ============================================================================
-trunc.yrs <- c(1960,1991)
+#Only do the assessment if we are running in batch mode, or
+#if the results file is missing
+if(!file.exists(resfile) | !interactive()) {
+   trunc.yrs <- c(1960,1991)
+   
+   #Loop over truncated years
+   trunc.sams <- list()
+   for(trunc.yr in sort(trunc.yrs)) {
+     trunc.stck <- window(NSH,start=trunc.yr)
+     trunc.tun <- window(NSH.tun,start=trunc.yr)
+     trunc.ctrl <- NSH.ctrl
+     trunc.ctrl@range["minyear"] <- trunc.yr
+   
+     #Perform assessment
+     trunc.sam <- FLSAM(trunc.stck,trunc.tun,trunc.ctrl)
+   
+     #Store results
+     trunc.sam@name <- sprintf("%i onwards",trunc.yr)
+     trunc.sams[ac(trunc.yr)] <- trunc.sam
+   }   
+   variable.len.sams <- do.call(FLSAMs,c(trunc.sams,full.history.sam))
+   
+   #Save any results
+   save(NSH,NSH.tun,NSH.ctrl,variable.len.sams,file=resfile)
 
-#Loop over truncated years
-trunc.sams <- list()
-for(trunc.yr in sort(trunc.yrs)) {
-  trunc.stck <- window(NSH,start=trunc.yr)
-  trunc.tun <- window(NSH.tun,start=trunc.yr)
-  trunc.ctrl <- NSH.ctrl
-  trunc.ctrl@range["minyear"] <- trunc.yr
-
-  #Perform assessment
-  trunc.sam <- FLSAM(trunc.stck,trunc.tun,trunc.ctrl)
-
-  #Store results
-  trunc.sam@name <- sprintf("%i onwards",trunc.yr)
-  trunc.sams[ac(trunc.yr)] <- trunc.sam
-}   
-variable.len.sams <- do.call(FLSAMs,c(trunc.sams,full.history.sam))
-
-#Save any results
-save(NSH,NSH.tun,NSH.ctrl,variable.len.sams,
-     file=file.path(resdir,paste(respref,".RData",sep="")))
+} else {
+  #Load the file
+  load(resfile)
+}
 
 ### ============================================================================
 ### Plots

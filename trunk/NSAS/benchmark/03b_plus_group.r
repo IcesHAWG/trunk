@@ -34,6 +34,7 @@ log.msg("\nNSH SAM Plus group analyis\n==========================\n")
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
 respref <- "03b_plus_group" #Prefix for output files
+resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Dependencies
 default.pg.file <- file.path(resdir,"03a_selected_surveys.RData")
@@ -52,34 +53,40 @@ default.pg.sam@name <- sprintf("Age %i PG",default.pg.sam@range["plusgroup"])
 ### ============================================================================
 ### Run the assessment for a different plus group
 ### ============================================================================
-pgs <- c(7,8)
-
-#Loop over truncated years
-pg.sams <- list()
-for(pg in sort(pgs)) {
-  log.msg(sprintf("\n\nPlus group %i....\n",pg))
-  pg.stck <- setPlusGroup(NSH,pg)
-  pg.tun <- NSH.tun
-  pg.tun[["HERAS"]]@index[ac(pg),] <- quantSums(pg.tun[["HERAS"]]@index[ac(pg:9),])
-  pg.tun[["HERAS"]] <- trim(pg.tun[["HERAS"]],age=1:pg)
-  pg.tun[["HERAS"]]@range["plusgroup"] <- pg
-  pg.ctrl <- drop.from.control(NSH.ctrl,ages=(pg+1):NSH.ctrl@range["max"])
-  pg.ctrl@states["catch",ac((pg-1):pg)] <- 101
-  pg.ctrl@range[c("max","plusgroup")] <- pg
-  pg.ctrl <- update(pg.ctrl)
-  
-  #Perform assessment
-  pg.sam <- FLSAM(pg.stck,pg.tun,pg.ctrl)
-
-  #Store results
-  pg.sam@name <- sprintf("Age %i PG",pg)
-  pg.sams[ac(pg)] <- pg.sam
-}   
-variable.pg.sams <- do.call(FLSAMs,c(pg.sams,default.pg.sam))
-
-#Save any results
-save(NSH,NSH.tun,NSH.ctrl,variable.pg.sams,
-     file=file.path(resdir,paste(respref,".RData",sep="")))
+#Only do the assessment if we are running in batch mode, or
+#if the results file is missing
+if(!file.exists(resfile) | !interactive()) {
+   pgs <- c(7,8)
+   
+   #Loop over truncated years
+   pg.sams <- list()
+   for(pg in sort(pgs)) {
+     log.msg(sprintf("\n\nPlus group %i....\n",pg))
+     pg.stck <- setPlusGroup(NSH,pg)
+     pg.tun <- NSH.tun
+     pg.tun[["HERAS"]]@index[ac(pg),] <- quantSums(pg.tun[["HERAS"]]@index[ac(pg:9),])
+     pg.tun[["HERAS"]] <- trim(pg.tun[["HERAS"]],age=1:pg)
+     pg.tun[["HERAS"]]@range["plusgroup"] <- pg
+     pg.ctrl <- drop.from.control(NSH.ctrl,ages=(pg+1):NSH.ctrl@range["max"])
+     pg.ctrl@states["catch",ac((pg-1):pg)] <- 101
+     pg.ctrl@range[c("max","plusgroup")] <- pg
+     pg.ctrl <- update(pg.ctrl)
+     
+     #Perform assessment
+     pg.sam <- FLSAM(pg.stck,pg.tun,pg.ctrl)
+   
+     #Store results
+     pg.sam@name <- sprintf("Age %i PG",pg)
+     pg.sams[ac(pg)] <- pg.sam
+   }   
+   variable.pg.sams <- do.call(FLSAMs,c(pg.sams,default.pg.sam))
+   
+   #Save any results
+   save(NSH,NSH.tun,NSH.ctrl,variable.pg.sams,file=resfile)
+} else {
+  #Load the file
+  load(resfile)
+}
 
 ### ============================================================================
 ### Plots
