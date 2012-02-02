@@ -35,7 +35,7 @@ NSH.ctrl@f.vars["catch",] <- c(rep(1,2),rep(2,8))
 #All fishing mortality states are free except 
 #oldest ages to ensure stablity
 NSH.ctrl@states["catch",] <- seq(dims(NSH)$age) 
-NSH.ctrl@states["catch",ac(8:9)] <- 101
+#NSH.ctrl@states["catch",ac(8:9)] <- 101
 
 #Group observation variances of catches to ensure stability
 NSH.ctrl@obs.vars["catch",ac(0:1)] <- 201

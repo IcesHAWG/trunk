@@ -35,6 +35,7 @@ log.msg("\nNSH SAM Drop IBTS Surveys  \n===========================\n")
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
 respref <- "02b_drop_IBTS" #Prefix for output files
+resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Dependencies
 all.in.file <- file.path(resdir,"02a_All_in_run.RData")
@@ -58,14 +59,20 @@ source(file.path("benchmark","02_Setup_All_in_runs.r"))
 ### ============================================================================
 ### Run the assessment
 ### ============================================================================
-#Perform assessment
-drop.IBTS.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-drop.IBTS.sam@name <- "Nearly no IBTS"
-
-# Save results
-IBTS.sams <- FLSAMs(all.in.sam,drop.IBTS.sam)
-save(NSH,NSH.tun,NSH.ctrl,IBTS.sams,
-   file=file.path(resdir,paste(respref,".RData",sep="")))
+#Only do the assessment if we are running in batch mode, or
+#if the results file is missing
+if(!file.exists(resfile) | !interactive()) {
+   #Perform assessment
+   drop.IBTS.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+   drop.IBTS.sam@name <- "Nearly no IBTS"
+   
+   # Save results
+   IBTS.sams <- FLSAMs(all.in.sam,drop.IBTS.sam)
+   save(NSH,NSH.tun,NSH.ctrl,IBTS.sams,file=resfile)
+} else {
+  #Load the file
+  load(resfile)
+}
 
 ### ============================================================================
 ### Plots

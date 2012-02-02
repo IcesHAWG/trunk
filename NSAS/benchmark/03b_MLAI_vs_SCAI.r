@@ -34,6 +34,7 @@ log.msg("\nNSH SAM MLAI vs SCAI\n==========================\n")
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
 respref <- "03b_MLAI_vs_SCAI" #Prefix for output files
+resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Dependencies
 all.in.file <- file.path(resdir,"03a_selected_surveys.RData")
@@ -54,28 +55,35 @@ NSH.tun.all <- NSH.tun
 ### ============================================================================
 ### Run the assessment with MLAI and without any IHLS data first
 ### ============================================================================
-#Drop IHLS data, setup new objects, perform assessment
-NSH.tun <- NSH.tun[setdiff(names(NSH.tun),c("SCAI","MLAI"))] 
-source(file.path("benchmark","03_Setup_selected_surveys.r"))
-noIHLS.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-noIHLS.sam@name <- "no IHLS"
+#Only do the assessment if we are running in batch mode, or
+#if the results file is missing
+if(!file.exists(resfile) | !interactive()) {
+   #Drop IHLS data, setup new objects, perform assessment
+   NSH.tun <- NSH.tun[setdiff(names(NSH.tun),c("SCAI","MLAI"))] 
+   source(file.path("benchmark","03_Setup_selected_surveys.r"))
+   noIHLS.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+   noIHLS.sam@name <- "no IHLS"
+   
+   #Now include the MLAI. The MLAI will only be dropped by "03_Setup_selected_surveys" if
+   #it is called "MLAI". We therefore rename it to "temp_MLAI" to avoid this problem
+   NSH.tun <- NSH.tun.all
+   NSH.tun[["temp_MLAI"]] <- NSH.tun[["MLAI"]]
+   NSH.tun <- NSH.tun[setdiff(names(NSH.tun),c("SCAI","MLAI"))]  #Drop SCAI,MLAI 
+   source(file.path("benchmark","03_Setup_selected_surveys.r"))
+   MLAI.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+   MLAI.sam@name <- "MLAI"
+   
+   #Combine into one
+   IHLS.variations <- FLSAMs(SCAI.sam,MLAI.sam,noIHLS.sam)
+   names(IHLS.variations) <- sapply(IHLS.variations,name)
+   
+   #Save any results
+   save(NSH,NSH.tun.all,NSH.ctrl,IHLS.variations,file=resfile)
 
-#Now include the MLAI. The MLAI will only be dropped by "03_Setup_selected_surveys" if
-#it is called "MLAI". We therefore rename it to "temp_MLAI" to avoid this problem
-NSH.tun <- NSH.tun.all
-NSH.tun[["temp_MLAI"]] <- NSH.tun[["MLAI"]]
-NSH.tun <- NSH.tun[setdiff(names(NSH.tun),c("SCAI","MLAI"))]  #Drop SCAI,MLAI 
-source(file.path("benchmark","03_Setup_selected_surveys.r"))
-MLAI.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-MLAI.sam@name <- "MLAI"
-
-#Combine into one
-IHLS.variations <- FLSAMs(SCAI.sam,MLAI.sam,noIHLS.sam)
-names(IHLS.variations) <- sapply(IHLS.variations,name)
-
-#Save any results
-save(NSH,NSH.tun.all,NSH.ctrl,IHLS.variations,
-     file=file.path(resdir,paste(respref,".RData",sep="")))
+} else {
+  #Load the file
+  load(resfile)
+}
 
 ### ============================================================================
 ### Plots
