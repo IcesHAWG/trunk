@@ -29,8 +29,8 @@ NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
 
 #Set the variances. Separate variance for recruitment and plus group
 #Fishing mortality RWs are set from an analysis of ICA VPA results
-NSH.ctrl@logN.vars[] <- c(1,rep(2,dims(NSH)$age-2),3) 
-NSH.ctrl@f.vars["catch",] <- c(rep(1,2),rep(2,5),rep(3,3))
+NSH.ctrl@logN.vars[] <- c(1,rep(2,dims(NSH)$age-1)) 
+NSH.ctrl@f.vars["catch",] <- c(rep(1,2),rep(2,8))
 
 #All fishing mortality states are free except 
 #oldest ages to ensure stablity
