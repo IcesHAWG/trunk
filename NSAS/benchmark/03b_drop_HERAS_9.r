@@ -1,13 +1,13 @@
 ################################################################################
-# NSH_SAM catches during closure
+# NSH_SAM effect of dropping HERAS age 9
 #
 # $Rev$
 # $Date$
 #
 # Author: HAWG model devlopment group
 #
-# Examines the consequences of removing catch data during the fishery closure
-# e.g. from 1976- 1980
+# Examines the consequences of dropping the HERAS age 9 time series from the
+# assessment
 #
 # Developed with:
 #   - R version 2.13.0
@@ -27,14 +27,14 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
 }
-log.msg("\nNSH SAM 1970s closure effects\n================================\n")
+log.msg("\nNSH SAM Effect of dropping HERAS 9\n================================\n")
 
 ### ============================================================================
 ### Setup assessment
 ### ============================================================================
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
-respref <- "03b_catches_during_closure" #Prefix for output files
+respref <- "03b_drop_HERAS_9" #Prefix for output files
 resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Dependencies
@@ -56,29 +56,27 @@ step03.sam <- local({load(step03.file);return(NSH.sam)})
 #Only do the assessment if we are running in batch mode, or
 #if the results file is missing
 if(!file.exists(resfile) | !interactive()) {
-   closure.yrs <- list("78-79"=1978:1979,
-                       "77-80"=1977:1980,
-                       "77-82"=1977:1982)
+   #Modify HERAS survey
+   mod.tun <- NSH.tun
+   mod.tun[["HERAS"]] <- trim(mod.tun[["HERAS"]],age=1:8)
+
+   #Modify control object
+   mod.ctrl <- NSH.ctrl
+   for(slt in slotNames(mod.ctrl)) {
+      slt.obj <- slot(mod.ctrl,slt)
+      if(is.matrix(slt.obj)) {slot(mod.ctrl,slt)["HERAS","9"] <- NA }
+   } 
+   mod.ctrl <- update(mod.ctrl)
    
-   #Loop over masked years
-   closure.sams <- list(step03=step03.sam)
-   for(nme in names(closure.yrs)) {
-     #Modify stock object
-     mod.stck <- NSH
-     yrs <- closure.yrs[[nme]]
-     mod.stck@catch.n[,ac(yrs)] <- NA
+   #Perform assessment
+   dropped.HERAS9 <- FLSAM(NSH,mod.tun,mod.ctrl)
    
-     #Perform assessment
-     closure.sam <- FLSAM(mod.stck,NSH.tun,NSH.ctrl)
-   
-     #Store results
-     closure.sam@name <- nme
-     closure.sams[[nme]] <- closure.sam
-   }   
-   closure.sams <- do.call(FLSAMs,closure.sams)
+   #Store results
+   dropped.HERAS9@name <- "Dropped HERAS 9"
+   sams <- do.call(FLSAMs,list(step03.sam, dropped.HERAS9))
    
    #Save any results
-   save(NSH,NSH.tun,NSH.ctrl,closure.sams,file=resfile)
+   save(NSH,mod.tun,mod.ctrl,sams,file=resfile)
 
 } else {
   #Load the file
@@ -92,14 +90,14 @@ if(!file.exists(resfile) | !interactive()) {
 pdf(file.path(resdir,paste(respref,".pdf",sep="")))
 
 #Comparison of assessments with and without historic data
-plot(closure.sams,main="Effect of removing closure data")
+plot(sams,main="Effect of dropping HERAS age 9")
 
 #Effect on observation variances
-obv <- obs.var(closure.sams)
+obv <- obs.var(sams)
 obv$age[is.na(obv$age)] <- ""
 print(barchart(value ~ age| fleet,obv,groups=name,horiz=FALSE,
         as.table=TRUE,xlab="Age",ylab="Observation variance",
-        main="Changes in survey weightings due to dropping catch data",
+        main="Effect of dropping HERAS age 9",
         auto.key=list(space="right"),
         ylim=range(pretty(c(0,obv$value))),
         scale=list(alternating=FALSE)))
