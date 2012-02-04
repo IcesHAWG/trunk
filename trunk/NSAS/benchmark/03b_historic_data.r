@@ -96,7 +96,8 @@ catch.resids$pentad <- floor((catch.resids$year+2)/5)*5
 catch.resids$decade <- sprintf("%02i",(floor(catch.resids$year/10)*10)%%100)
 catch.resids$decade <- factor(catch.resids$decade,levels=unique(catch.resids$decade))
 boxplot(std.res ~ pentad,catch.resids,xlab="Pentad",ylab="Standardised residuals",
-  main="Variability of catch residuals by pentad")
+  main="Variability of catch residuals by pentad",las=3)
+
 print(bwplot(std.res ~ decade | sprintf("Age %02i",age),catch.resids,
         xlab="Decade",ylab="Standardised residuals",main="Catch-residual variability",
         as.table=TRUE,horizontal=FALSE,pch="|",lty=1,fill="grey",
@@ -109,7 +110,18 @@ print(bwplot(std.res ~ decade | sprintf("Age %02i",age),catch.resids,
           panel.bwplot(...)}))
 
 #Comparison of assessments with and without historic data
-plot(variable.len.sams,xlim=c(1990,2011),main="Variable data lengths")
+print(plot(variable.len.sams,xlim=c(1990,2011),main="Variable data lengths"))
+
+#Comparison of observation variances
+obv <- obs.var(variable.len.sams)
+obv$age[is.na(obv$age)] <- ""
+levels(obv$fleet)[which(levels(obv$fleet)=="temp_MLAI")] <- "MLAI"
+print(barchart(value ~ age| fleet,obv,groups=name,horiz=FALSE,
+        as.table=TRUE,xlab="Age",ylab="Observation variance",
+        main="Observation variances under differnt lengths of assessment",
+        auto.key=list(space="right"),
+        ylim=range(pretty(c(0,obv$value))),
+        scale=list(alternating=FALSE)))
 
 ### ============================================================================
 ### Finish

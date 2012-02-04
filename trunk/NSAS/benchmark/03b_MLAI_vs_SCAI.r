@@ -92,9 +92,9 @@ if(!file.exists(resfile) | !interactive()) {
 pdf(file.path(resdir,paste(respref,".pdf",sep="")))
 
 #Comparison of assessments with different plus groups
-plot(IHLS.variations,main="Effects of IHLS survey")
-plot(IHLS.variations,xlim=c(1990,2011),
-    main="Effects of IHLS survey over recent time period")
+print(plot(IHLS.variations,main="Effects of IHLS survey"))
+print(plot(IHLS.variations,xlim=c(1990,2011),
+    main="Effects of IHLS survey over recent time period"))
 
 #Prepare datasets for plotting
 indep.ssb <- ssb(IHLS.variations[["no IHLS"]])
@@ -129,22 +129,50 @@ abline(mdl)
 title(main="MLAI vs SCAI")
 
 #Plot the comparison between SSB and SCAI
-plot(log(dat$ssb),log(dat$SCAI),xlab="log SSB",ylab="log SCAI",pch=19)
-text(log(dat$ssb),log(dat$SCAI),sprintf("%02i",round(dat$year%%100)),pos=4,xpd=NA)
-mdl <- lm(log(SCAI) ~ log(ssb),dat)
+plot(log10(dat$ssb),log10(dat$SCAI),xlab="log10 SSB",ylab="log10 SCAI",pch=19)
+text(log10(dat$ssb),log10(dat$SCAI),sprintf("%02i",round(dat$year%%100)),pos=4,xpd=NA)
+mdl <- lm(log10(SCAI) ~ log10(ssb),dat)
 abline(mdl)
 legend("topleft",bty="n",legend=c(sprintf("r2 = %4.2f",summary(mdl)$r.squared),
        sprintf("Slope = %4.2f ± %4.2f",coef(mdl)[2],1.96*summary(mdl)$coef[2,2])))
 title(main="SSB vs SCAI")
 
 #Plot the comparison between SSB and MLAI
-plot(log(dat$ssb),log(dat$MLAI),xlab="log SSB",ylab="log MLAI",pch=19)
-text(log(dat$ssb),log(dat$MLAI),sprintf("%02i",round(dat$year%%100)),pos=4,xpd=NA)
-mdl <- lm(log(MLAI) ~ log(ssb),dat)
+plot(log10(dat$ssb),log10(dat$MLAI),xlab="log10 SSB",ylab="log10 MLAI",pch=19)
+text(log10(dat$ssb),log10(dat$MLAI),sprintf("%02i",round(dat$year%%100)),pos=4,xpd=NA)
+mdl <- lm(log10(MLAI) ~ log10(ssb),dat)
 abline(mdl)
 legend("topleft",bty="n",legend=c(sprintf("r2 = %4.2f",summary(mdl)$r.squared),
        sprintf("Slope = %4.2f ± %4.2f",coef(mdl)[2],1.96*summary(mdl)$coef[2,2])))
 title(main="SSB vs MLAI")
+
+#Plot comparison of residuals
+MLAI.resids <- subset(residuals(IHLS.variations[["MLAI"]]),fleet=="temp_MLAI")
+SCAI.resids <- subset(residuals(IHLS.variations[["SCAI"]]),fleet=="SCAI")
+ylims <- range(pretty(c(MLAI.resids$std.res,SCAI.resids$std.res)))
+par(mfcol=c(1,2))
+plot(MLAI.resids$year,MLAI.resids$std.res,ylim=ylims,
+  xlab="Year",ylab="MLAI",type="h")
+points(MLAI.resids$year,MLAI.resids$std.res,pch=16)
+abline(h=0)
+legend("topleft",legend="a)",bty="n")
+plot(SCAI.resids$year,SCAI.resids$std.res,ylim=ylims,
+  xlab="Year",ylab="SCAI",type="h",pch=16)
+points(SCAI.resids$year,SCAI.resids$std.res,pch=16)
+abline(h=0)
+legend("topleft",legend="b)",bty="n")
+title(main="MLAI and SCAI residuals",outer=TRUE,line=-1)
+
+#Comparison of observation variances
+obv <- obs.var(IHLS.variations)
+obv$age[is.na(obv$age)] <- ""
+levels(obv$fleet)[which(levels(obv$fleet)=="temp_MLAI")] <- "MLAI"
+print(barchart(value ~ age| fleet,obv,groups=name,horiz=FALSE,
+        as.table=TRUE,xlab="Age",ylab="Observation variance",
+        main="Observation variances under differnt IHLS scenarios",
+        auto.key=list(space="right"),
+        ylim=range(pretty(c(0,obv$value))),
+        scale=list(alternating=FALSE)))
 
 ### ============================================================================
 ### Finish

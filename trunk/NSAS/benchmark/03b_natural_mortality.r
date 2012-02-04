@@ -104,14 +104,15 @@ obvs <- obs.var(M.variations)
 obvs$str <- paste(obvs$fleet,ifelse(is.na(obvs$age),"",obvs$age))
 obvs.stack <- unstack(obvs,value ~ str)
 barplot(as.matrix(obvs.stack),beside=TRUE,las=3,
-   legend.text=levels(obvs$name),col=c("red","black"),
+   legend=unique(obvs$name),col=c("red","black"),
+   args.legend=list(x="topleft"),
    main="Variable vs fixed natural mortality",
    ylab="Observation variance")
 
 
 #Plot diagnostics of both runs
-residual.diagnostics(variable.sam)
-residual.diagnostics(fixed.sam)
+residual.diagnostics(M.variations[["Variable M"]])
+residual.diagnostics(M.variations[["Fixed M"]])
 
 
 
