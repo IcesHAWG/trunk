@@ -48,7 +48,7 @@ library(FLSAM)
 source(file.path("benchmark","Setup_objects.r"))
 source(file.path("benchmark","03_Setup_selected_surveys.r"))
 default.pg.sam <- local({load(default.pg.file);return(NSH.sam)})
-default.pg.sam@name <- sprintf("Age %i PG",default.pg.sam@range["plusgroup"])
+default.pg.sam@name <- sprintf("%i+",default.pg.sam@range["plusgroup"])
 
 ### ============================================================================
 ### Run the assessment for a different plus group
@@ -69,6 +69,7 @@ if(!file.exists(resfile) | !interactive()) {
      pg.tun[["HERAS"]]@range["plusgroup"] <- pg
      pg.ctrl <- drop.from.control(NSH.ctrl,ages=(pg+1):NSH.ctrl@range["max"])
      pg.ctrl@states["catch",ac((pg-1):pg)] <- 101
+     pg.ctrl@obs.vars["catch",ac(pg)] <- 201
      pg.ctrl@range[c("max","plusgroup")] <- pg
      pg.ctrl <- update(pg.ctrl)
      
@@ -76,10 +77,11 @@ if(!file.exists(resfile) | !interactive()) {
      pg.sam <- FLSAM(pg.stck,pg.tun,pg.ctrl)
    
      #Store results
-     pg.sam@name <- sprintf("Age %i PG",pg)
-     pg.sams[ac(pg)] <- pg.sam
+     pg.sam@name <- sprintf("%i+",pg)
+     pg.sams[pg.sam@name] <- pg.sam
    }   
    variable.pg.sams <- do.call(FLSAMs,c(pg.sams,default.pg.sam))
+   names(variable.pg.sams) <- lapply(variable.pg.sams,name)
    
    #Save any results
    save(NSH,NSH.tun,NSH.ctrl,variable.pg.sams,file=resfile)
@@ -95,9 +97,22 @@ if(!file.exists(resfile) | !interactive()) {
 pdf(file.path(resdir,paste(respref,".pdf",sep="")))
 
 #Comparison of assessments with different plus groups
-plot(variable.pg.sams,main="Comparison of Plus groups over full time period")
-plot(variable.pg.sams,xlim=c(1990,2011),
-    main="Comparison of Plus groups over recent time period")
+print(plot(variable.pg.sams,main="Comparison of Plus groups over full time period"))
+print(plot(variable.pg.sams,xlim=c(1990,2011),
+    main="Comparison of Plus groups over recent time period"))
+
+#Comparison of observation variances
+obv <- obs.var(variable.pg.sams)
+obv$age[is.na(obv$age)] <- ""
+print(barchart(value ~ age| fleet,obv,groups=name,horiz=FALSE,
+        as.table=TRUE,xlab="Age",ylab="Observation variance",
+        main="Observation variances under differnt plus group scenarios",
+        auto.key=list(space="right"),
+        ylim=range(pretty(c(0,obv$value))),
+        scale=list(alternating=FALSE)))
+
+#Adding diagnostics for Age 8 Plus Group
+residual.diagnostics(variable.pg.sams[["8+"]])
 
 ### ============================================================================
 ### Finish

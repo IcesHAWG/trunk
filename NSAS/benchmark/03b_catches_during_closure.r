@@ -92,7 +92,7 @@ if(!file.exists(resfile) | !interactive()) {
 pdf(file.path(resdir,paste(respref,".pdf",sep="")))
 
 #Comparison of assessments with and without historic data
-plot(closure.sams,main="Effect of removing closure data")
+print(plot(closure.sams,main="Effect of removing closure data"))
 
 #Effect on observation variances
 obv <- obs.var(closure.sams)
@@ -103,6 +103,9 @@ print(barchart(value ~ age| fleet,obv,groups=name,horiz=FALSE,
         auto.key=list(space="right"),
         ylim=range(pretty(c(0,obv$value))),
         scale=list(alternating=FALSE)))
+
+#Diagnostics
+residual.diagnostics(closure.sams[["78-79"]])
 
 ### ============================================================================
 ### Finish

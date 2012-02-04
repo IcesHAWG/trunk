@@ -73,7 +73,7 @@ if(!file.exists(resfile) | !interactive()) {
    
    #Store results
    dropped.HERAS9@name <- "Dropped HERAS 9"
-   sams <- do.call(FLSAMs,list(step03.sam, dropped.HERAS9))
+   sams <- do.call(FLSAMs,list("Step03"=step03.sam, "Dropped HERAS 9"=dropped.HERAS9))
    
    #Save any results
    save(NSH,mod.tun,mod.ctrl,sams,file=resfile)
@@ -90,7 +90,7 @@ if(!file.exists(resfile) | !interactive()) {
 pdf(file.path(resdir,paste(respref,".pdf",sep="")))
 
 #Comparison of assessments with and without historic data
-plot(sams,main="Effect of dropping HERAS age 9")
+print(plot(sams,main="Effect of dropping HERAS age 9"))
 
 #Effect on observation variances
 obv <- obs.var(sams)
@@ -101,6 +101,9 @@ print(barchart(value ~ age| fleet,obv,groups=name,horiz=FALSE,
         auto.key=list(space="right"),
         ylim=range(pretty(c(0,obv$value))),
         scale=list(alternating=FALSE)))
+
+#Residuals
+residual.diagnostics(sams[[2]])
 
 ### ============================================================================
 ### Finish

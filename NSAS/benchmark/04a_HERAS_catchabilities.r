@@ -42,6 +42,7 @@ scan.slot <- "catchabilities"
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
 respref <- sprintf("04a_%s_%s",scan.surv,scan.slot) #Prefix for output files
+resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Import externals
 library(FLSAM)
@@ -83,14 +84,21 @@ names(ctrls) <- lapply(ctrls,function(x) x@name)
 ### ============================================================================
 ### Run the assessments
 ### ============================================================================
-#Perform assessment
-ass.res <- lapply(ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
-  
-#Drop any that failed to converge, then create an FLSAMs object
-scan.sams <- FLSAMs(ass.res[!sapply(ass.res,is.null)]); 
-
-#Save results
-save(NSH,NSH.tun,NSH.ctrl,scan.sams,file=file.path(resdir,paste(respref,".RData",sep="")))
+#Only do the assessment if we are running in batch mode, or
+#if the results file is missing
+if(!file.exists(resfile) | !interactive()) {
+   #Perform assessment
+   ass.res <- lapply(ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
+     
+   #Drop any that failed to converge, then create an FLSAMs object
+   scan.sams <- FLSAMs(ass.res[!sapply(ass.res,is.null)]); 
+   
+   #Save results
+   save(NSH,NSH.tun,NSH.ctrl,scan.sams,file=resfile)
+} else {
+  #Load the file
+  load(resfile)
+}
 
 ### ============================================================================
 ### Outputs

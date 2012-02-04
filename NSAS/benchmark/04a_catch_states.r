@@ -42,6 +42,7 @@ scan.slot <- "states"
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
 respref <- sprintf("04a_%s_%s",scan.surv,scan.slot) #Prefix for output files
+resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Import externals
 library(FLSAM)
@@ -79,14 +80,22 @@ names(ctrls) <- lapply(ctrls,function(x) x@name)
 ### ============================================================================
 ### Run the assessments
 ### ============================================================================
-#Perform assessment
-ass.res <- lapply(ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
+#Only do the assessment if we are running in batch mode, or
+#if the results file is missing
+if(!file.exists(resfile) | !interactive()) {
+   #Perform assessment
+   ass.res <- lapply(ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
   
-#Drop any that failed to converge, then create an FLSAMs object
-scan.sams <- FLSAMs(ass.res[!sapply(ass.res,is.null)]); 
+   #Drop any that failed to converge, then create an FLSAMs object
+   scan.sams <- FLSAMs(ass.res[!sapply(ass.res,is.null)]); 
 
-#Save results
-save(NSH,NSH.tun,scan.sams,file=file.path(resdir,paste(respref,".RData",sep="")))
+   #Save results
+   save(NSH,NSH.tun,scan.sams,file=resfile)
+
+} else {
+  #Load the file
+  load(resfile)
+}
 
 ### ============================================================================
 ### Outputs
@@ -95,8 +104,8 @@ pdf(file.path(resdir,paste(respref,".pdf",sep="")))
 #Plot AICs
 scan.AICs  <- AIC(scan.sams)
 plot(scan.AICs,main=sprintf("%s %s scan",scan.surv,scan.slot),
-   ylab="AIC",xaxt="n",xlab="Model",pch=16,las=3)
-axis(1,labels=names(scan.AICs),at=seq(scan.AICs))
+   ylab="AIC",xaxt="n",xlab="Model",pch=16)
+axis(1,labels=names(scan.AICs),at=seq(scan.AICs),las=3)
 
 #Plot all assessments on one plot
 print(plot(scan.sams,main=sprintf("%s %s scan",scan.surv,scan.slot)))
