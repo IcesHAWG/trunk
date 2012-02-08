@@ -43,6 +43,8 @@ NSH.ctrl@obs.vars["catch",ac(2:5)] <- 202
 NSH.ctrl@obs.vars["catch",ac(6:8)] <- 203
 NSH.ctrl@obs.vars["catch",ac(9)]   <- 204
 
+NSH.ctrl@obs.vars["HERAS",ac(2:9)] <- 301
+
 #Update control
 NSH.ctrl <- update(NSH.ctrl)
 NSH.ctrl@name <- "Step02"
