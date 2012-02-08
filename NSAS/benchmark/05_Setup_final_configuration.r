@@ -17,16 +17,46 @@
 # Notes: Have fun running this assessment!
 #
 ################################################################################
+rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 
+if(substr(R.Version()$os,1,3)== "min")  path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
+if(substr(R.Version()$os,1,3)== "lin")  path <- "/media/n/Projecten/ICES WG/Haring werkgroep HAWG/2012/tmpRepos/NSAS/"
+try(setwd(path))
+
+options(stringsAsFactors=FALSE)
+log.msg     <-  function(string) {cat(string);}
+log.msg("\nNSH Benchmark Assessment\n=====================\n")
+an <- function(x){return(as.numeric(x))}
+
+
+library(FLSAM)
 ### ============================================================================
 ### Setup assessment
 ### ============================================================================
-#Exclude MLAI index, nearly all of IBTS-Q1 and all of IBTS-Q3
-NSH.tun  <- NSH.tun[setdiff(names(NSH.tun),c("MLAI","IBTS-Q3"))] 
-NSH.tun[["IBTS-Q1"]]  <- trim(NSH.tun[["IBTS-Q1"]],age=1)
+source(file.path("benchmark","Setup_objects.r"))
+source(file.path("benchmark","03_Setup_selected_surveys.r"))
 
-#Use Step02 as the basis for the default settings
-source(file.path("benchmark","02_Setup_All_in_runs.r"))
+#Modifications for Step05
+NSH.ctrl@name <- "Step05"
 
-#Modifications for Step03
-NSH.ctrl@name <- "Step03"
+
+#- Run retrospective analyses on catch states binding
+NSH.retro1 <- retro(NSH,NSH.tun,NSH.ctrl,10)
+
+  NSH.ctrl@states["catch",ac(3:9)] <- 101
+  NSH.ctrl <- update(NSH.ctrl)
+NSH.retro2 <- retro(NSH,NSH.tun,NSH.ctrl,10)
+
+save(NSH,NSH.tun,NSH.retro1,file=file.path("benchmark","resultsSAM","05_Step5_Retro1.RData"))
+save(NSH,NSH.tun,NSH.retro2,file=file.path("benchmark","resultsSAM","05_Step5_Retro2.RData"))
+### ============================================================================
+### Outputs
+### ============================================================================
+pdf(file.path("benchmark","resultsSAM","05_Step5_Retro.pdf"))
+plot(NSH.retro1)
+plot(NSH.retro2)
+dev.off()
+
+
+
+
