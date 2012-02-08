@@ -46,7 +46,7 @@ NSH.retro1 <- retro(NSH,NSH.tun,NSH.ctrl,10)
   NSH.ctrl@states["catch",ac(3:9)] <- 101
   NSH.ctrl <- update(NSH.ctrl)
 NSH.retro2 <- retro(NSH,NSH.tun,NSH.ctrl,10)
-
+  NSH.retro2 <- FLSAMs(NSH.retro2[-6])
 save(NSH,NSH.tun,NSH.retro1,file=file.path("benchmark","resultsSAM","05_Step5_Retro1.RData"))
 save(NSH,NSH.tun,NSH.retro2,file=file.path("benchmark","resultsSAM","05_Step5_Retro2.RData"))
 ### ============================================================================
