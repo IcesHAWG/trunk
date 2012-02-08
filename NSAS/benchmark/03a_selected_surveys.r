@@ -72,6 +72,14 @@ pdf(file.path(resdir,paste(respref,".pdf",sep="")))
 NSH.sam@name <- "North Sea Herring All-in Assessment"
 print(plot(NSH.sam))
 
+#Plot uncertainties as a function of time
+CV.yrs <- ssb(NSH.sam)$year
+CV.dat <- cbind(SSB=ssb(NSH.sam)$CV,
+                   Fbar=fbar(NSH.sam)$CV,Rec=rec(NSH.sam)$CV)
+matplot(CV.yrs,CV.dat,type="l",ylim=range(pretty(c(0,CV.dat))),yaxs="i",
+    xlab="Year",ylab="CV of estimate",main="Uncertainties of key parameters")
+legend("topleft",legend=colnames(CV.dat),lty=1:5,col=1:6,bty="n")
+
 #Plot catchabilities values
 catch <- catchabilities(NSH.sam)
 print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
