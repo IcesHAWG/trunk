@@ -102,6 +102,33 @@ plot(wts$simmonds_wts,wts$fit.wts,xlab="HAWG 2011 Weightings",
   ylab="SAM Fitted Weights",type="n",log="xy",main="Comparison of weightings")
 text(wts$simmonds_wts,wts$fit.wts,wts$str,xpd=NA)
 
+#Plot time series used 
+surv.avail <- lapply(NSH.tun,function(x) {
+                 data.frame(name=x@name,as.data.frame(x@index))})
+catch.avail <- data.frame(name="catch",as.data.frame(NSH@catch.n))
+dat.avail <- do.call(rbind,c(list(catch.avail),surv.avail))
+dat.avail <- subset(dat.avail, data>=0)
+dat.ts <- split(dat.avail,list(dat.avail$name,dat.avail$age),drop=TRUE)
+dat.unique <- lapply(dat.ts,function(x) {
+                data.frame(name=unique(x$name),age=unique(x$age),
+                         min.year=min(x$year),max.year=max(x$year))
+                })
+dat.unique <- do.call(rbind,dat.unique)
+dat.unique$name <- factor(dat.unique$name,levels=levels(obv$fleet))
+dat.unique$str <- paste(dat.unique$name,dat.unique$age)
+dat.unique <- dat.unique[order(dat.unique$str),]
+dat.unique$str <- factor(dat.unique$str)
+par(mar=c(5,6,2,2))
+plot(NA,NA,xlim=range(pretty(c(dat.unique$min.year,dat.unique$max.year))),
+  ylim=c(1,nrow(dat.unique)),xlab="Year",ylab="",yaxt="n")
+arrows(dat.unique$min.year,as.numeric(dat.unique$str),
+       dat.unique$max.year,as.numeric(dat.unique$str),
+  col=dat.unique$name,code=3,angle=90,length=0.05)
+arrows(1960,as.numeric(dat.unique$str),
+       dat.unique$max.year,as.numeric(dat.unique$str),
+  col=ifelse(dat.unique$name=="catch",1,NA),code=3,angle=90,length=0.05)
+axis(2,at=as.numeric(dat.unique$str),dat.unique$str,las=2)
+
 #Plot selectivity pattern over time
 sel.pat <- merge(f(NSH.sam),fbar(NSH.sam),
              by="year",suffixes=c(".f",".fbar"))
@@ -122,6 +149,8 @@ print(xyplot(sel ~ age|sprintf("%i's",floor(year/5)*5),sel.pat,
 
 #Survey fits
 residual.diagnostics(NSH.sam)
+
+
 
 ### ============================================================================
 ### Finish
