@@ -15,6 +15,9 @@ STEP3_OTHERS= $(filter-out $(STEP3_FIRST), $(STEP3_PDFS))
 STEP4_SRCS = $(wildcard $(SRC_DIR)/04?_*.r)
 STEP4_PDFS = $(patsubst $(SRC_DIR)/%.r,$(RES_DIR)/%.pdf,$(STEP4_SRCS))
 
+STEP5_SRCS = $(wildcard $(SRC_DIR)/05?_*.r)
+STEP5_PDFS = $(patsubst $(SRC_DIR)/%.r,$(RES_DIR)/%.pdf,$(STEP5_SRCS))
+
 R=/usr/local/bin/R --slave --vanilla
 
 all:
@@ -34,7 +37,10 @@ $(STEP3_FIRST): $(STEP3_CFG) $(STEP2_CFG)
 
 step4: $(STEP4_PDFS)
 
+step5: $(STEP5_PDFS)
+
 key: $(STEP2_FIRST) $(STEP2_CFG) $(STEP3_FIRST)
+
 
 $(RES_DIR)/%.pdf: $(SRC_DIR)/%.r
 	$R -f $< > $(RES_DIR)/$*.log 2>&1
