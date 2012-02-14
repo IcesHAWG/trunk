@@ -58,19 +58,35 @@ NSH.tun.all <- NSH.tun
 #Only do the assessment if we are running in batch mode, or
 #if the results file is missing
 if(!file.exists(resfile) | !interactive()) {
-   #First run with variable natural mortality
+   #First run with smoothed (span 0.75) variable natural mortality
+   Massump <- "smooth75"
+   source(file.path("benchmark","Setup_objects.r"))
    source(file.path("benchmark","04_Setup_refined_data.r"))
-   variable.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
-   variable.sam@name <- "Variable M"
-   
-   #fix natural mortality
+   smooth75.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+   smooth75.sam@name <- "Smooth variable M span 0.75"
+
+   #Second run with smoothed (span 0.5) variable natural mortality
+   Massump <- "smooth50"
+   source(file.path("benchmark","Setup_objects.r"))
+   source(file.path("benchmark","04_Setup_refined_data.r"))
+   smooth50.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+   smooth50.sam@name <- "Smooth variable M span 0.5"
+
+   #Third run with smoothed (span 0.75) variable natural mortality
+   Massump <- "raw"
+   source(file.path("benchmark","Setup_objects.r"))
+   source(file.path("benchmark","04_Setup_refined_data.r"))
+   raw.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+   raw.sam@name <- "Raw variable M"
+
+   #Fourth fix natural mortality
    NSH@m[]   <- c(1,1,0.3,0.2,rep(0.1,6))
    source(file.path("benchmark","04_Setup_refined_data.r"))
    fixed.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
    fixed.sam@name <- "Fixed M"
    
    #Combine into one
-   M.variations <- FLSAMs(variable.sam,fixed.sam)
+   M.variations <- FLSAMs(smooth75.sam,smooth50.sam,raw.sam.sam,fixed.sam)
    names(M.variations) <- sapply(M.variations,name)
    
    #Save any results

@@ -79,8 +79,16 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
 ### Prepare Natural Mortality estimates 
 ### ============================================================================
 #Read in estimates from external file
-M2            <- read.csv(file.path(".","data","SmoothedM_NotExtrapolated_NSAS.csv"),
-                     header=TRUE)
+if(Massump == "smooth75"){
+  M2            <- read.csv(file.path(".","data","Smoothed_span75_M_NotExtrapolated_NSAS.csv"),
+                     header=TRUE)}
+if(Massump == "smooth50"){
+  M2            <- read.csv(file.path(".","data","Smoothed_span50_M_NotExtrapolated_NSAS.csv"),
+                     header=TRUE)}
+if(Massump == "raw"){
+  M2            <- read.csv(file.path(".","data","Raw_NotExtrapolated_NSAS.csv"),
+                     header=TRUE)}
+
 colnames(M2)  <- sub("X","",colnames(M2))
 rownames(M2)  <- M2[,1]
 M2            <- M2[,-1]# Trim off first column as it contains 'ages'
