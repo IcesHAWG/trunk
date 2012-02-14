@@ -56,28 +56,36 @@ source(file.path("benchmark","04_Setup_refined_data.r"))
 ctrls <- list()
 NSH.ctrl@timeout <- 2700
 
-#Scan through the survey ages, tying them sequentlly together
-binding.list <- lapply(1:8,seq,to=9)
-names(binding.list) <- lapply(binding.list,function(x) sprintf("%i+",min(x)))
+
+#Setup bindings - all free is the default
+binding.list <- list()
+for(i in 1:7) {
+   base <- slot(NSH.ctrl,scan.slot)[scan.surv,]
+   base[] <- c(NA,1:8)
+   base[ac(i:8)] <- 100
+   binding.list[[sprintf("%i8",i)]] <- base  
+}
+#HERAS 1 is a bit ugly, so set it free and then consider binding others
+binding.list[["27"]]     <- c(NA,101,rep(102,6),108) 
+binding.list[["26,78"]] <- c(NA,101,rep(102,5),rep(107,2))
+binding.list[["25,68"]] <- c(NA,101,rep(102,4),rep(106,3))
+binding.list[["24,58"]] <- c(NA,101,rep(102,3),rep(105,4))
+binding.list[["23,48"]] <- c(NA,101,rep(102,2),rep(104,5))
+binding.list[["23,45,67"]] <- c(NA,101,rep(102,2),rep(104,2),rep(106,2),108)
+binding.list[["23,45,68"]] <- c(NA,101,rep(102,2),rep(104,2),rep(106,3))
+
+#Convert bindings to ctrl objects
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
    ctrl.obj@desc <- paste(scan.surv,scan.slot,bnd.name)
    bindings <- binding.list[[bnd.name]]
-   slot(ctrl.obj,scan.slot)[scan.surv,ac(bindings)] <- 100
+   slot(ctrl.obj,scan.slot)[scan.surv,] <- bindings
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
 
-#Consider some good guesses based on selection pattern
-ends.free <- new("FLSAM.control",NSH.ctrl,name="1,28,9")
-ends.free@catchabilities["HERAS",ac(1:9)] <- c(101,rep(102,7),109) 
-ends.free2 <- new("FLSAM.control",NSH.ctrl,name="1,27,89")
-ends.free2@catchabilities["HERAS",ac(1:9)] <- c(101,rep(102,6),108,108) 
-ends.free3 <- new("FLSAM.control",NSH.ctrl,name="1,26,79")
-ends.free3@catchabilities["HERAS",ac(1:9)] <- c(101,rep(102,5),108,108,108) 
-
 #Update and finish control objects
-ctrls <- c(ctrls,NSH.ctrl,ends.free,ends.free2,ends.free3)
+ctrls <- c(ctrls,NSH.ctrl)
 ctrls <- lapply(ctrls,update)
 names(ctrls) <- lapply(ctrls,function(x) x@name)
 

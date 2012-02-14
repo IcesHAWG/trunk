@@ -70,23 +70,16 @@ if(!file.exists(resfile) | !interactive()) {
 pdf(file.path(resdir,paste(respref,".pdf",sep="")),pointsize=16)
 
 #Plot result
-print(plot(NSH.sam))
+#print(plot(NSH.sam))
 
 #Plot uncertainties as a function of time
-CV.yrs <- ssb(NSH.sam)$year
-CV.dat <- cbind(SSB=ssb(NSH.sam)$CV,
-                   Fbar=fbar(NSH.sam)$CV,Rec=rec(NSH.sam)$CV)
-matplot(CV.yrs,CV.dat,type="l",ylim=range(pretty(c(0,CV.dat))),yaxs="i",
-    xlab="Year",ylab="CV of estimate",main="Uncertainties of key parameters")
-legend("topleft",legend=colnames(CV.dat),lty=1:5,col=1:6,bty="n")
+#CV.yrs <- ssb(NSH.sam)$year
+#CV.dat <- cbind(SSB=ssb(NSH.sam)$CV,
+#                   Fbar=fbar(NSH.sam)$CV,Rec=rec(NSH.sam)$CV)
+#matplot(CV.yrs,CV.dat,type="l",ylim=range(pretty(c(0,CV.dat))),yaxs="i",
+#    xlab="Year",ylab="CV of estimate",main="Uncertainties of key parameters")
+#legend("topleft",legend=colnames(CV.dat),lty=1:5,col=1:6,bty="n")
 
-#Plot catchabilities values
-catch <- catchabilities(NSH.sam)
-print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
-          scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
-          type="l",lwd=c(2,1,1),col=c("black","grey","grey"),
-          subset=fleet %in% c("HERAS"),
-          main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
 
 #Plot obs_variance (weightings)
 obv <- obs.var(NSH.sam)
@@ -109,29 +102,13 @@ plot(wts$simmonds_wts,wts$fit.wts,xlab="HAWG 2011 Weightings",
   ylab="SAM Fitted Weights",type="n",log="xy",main="Comparison of weightings")
 text(wts$simmonds_wts,wts$fit.wts,wts$str,xpd=NA)
 
-#Plot time series used 
-surv.avail <- lapply(NSH.tun,function(x) {
-                 data.frame(name=x@name,as.data.frame(x@index))})
-catch.avail <- data.frame(name="catch",as.data.frame(NSH@catch.n))
-dat.avail <- do.call(rbind,c(list(catch.avail),surv.avail))
-dat.avail <- subset(dat.avail, data>=0)
-dat.ts <- split(dat.avail,list(dat.avail$name,dat.avail$age),drop=TRUE)
-dat.unique <- lapply(dat.ts,function(x) {
-                data.frame(name=unique(x$name),age=unique(x$age),
-                         min.year=min(x$year),max.year=max(x$year))
-                })
-dat.unique <- do.call(rbind,dat.unique)
-dat.unique$name <- factor(dat.unique$name,levels=levels(obv$fleet))
-dat.unique$str <- paste(dat.unique$name,dat.unique$age)
-dat.unique <- dat.unique[order(dat.unique$str),]
-dat.unique$str <- factor(dat.unique$str)
-par(mar=c(5,6,2,2))
-plot(NA,NA,xlim=range(pretty(c(dat.unique$min.year,dat.unique$max.year))),
-  ylim=c(1,nrow(dat.unique)),xlab="Year",ylab="",yaxt="n")
-arrows(dat.unique$min.year,as.numeric(dat.unique$str),
-       dat.unique$max.year,as.numeric(dat.unique$str),
-  col=dat.unique$name,code=3,angle=90,length=0.05)
-axis(2,at=as.numeric(dat.unique$str),dat.unique$str,las=2)
+#Plot catchabilities values
+catch <- catchabilities(NSH.sam)
+print(xyplot(value+ubnd+lbnd ~ age | fleet,catch,
+          scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
+          type="l",lwd=c(2,1,1),col=c("black","grey","grey"),
+          subset=fleet %in% c("HERAS"),
+          main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
 
 #Plot selectivity pattern over time
 sel.pat <- merge(f(NSH.sam),fbar(NSH.sam),
@@ -150,6 +127,40 @@ print(xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
          groups=year,type="l",as.table=TRUE,
          scale=list(alternating=FALSE),
          main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar"))
+
+#Variability in catch residuals over time
+catch.resids <- subset(residuals(NSH.sam),fleet=="catch")
+catch.resids$pentad <- floor((catch.resids$year+2)/5)*5
+catch.resids$decade <- sprintf("%02i",(floor(catch.resids$year/10)*10)%%100)
+catch.resids$decade <- factor(catch.resids$decade,levels=unique(catch.resids$decade))
+boxplot(std.res ~ pentad,catch.resids,xlab="Pentad",ylab="Standardised residuals",
+  main="Variability of catch residuals by pentad",las=3)
+
+print(bwplot(std.res ~ decade | sprintf("Age %02i",age),catch.resids,
+        xlab="Decade",ylab="Standardised residuals",main="Catch-residual variability",
+        as.table=TRUE,horizontal=FALSE,pch="|",lty=1,fill="grey",
+        par.settings=list(box.rectangle=list(lty=1,col=1),
+                          box.umbrella=list(lty=1,col=1),
+                          plot.symbol=list(col=1)),
+        scale=list(alternating=FALSE),
+        panel=function(...) {
+          panel.abline(h=-3:3,col="lightgrey")
+          panel.bwplot(...)}))
+
+#Standard deviation of each time series
+resids <- residuals(NSH.sam)
+resids$str <- paste(resids$fleet,resids$age)
+ob.bindings <- as.data.frame(as.table(NSH.sam@control@obs.vars),responseName="binding")
+ob.bindings <- subset(ob.bindings,!is.na(binding))
+resids <- merge(resids,ob.bindings)
+ts.sds <- tapply(resids$std.res,resids$str,sd)
+bind.sds <- tapply(resids$std.res,resids$binding,sd)
+bp <- barplot(ts.sds,ylab="Residual Standard deviations",
+       main="Residual standard deviations by time series",xaxt="n")
+axis(1,at=bp,labels=names(ts.sds),las=3,lty=0,mgp=c(0,0,0))
+bp <- barplot(bind.sds,ylab="Residual Standard deviations",xaxt="n",
+       main="Residual standard deviations by bindings",xlab="Binding parameter")
+axis(1,at=bp,labels=names(bind.sds),las=3,lty=0,mgp=c(0,0,0))
 
 #Survey fits
 residual.diagnostics(NSH.sam)

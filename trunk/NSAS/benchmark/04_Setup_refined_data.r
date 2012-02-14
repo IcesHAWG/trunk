@@ -58,6 +58,6 @@ NSH.ctrl@obs.vars["catch",ac(6:7)] <- 203
 NSH.ctrl@obs.vars["catch",ac(8)]   <- 204
 
 #Finalise
-NSH.ctrl@name <- "Step04"
+NSH.ctrl@name <- "Refined_data"
 NSH.ctrl <- update(NSH.ctrl)
 

@@ -49,9 +49,6 @@ source(file.path("benchmark","Setup_objects.r"))
 SCAI.sam <- local({load(all.in.file);return(NSH.sam)})
 SCAI.sam@name <- "SCAI"
 
-#Set surveys aside
-NSH.tun.all <- NSH.tun
-
 ### ============================================================================
 ### Run the assessment with variable natural mortality and fixed natural mortality
 ### ============================================================================
@@ -80,17 +77,18 @@ if(!file.exists(resfile) | !interactive()) {
    raw.sam@name <- "Raw variable M"
 
    #Fourth fix natural mortality
-   NSH@m[]   <- c(1,1,0.3,0.2,rep(0.1,6))
+   source(file.path("benchmark","Setup_objects.r"))
    source(file.path("benchmark","04_Setup_refined_data.r"))
+   NSH@m[]   <- c(1,1,0.3,0.2,rep(0.1,5))
    fixed.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
    fixed.sam@name <- "Fixed M"
    
    #Combine into one
-   M.variations <- FLSAMs(smooth75.sam,smooth50.sam,raw.sam.sam,fixed.sam)
+   M.variations <- FLSAMs(smooth75.sam,smooth50.sam,raw.sam,fixed.sam)
    names(M.variations) <- sapply(M.variations,name)
    
    #Save any results
-   save(NSH,NSH.tun.all,NSH.ctrl,M.variations,file=resfile)
+   save(NSH,NSH.tun,NSH.ctrl,M.variations,file=resfile)
 } else {
   #Load the file
   load(resfile)
@@ -129,8 +127,6 @@ barplot(as.matrix(obvs.stack),beside=TRUE,las=3,
 #Plot diagnostics of both runs
 residual.diagnostics(M.variations[["Variable M"]])
 residual.diagnostics(M.variations[["Fixed M"]])
-
-
 
 ### ============================================================================
 ### Finish
