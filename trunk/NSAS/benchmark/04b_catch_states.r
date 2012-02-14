@@ -1,5 +1,5 @@
 ################################################################################
-# Scan HERAS bindings
+# Scan Catch bindings
 #
 # $Rev$
 # $Date$
@@ -30,35 +30,35 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
 }
-log.msg("\nNSH SAM HERAS Bindings     \n===========================\n")
+log.msg("\nNSH SAM Catch states     \n===========================\n")
 
 ### ============================================================================
 ### Setup assessment
 ### ============================================================================
 #Scanning parameters
-scan.surv <- "HERAS"
-scan.slot <- "obs.vars"
+scan.surv <- "catch"
+scan.slot <- "states"
 
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
-respref <- sprintf("04a_%s_%s",scan.surv,scan.slot) #Prefix for output files
+respref <- sprintf("04b_%s_%s",scan.surv,scan.slot) #Prefix for output files
 resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Import externals
 library(FLSAM)
 source(file.path("benchmark","Setup_objects.r"))
-source(file.path("benchmark","03_Setup_selected_surveys.r"))
+source(file.path("benchmark","04_Setup_refined_data.r"))
 
 ### ============================================================================
 ### Setup control objects
 ### ============================================================================
 #Setup defaults
+NSH.ctrl@timeout <- 2700  #Lets not mess around here 
 ctrls <- list()
-NSH.ctrl@timeout <- 2700
 
 #Scan through the survey ages, tying them sequentlly together
-binding.list <- lapply(1:8,seq,to=9)
-names(binding.list) <- lapply(binding.list,function(x) sprintf("%i+",min(x)))
+binding.list <- c(lapply(1:2,seq,from=0),lapply(2:8,seq,to=9))
+names(binding.list) <- lapply(binding.list,function(x) sprintf("%i-%i",min(x),max(x)))
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
@@ -68,16 +68,12 @@ for(bnd.name in names(binding.list)) {
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
 
-#Consider some good guesses based on selection pattern
-ends.free <- new("FLSAM.control",NSH.ctrl,name="1,28,9")
-ends.free@catchabilities["HERAS",ac(1:9)] <- c(101,rep(102,7),109) 
-ends.free2 <- new("FLSAM.control",NSH.ctrl,name="1,27,89")
-ends.free2@catchabilities["HERAS",ac(1:9)] <- c(101,rep(102,6),108,108) 
-ends.free3 <- new("FLSAM.control",NSH.ctrl,name="1,26,79")
-ends.free3@catchabilities["HERAS",ac(1:9)] <- c(101,rep(102,5),108,108,108) 
+#ICA selectivity pattern
+ica.sel <- new("FLSAM.control",NSH.ctrl,name="ICA.sel")
+ica.sel@states["catch",] <- c(100,101,102,103,rep(104,5),109)
 
 #Update and finish control objects
-ctrls <- c(ctrls,NSH.ctrl,ends.free,ends.free2,ends.free3)
+ctrls <- c(NSH.ctrl,ctrls,ica.sel)
 ctrls <- lapply(ctrls,update)
 names(ctrls) <- lapply(ctrls,function(x) x@name)
 
@@ -89,21 +85,22 @@ names(ctrls) <- lapply(ctrls,function(x) x@name)
 if(!file.exists(resfile) | !interactive()) {
    #Perform assessment
    ass.res <- lapply(ctrls,FLSAM,stck=NSH,tun=NSH.tun,batch.mode=TRUE)
-     
+  
    #Drop any that failed to converge, then create an FLSAMs object
    scan.sams <- FLSAMs(ass.res[!sapply(ass.res,is.null)]); 
-   
+
    #Save results
    save(NSH,NSH.tun,scan.sams,file=resfile)
+
 } else {
   #Load the file
   load(resfile)
 }
-
+scan.sams <- scan.sams[-10]
 ### ============================================================================
 ### Outputs
 ### ============================================================================
-pdf(file.path(resdir,paste(respref,".pdf",sep="")),pointsize=18)
+pdf(file.path(resdir,paste(respref,".pdf",sep="")),pointsize=16)
 #Plot AICs
 scan.AICs  <- AIC(scan.sams)
 plot(scan.AICs,main=sprintf("%s %s scan",scan.surv,scan.slot),
@@ -116,14 +113,6 @@ print(plot(scan.sams,main=sprintf("%s %s scan",scan.surv,scan.slot)))
 #Write likelihood test table
 #lr.tbl <- lr.test(scan.sams)
 #write.table(lr.tbl,file=file.path(resdir,paste(respref,".txt",sep="")))
-
-#Plot all observation variances
-obvs <- obs.var(scan.sams)
-print(xyplot(value ~ age,data=obvs,groups=name,
-          scale=list(alternating=FALSE),as.table=TRUE,
-          type="l",auto.key=list(space="right",points=FALSE,lines=TRUE),
-          subset=fleet %in% c("HERAS"),
-          main="HERAS observation variances",ylab="Observation Variance",xlab="Age"))
 
 ### ============================================================================
 ### Finish

@@ -1,5 +1,5 @@
 ################################################################################
-# Scan HERAS bindings
+# Scan Catch bindings
 #
 # $Rev$
 # $Date$
@@ -30,35 +30,35 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {
 	cat(string);flush.console()
 }
-log.msg("\nNSH SAM HERAS Bindings     \n===========================\n")
+log.msg("\nNSH SAM Catch obs.vars     \n===========================\n")
 
 ### ============================================================================
 ### Setup assessment
 ### ============================================================================
-#Configuration
-scan.surv <- "HERAS"
-scan.slot <- "catchabilities"
+#Scanning parameters
+scan.surv <- "catch"
+scan.slot <- "obs.vars"
 
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
-respref <- sprintf("04a_%s_%s",scan.surv,scan.slot) #Prefix for output files
+respref <- sprintf("04b_%s_%s",scan.surv,scan.slot) #Prefix for output files
 resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Import externals
 library(FLSAM)
 source(file.path("benchmark","Setup_objects.r"))
-source(file.path("benchmark","03_Setup_selected_surveys.r"))
+source(file.path("benchmark","04_Setup_refined_data.r"))
 
 ### ============================================================================
 ### Setup control objects
 ### ============================================================================
 #Setup defaults
-NSH.ctrl@timeout <- 2700
 ctrls <- list()
+NSH.ctrl@timeout <- 2700
 
-#Scan through the survey ages, tying them sequentlly together from bottom
-binding.list <- lapply(2:9,seq,from=1)
-names(binding.list) <- lapply(binding.list,function(x) sprintf("-%i",max(x)))
+#Scan through the survey ages, tying them sequentlly together
+binding.list <- lapply(0:8,seq,to=9)
+names(binding.list) <- lapply(binding.list,function(x) sprintf("%i+",min(x)))
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
@@ -68,16 +68,12 @@ for(bnd.name in names(binding.list)) {
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
 
-#Consider some good guesses based on selection pattern
-two.steps <- new("FLSAM.control",NSH.ctrl,name="17,89")
-two.steps@catchabilities["HERAS",ac(1:9)] <- c(rep(101,7),102,102) 
-three.steps <- new("FLSAM.control",NSH.ctrl,name="14,57,89")
-three.steps@catchabilities["HERAS",ac(1:9)] <- c(rep(101,4),rep(102,3),103,103) 
-two.by.two <- new("FLSAM.control",NSH.ctrl,name="12,34,56,78,9")
-two.by.two@catchabilities["HERAS",ac(1:9)] <- c(101,101,103,103,105,105,107,107,109)
+#Manually select some combinations
+four.groups <- new("FLSAM.control",NSH.ctrl,name="01,24,58,9")
+four.groups@obs.vars["catch",] <- c(rep(100,2),rep(102,3),rep(103,4),109)
 
 #Update and finish control objects
-ctrls <- c(NSH.ctrl,ctrls,two.steps,three.steps,two.by.two)
+ctrls <- c(ctrls,NSH.ctrl,four.groups)
 ctrls <- lapply(ctrls,update)
 names(ctrls) <- lapply(ctrls,function(x) x@name)
 
@@ -94,7 +90,7 @@ if(!file.exists(resfile) | !interactive()) {
    scan.sams <- FLSAMs(ass.res[!sapply(ass.res,is.null)]); 
    
    #Save results
-   save(NSH,NSH.tun,NSH.ctrl,scan.sams,file=resfile)
+   save(NSH,NSH.tun,scan.sams,file=resfile)
 } else {
   #Load the file
   load(resfile)
@@ -113,18 +109,10 @@ axis(1,labels=names(scan.AICs),at=seq(scan.AICs),las=3)
 #Plot all assessments on one plot
 print(plot(scan.sams,main=sprintf("%s %s scan",scan.surv,scan.slot)))
 
-#Plot variable catchabilities for each set of bindings
-qs <- catchabilities(scan.sams)
-print(xyplot(value ~ age,data=qs,groups=name,
-          scale=list(alternating=FALSE),as.table=TRUE,
-          type="l",auto.key=list(space="right",points=FALSE,lines=TRUE),
-          subset=fleet %in% c("HERAS"),
-          main="HERAS catchability parameters",ylab="Catchability",xlab="Age"))
-
-
 #Write likelihood test table
 #lr.tbl <- lr.test(scan.sams)
 #write.table(lr.tbl,file=file.path(resdir,paste(respref,".txt",sep="")))
+
 
 ### ============================================================================
 ### Finish
