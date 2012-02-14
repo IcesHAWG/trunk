@@ -56,28 +56,31 @@ source(file.path("benchmark","04_Setup_refined_data.r"))
 NSH.ctrl@timeout <- 2700
 ctrls <- list()
 
-#Scan through the survey ages, tying them sequentlly together from bottom
-binding.list <- lapply(2:9,seq,from=1)
-names(binding.list) <- lapply(binding.list,function(x) sprintf("-%i",max(x)))
+#Setup bindings - all free  is the default
+binding.list <- list()
+for(i in 1:7) {
+   base <- slot(NSH.ctrl,scan.slot)[scan.surv,]
+   base[] <- c(NA,1:8)
+   base[ac(i:8)] <- 100
+   binding.list[[sprintf("%i8",i)]] <- base  
+}
+#Consider some good guesses based on selection pattern
+binding.list[["12,34,56,78"]] <- c(NA,101,101,103,103,105,105,107,107)
+binding.list[["12,34,58"]] <- c(NA,101,101,103,103,105,105,105,105)
+binding.list[["12,35,68"]] <- c(NA,101,101,103,103,103,106,106,106)
+
+#Convert bindings to ctrl objects
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
    ctrl.obj@desc <- paste(scan.surv,scan.slot,bnd.name)
    bindings <- binding.list[[bnd.name]]
-   slot(ctrl.obj,scan.slot)[scan.surv,ac(bindings)] <- 100
+   slot(ctrl.obj,scan.slot)[scan.surv,] <- bindings
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
 
-#Consider some good guesses based on selection pattern
-two.steps <- new("FLSAM.control",NSH.ctrl,name="17,89")
-two.steps@catchabilities["HERAS",ac(1:9)] <- c(rep(101,7),102,102) 
-three.steps <- new("FLSAM.control",NSH.ctrl,name="14,57,89")
-three.steps@catchabilities["HERAS",ac(1:9)] <- c(rep(101,4),rep(102,3),103,103) 
-two.by.two <- new("FLSAM.control",NSH.ctrl,name="12,34,56,78,9")
-two.by.two@catchabilities["HERAS",ac(1:9)] <- c(101,101,103,103,105,105,107,107,109)
-
 #Update and finish control objects
-ctrls <- c(NSH.ctrl,ctrls,two.steps,three.steps,two.by.two)
+ctrls <- c(ctrls,NSH.ctrl)
 ctrls <- lapply(ctrls,update)
 names(ctrls) <- lapply(ctrls,function(x) x@name)
 

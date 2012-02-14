@@ -56,24 +56,26 @@ source(file.path("benchmark","04_Setup_refined_data.r"))
 ctrls <- list()
 NSH.ctrl@timeout <- 2700
 
-#Scan through the survey ages, tying them sequentlly together
-binding.list <- lapply(0:8,seq,to=9)
-names(binding.list) <- lapply(binding.list,function(x) sprintf("%i+",min(x)))
+#Setup bindings
+binding.list <- list() #"01,25,67,8" is default
+binding.list[["01,24,57,8"]] <- c(rep(100,2),rep(102,3),rep(105,3),108) #Shift binding pt
+binding.list[["01,26,78"]] <- c(rep(100,2),rep(102,5),rep(107,2)) #Tie in plus group
+binding.list[["01,25,68"]] <- c(rep(100,2),rep(102,4),rep(106,3)) #Tie in plus group
+binding.list[["01,24,58"]] <- c(rep(100,2),rep(102,3),rep(105,4)) #Larger plus group
+binding.list[["0,1,25,67,8"]] <- c(100,101,rep(102,4),rep(106,2),108) #Free young ages
+
+#Convert bindings to ctrl objects
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
    ctrl.obj@desc <- paste(scan.surv,scan.slot,bnd.name)
    bindings <- binding.list[[bnd.name]]
-   slot(ctrl.obj,scan.slot)[scan.surv,ac(bindings)] <- 100
+   slot(ctrl.obj,scan.slot)[scan.surv,] <- bindings
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
 
-#Manually select some combinations
-four.groups <- new("FLSAM.control",NSH.ctrl,name="01,24,58,9")
-four.groups@obs.vars["catch",] <- c(rep(100,2),rep(102,3),rep(103,4),109)
-
 #Update and finish control objects
-ctrls <- c(ctrls,NSH.ctrl,four.groups)
+ctrls <- c(ctrls,NSH.ctrl)
 ctrls <- lapply(ctrls,update)
 names(ctrls) <- lapply(ctrls,function(x) x@name)
 

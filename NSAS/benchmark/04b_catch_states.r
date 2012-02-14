@@ -56,24 +56,30 @@ source(file.path("benchmark","04_Setup_refined_data.r"))
 NSH.ctrl@timeout <- 2700  #Lets not mess around here 
 ctrls <- list()
 
-#Scan through the survey ages, tying them sequentlly together
-binding.list <- c(lapply(1:2,seq,from=0),lapply(2:8,seq,to=9))
-names(binding.list) <- lapply(binding.list,function(x) sprintf("%i-%i",min(x),max(x)))
+#Setup bindings "7+" is the default
+binding.list <- list()
+for(i in 2:7) {
+   base <- slot(NSH.ctrl,scan.slot)[scan.surv,]
+   base[] <- 1:9
+   base[ac(i:8)] <- 100
+   binding.list[[sprintf("%i8",i)]] <- base  
+}
+binding.list[["01,78"]] <- c(100,100,102,103,104,105,106,107,107)
+binding.list[["02,78"]] <- c(100,100,100,103,104,105,106,107,107)
+binding.list[["01,38"]] <- c(100,100,102,103,103,103,103,103,103)
+
+#Convert bindings to ctrl objects
 for(bnd.name in names(binding.list)) {
    ctrl.obj <- NSH.ctrl
    ctrl.obj@name <- bnd.name
    ctrl.obj@desc <- paste(scan.surv,scan.slot,bnd.name)
    bindings <- binding.list[[bnd.name]]
-   slot(ctrl.obj,scan.slot)[scan.surv,ac(bindings)] <- 100
+   slot(ctrl.obj,scan.slot)[scan.surv,] <- bindings
    ctrls[[ctrl.obj@name]] <- update(ctrl.obj)
 }
 
-#ICA selectivity pattern
-ica.sel <- new("FLSAM.control",NSH.ctrl,name="ICA.sel")
-ica.sel@states["catch",] <- c(100,101,102,103,rep(104,5),109)
-
 #Update and finish control objects
-ctrls <- c(NSH.ctrl,ctrls,ica.sel)
+ctrls <- c(ctrls,NSH.ctrl)
 ctrls <- lapply(ctrls,update)
 names(ctrls) <- lapply(ctrls,function(x) x@name)
 
