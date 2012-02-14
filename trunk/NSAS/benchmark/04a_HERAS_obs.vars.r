@@ -103,7 +103,7 @@ if(!file.exists(resfile) | !interactive()) {
 ### ============================================================================
 ### Outputs
 ### ============================================================================
-pdf(file.path(resdir,paste(respref,".pdf",sep="")))
+pdf(file.path(resdir,paste(respref,".pdf",sep="")),pointsize=18)
 #Plot AICs
 scan.AICs  <- AIC(scan.sams)
 plot(scan.AICs,main=sprintf("%s %s scan",scan.surv,scan.slot),

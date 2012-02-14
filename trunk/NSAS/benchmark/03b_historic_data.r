@@ -88,7 +88,7 @@ if(!file.exists(resfile) | !interactive()) {
 ### Plots
 ### ============================================================================
 #Setup plots
-pdf(file.path(resdir,paste(respref,".pdf",sep="")))
+pdf(file.path(resdir,paste(respref,".pdf",sep="")),pointsize=16)
 
 #Variability in catch residuals over time
 catch.resids <- subset(residuals(full.history.sam),fleet=="catch")

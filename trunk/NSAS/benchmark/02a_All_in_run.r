@@ -66,7 +66,7 @@ if(!file.exists(resfile) | !interactive()) {
 ### Plots
 ### ============================================================================
 #Setup plots
-pdf(file.path(resdir,paste(respref,".pdf",sep="")))
+pdf(file.path(resdir,paste(respref,".pdf",sep="")),pointsize=16)
 
 #Plot result
 NSH.sam@name <- "North Sea Herring All-in Assessment"
@@ -96,11 +96,13 @@ legend("topleft",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
 
 #Compare weights against Simmonds wts
 sim.wts <- read.csv(file.path(".","data","simmonds_wts.csv"))
-wts <- merge(sim.wts,obv)
+obv.MLAI <- obv
+levels(obv.MLAI$fleet)[2] <- "MLAI"
+wts <- merge(sim.wts,obv.MLAI)
 wts$fit.wts <- 1/wts$value
-plot(wts$simmonds_wts,wts$fit.wts,xlab="HAWG 2011 Weightings", 
-  ylab="SAM Fitted Weights",type="n",log="xy",main="Comparison of weightings")
-text(wts$simmonds_wts,wts$fit.wts,wts$str,xpd=NA)
+plot(1/wts$simmonds_wts,1/wts$fit.wts,xlab='HAWG 2011 "Observation variances"', 
+  ylab="SAM Observation Variances",type="n",log="xy",main="Comparison of weightings")
+text(1/wts$simmonds_wts,1/wts$fit.wts,wts$str,xpd=NA)
 
 #Plot time series used 
 surv.avail <- lapply(NSH.tun,function(x) {

@@ -66,7 +66,7 @@ if(!file.exists(resfile) | !interactive()) {
 ### Plots
 ### ============================================================================
 #Setup plots
-pdf(file.path(resdir,paste(respref,".pdf",sep="")))
+pdf(file.path(resdir,paste(respref,".pdf",sep="")),pointsize=16)
 
 #Plot result
 NSH.sam@name <- "North Sea Herring All-in Assessment"

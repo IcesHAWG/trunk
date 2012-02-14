@@ -48,7 +48,7 @@ library(FLSAM)
 source(file.path("benchmark","Setup_objects.r"))
 source(file.path("benchmark","03_Setup_selected_surveys.r"))
 default.pg.sam <- local({load(default.pg.file);return(NSH.sam)})
-default.pg.sam@name <- sprintf("%i+",default.pg.sam@range["plusgroup"])
+default.pg.sam@name <- "Step03"
 
 ### ============================================================================
 ### Run the assessment for a different plus group
@@ -56,7 +56,7 @@ default.pg.sam@name <- sprintf("%i+",default.pg.sam@range["plusgroup"])
 #Only do the assessment if we are running in batch mode, or
 #if the results file is missing
 if(!file.exists(resfile) | !interactive()) {
-   pgs <- c(7,8)
+   pgs <- c(7,8,9)
    
    #Loop over truncated years
    pg.sams <- list()
@@ -67,9 +67,9 @@ if(!file.exists(resfile) | !interactive()) {
      pg.tun[["HERAS"]]@index[ac(pg),] <- quantSums(pg.tun[["HERAS"]]@index[ac(pg:9),])
      pg.tun[["HERAS"]] <- trim(pg.tun[["HERAS"]],age=1:pg)
      pg.tun[["HERAS"]]@range["plusgroup"] <- pg
-     pg.ctrl <- drop.from.control(NSH.ctrl,ages=(pg+1):NSH.ctrl@range["max"])
+     pg.ctrl <- drop.from.control(NSH.ctrl,ages=pg:NSH.ctrl@range["max"]+1)
      pg.ctrl@states["catch",ac((pg-1):pg)] <- 101
-     pg.ctrl@obs.vars["catch",ac(pg)] <- 201
+     pg.ctrl@obs.vars["catch",ac(2:pg)] <- 201
      pg.ctrl@range[c("max","plusgroup")] <- pg
      pg.ctrl <- update(pg.ctrl)
      
