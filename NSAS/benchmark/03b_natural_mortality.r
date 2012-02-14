@@ -84,7 +84,7 @@ if(!file.exists(resfile) | !interactive()) {
 ### Plots
 ### ============================================================================
 #Setup plots
-pdf(file.path(resdir,paste(respref,".pdf",sep="")))
+pdf(file.path(resdir,paste(respref,".pdf",sep="")),pointsize=16)
 
 #Comparison of assessments with different plus groups
 plot(M.variations,main="Effects of variable natural mortality")

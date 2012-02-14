@@ -96,11 +96,11 @@ if(!file.exists(resfile) | !interactive()) {
   #Load the file
   load(resfile)
 }
-
+scan.sams <- scan.sams[-10]
 ### ============================================================================
 ### Outputs
 ### ============================================================================
-pdf(file.path(resdir,paste(respref,".pdf",sep="")))
+pdf(file.path(resdir,paste(respref,".pdf",sep="")),pointsize=16)
 #Plot AICs
 scan.AICs  <- AIC(scan.sams)
 plot(scan.AICs,main=sprintf("%s %s scan",scan.surv,scan.slot),

@@ -18,7 +18,7 @@ STEP4_PDFS = $(patsubst $(SRC_DIR)/%.r,$(RES_DIR)/%.pdf,$(STEP4_SRCS))
 STEP5_SRCS = $(wildcard $(SRC_DIR)/05?_*.r)
 STEP5_PDFS = $(patsubst $(SRC_DIR)/%.r,$(RES_DIR)/%.pdf,$(STEP5_SRCS))
 
-R=/usr/local/bin/R --slave --vanilla
+R=R --slave --vanilla
 
 all:
 	@echo "No target for all. Try 'make step2', 'make step3', or 'make step4'"
