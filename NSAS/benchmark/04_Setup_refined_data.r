@@ -19,13 +19,11 @@
 ################################################################################
 
 ### ============================================================================
-### Setup assessment
+### Setup data objects
 ### ============================================================================
-#Use Step03 as the basis for the default settings
-source(file.path("benchmark","03_Setup_selected_surveys.r"))
-
-#Modifications for Step04
-NSH.ctrl@name <- "Step04"
+#Select surveys
+NSH.tun  <- NSH.tun[setdiff(names(NSH.tun),c("MLAI","IBTS-Q3"))] 
+NSH.tun[["IBTS-Q1"]]  <- trim(NSH.tun[["IBTS-Q1"]],age=1)
 
 #Set plus group to age 8
 pg <- 8
@@ -33,12 +31,33 @@ NSH <- setPlusGroup(NSH,pg)
 NSH.tun[["HERAS"]]@index[ac(pg),] <- quantSums(NSH.tun[["HERAS"]]@index[ac(pg:9),])
 NSH.tun[["HERAS"]] <- trim(NSH.tun[["HERAS"]],age=1:pg)
 NSH.tun[["HERAS"]]@range["plusgroup"] <- pg
-NSH.ctrl <- drop.from.control(NSH.ctrl,ages=pg:NSH.ctrl@range["max"]+1)
-NSH.ctrl@states["catch",ac((pg-1):pg)] <- 101
-NSH.ctrl@obs.vars["catch",ac(pg)] <- 201
-NSH.ctrl@range[c("max","plusgroup")] <- pg
-NSH.ctrl <- update(NSH.ctrl)
 
 #Drop 1970s problematic catches
 NSH@catch.n[,ac(1978:1979)] <- NA
+
+### ============================================================================
+### Setup control object
+### ============================================================================
+#Get default settings of control object
+NSH.ctrl <- FLSAM.control(NSH,NSH.tun)
+
+#Set the variances. Separate variance for recruitment and plus group
+#Fishing mortality RWs are set from an analysis of ICA VPA results
+NSH.ctrl@logN.vars[] <- c(1,rep(2,dims(NSH)$age-1)) 
+NSH.ctrl@f.vars["catch",] <- c(rep(1,2),rep(2,7))
+
+#All fishing mortality states are free except 
+#oldest ages to ensure stablity
+NSH.ctrl@states["catch",] <- seq(dims(NSH)$age) 
+NSH.ctrl@states["catch",ac(7:8)] <- 101
+
+#Group observation variances of catches to ensure stability
+NSH.ctrl@obs.vars["catch",ac(0:1)] <- 201
+NSH.ctrl@obs.vars["catch",ac(2:5)] <- 202
+NSH.ctrl@obs.vars["catch",ac(6:7)] <- 203
+NSH.ctrl@obs.vars["catch",ac(8)]   <- 204
+
+#Finalise
+NSH.ctrl@name <- "Step04"
+NSH.ctrl <- update(NSH.ctrl)
 
