@@ -105,28 +105,17 @@ plot(M.variations,main="Effects of variable natural mortality")
 plot(M.variations,xlim=c(1990,2011),
     main="Effects of variable vs. fixed natural mortality")
 
-#total mortality
-source(file.path("benchmark","Setup_objects.r"))
-mortsVariable <- cbind(as.data.frame(NSH@m + (NSH+M.variations[[1]])@harvest),type="Variable")
-  NSH@m[]     <- c(1,1,0.3,0.2,rep(0.1,6))
-mortsFixed    <- cbind(as.data.frame(NSH@m + (NSH+M.variations[[2]])@harvest),type="Fixed")
-morts         <- rbind(mortsVariable,mortsFixed)
-print(xyplot(data ~ year|as.factor(age),data=morts,type="l",groups=type,ylab="total mortality",main="Total mortality by age",auto.key=T))
 
 #Comparison of weightings
 obvs <- obs.var(M.variations)
 obvs$str <- paste(obvs$fleet,ifelse(is.na(obvs$age),"",obvs$age))
 obvs.stack <- unstack(obvs,value ~ str)
 barplot(as.matrix(obvs.stack),beside=TRUE,las=3,
-   legend=unique(obvs$name),col=c("red","black"),
+   legend=unique(obvs$name),col=c("red","black","green","blue"),
    args.legend=list(x="topleft"),
    main="Variable vs fixed natural mortality",
    ylab="Observation variance")
 
-
-#Plot diagnostics of both runs
-residual.diagnostics(M.variations[["Variable M"]])
-residual.diagnostics(M.variations[["Fixed M"]])
 
 ### ============================================================================
 ### Finish
