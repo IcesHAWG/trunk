@@ -92,6 +92,9 @@ if(exists("Massump")==T){
   if(Massump == "raw"){
     M2            <- read.csv(file.path(".","data","Raw_NotExtrapolated_NSAS.csv"),
                        header=TRUE)}
+  if(Massump == "lorentz"){
+    M2            <- read.csv(file.path(".","data","Lorentz_M_NotExtrapolated_NSAS.csv"),
+                       header=TRUE)}
 }
 
 colnames(M2)  <- sub("X","",colnames(M2))
