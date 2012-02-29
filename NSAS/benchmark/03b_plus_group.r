@@ -111,6 +111,15 @@ print(barchart(value ~ age| fleet,obv,groups=name,horiz=FALSE,
         ylim=range(pretty(c(0,obv$value))),
         scale=list(alternating=FALSE)))
 
+#Plot obs_variance plot for age 8 plus group
+obv <- obs.var(variable.pg.sams[["8+"]])
+obv$str <- paste(obv$fleet,ifelse(is.na(obv$age),"",obv$age))
+obv <- obv[order(obv$value),]
+bp <- barplot(obv$value,ylab="Observation Variance",
+       main="Observation variances by data source",col=factor(obv$fleet))
+axis(1,at=bp,labels=obv$str,las=3,lty=0,mgp=c(0,0,0))
+legend("topleft",levels(obv$fleet),pch=15,col=1:nlevels(obv$fleet),pt.cex=1.5)
+
 #Adding diagnostics for Age 8 Plus Group
 residual.diagnostics(variable.pg.sams[["8+"]])
 

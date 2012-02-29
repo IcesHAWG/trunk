@@ -128,6 +128,10 @@ print(xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
          scale=list(alternating=FALSE),
          main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar"))
 
+print(levelplot(sel ~ year*age,sel.pat,at=seq(0,2.75,length.out=100),
+        col.regions=colorRampPalette(c("black","red","yellow"),space="Lab")(101)))
+
+
 #Variability in catch residuals over time
 catch.resids <- subset(residuals(NSH.sam),fleet=="catch")
 catch.resids$pentad <- floor((catch.resids$year+2)/5)*5
@@ -161,6 +165,22 @@ axis(1,at=bp,labels=names(ts.sds),las=3,lty=0,mgp=c(0,0,0))
 bp <- barplot(bind.sds,ylab="Residual Standard deviations",xaxt="n",
        main="Residual standard deviations by bindings",xlab="Binding parameter")
 axis(1,at=bp,labels=names(bind.sds),las=3,lty=0,mgp=c(0,0,0))
+
+#Correlation matrices
+library(RColorBrewer)
+cols <- brewer.pal(11,"Spectral")
+n.coefs <- nrow(coef(NSH.sam))   
+cor.mat <- cov2cor(NSH.sam@vcov[1:n.coefs,1:n.coefs]) 
+var.names <- colnames(cor.mat)
+var.names <- factor(var.names,unique(var.names))
+var.names <- paste(var.names,do.call(c,lapply(table(var.names),seq,from=1)),sep=".")
+dimnames(cor.mat) <- list(Var2=var.names,Var1=var.names)
+plt.dat <- as.data.frame(as.table(cor.mat),responseName="cor")
+print(levelplot(cor ~ Var2 * Var1,plt.dat,
+    at=seq(-1,1,by=0.02),zlim=c(-1,1),
+    scales=list(x=list(rot=90)),
+    xlab="",ylab="",main=NSH.sam@name,
+    col.regions=colorRampPalette(cols,space="Lab")(102)))
 
 #Survey fits
 residual.diagnostics(NSH.sam)

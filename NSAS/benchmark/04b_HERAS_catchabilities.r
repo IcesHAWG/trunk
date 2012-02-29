@@ -67,7 +67,6 @@ for(i in 1:7) {
 #Consider some good guesses based on selection pattern
 binding.list[["12,34,56,78"]] <- c(NA,101,101,103,103,105,105,107,107)
 binding.list[["12,34,58"]] <- c(NA,101,101,103,103,105,105,105,105)
-binding.list[["12,35,68"]] <- c(NA,101,101,103,103,103,106,106,106)
 
 #Convert bindings to ctrl objects
 for(bnd.name in names(binding.list)) {
@@ -124,6 +123,17 @@ print(xyplot(value ~ age,data=qs,groups=name,
           subset=fleet %in% c("HERAS"),
           main="HERAS catchability parameters",ylab="Catchability",xlab="Age"))
 
+#Plot obs.var as a measure of stability of the model
+obvs <-  obs.var(scan.sams)
+obvs$name <- factor(obvs$name)
+obvs$str <- factor(paste(obvs$fleet,obvs$age))
+plot(as.numeric(obvs$str),obvs$value,type="n",xaxt="n",xlab="",ylab="Observation variance",
+   ylim=range(pretty(c(0,obvs$value))))
+grid()
+text(as.numeric(obvs$str),obvs$value,as.numeric(obvs$name),col=as.numeric(obvs$name))
+axis(1,at=seq(levels(obvs$str)),labels=levels(obvs$str),las=3)
+legend("topright",legend=sprintf("%i - %s",seq(nlevels(obvs$name)),levels(obvs$name)),
+  text.col=seq(nlevels(obvs$name)))
 
 #Write likelihood test table
 #lr.tbl <- lr.test(scan.sams)

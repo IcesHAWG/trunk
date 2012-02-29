@@ -41,7 +41,7 @@ scan.slot <- "obs.vars"
 
 #Somewhere to store results
 resdir <- file.path("benchmark","resultsSAM")
-respref <- sprintf("04_%s_%s",scan.surv,scan.slot) #Prefix for output files
+respref <- sprintf("04b_%s_%s",scan.surv,scan.slot) #Prefix for output files
 resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
 #Import externals
@@ -127,11 +127,27 @@ print(plot(scan.sams,main=sprintf("%s %s scan",scan.surv,scan.slot)))
 
 #Plot all observation variances
 obvs <- obs.var(scan.sams)
+obvs$name <- factor(obvs$name)
+obvs$str <- factor(paste(obvs$fleet,obvs$age))
+plot(as.numeric(obvs$str),obvs$value,type="n",xaxt="n",xlab="",ylab="Observation variance",
+   ylim=range(pretty(c(0,obvs$value))))
+grid()
+text(as.numeric(obvs$str),obvs$value,as.numeric(obvs$name),col=as.numeric(obvs$name))
+axis(1,at=seq(levels(obvs$str)),labels=levels(obvs$str),las=3)
+legend("topright",legend=sprintf("%i - %s",seq(nlevels(obvs$name)),levels(obvs$name)),
+  text.col=seq(nlevels(obvs$name)))
+
 print(xyplot(value ~ age,data=obvs,groups=name,
           scale=list(alternating=FALSE),as.table=TRUE,
           type="l",auto.key=list(space="right",points=FALSE,lines=TRUE),
           subset=fleet %in% c("HERAS"),
           main="HERAS observation variances",ylab="Observation Variance",xlab="Age"))
+
+#Plot HERAS catchabilities for each model
+HERAS.qs <- subset(catchabilities(scan.sams),fleet=="HERAS")
+print(xyplot(value ~ age, data=HERAS.qs, groups=name,
+          type="l",auto.key=list(space="right",points=FALSE,lines=TRUE),
+          xlab="Age",ylab="Catchabilities",main="HERAS catchabilities"))
 
 ### ============================================================================
 ### Finish

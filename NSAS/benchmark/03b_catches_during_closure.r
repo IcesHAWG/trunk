@@ -104,6 +104,14 @@ print(barchart(value ~ age| fleet,obv,groups=name,horiz=FALSE,
         ylim=range(pretty(c(0,obv$value))),
         scale=list(alternating=FALSE)))
 
+#Variability in catch residuals over time
+catch.resids <- subset(residuals(closure.sams[["78-79"]]),fleet=="catch")
+catch.resids$pentad <- floor((catch.resids$year+2)/5)*5
+catch.resids$decade <- sprintf("%02i",(floor(catch.resids$year/10)*10)%%100)
+catch.resids$decade <- factor(catch.resids$decade,levels=unique(catch.resids$decade))
+boxplot(std.res ~ pentad,catch.resids,xlab="Pentad",ylab="Standardised residuals",
+  main="Variability of catch residuals by pentad",las=3)
+
 #Diagnostics
 residual.diagnostics(closure.sams[["78-79"]])
 

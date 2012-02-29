@@ -151,6 +151,9 @@ print(xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
          scale=list(alternating=FALSE),
          main="Selectivity of the Fishery by Pentad",xlab="Age",ylab="F/Fbar"))
 
+#Correlation plot
+print(cor.plot(NSH.sam))
+
 #Survey fits
 residual.diagnostics(NSH.sam)
 
