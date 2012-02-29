@@ -36,18 +36,9 @@ resdir <- file.path("benchmark","resultsSAM")
 respref <- "04b_natural_mortality" #Prefix for output files
 resfile <- file.path(resdir,paste(respref,".RData",sep=""))
 
-#Dependencies
-all.in.file <- file.path(resdir,"04a_refined_data.RData")
-if(!file.exists(all.in.file)) {
-  stop(paste("Cannot find dependency",all.in.file,
-      "Please run appropriate script to generate this file"))
-} 
-
 #Import externals
 library(FLSAM)
 source(file.path("benchmark","Setup_objects.r"))
-SCAI.sam <- local({load(all.in.file);return(NSH.sam)})
-SCAI.sam@name <- "SCAI"
 
 ### ============================================================================
 ### Run the assessment with variable natural mortality and fixed natural mortality
@@ -101,9 +92,9 @@ if(!file.exists(resfile) | !interactive()) {
 pdf(file.path(resdir,paste(respref,".pdf",sep="")),pointsize=16)
 
 #Comparison of assessments with different plus groups
-plot(M.variations,main="Effects of variable natural mortality")
-plot(M.variations,xlim=c(1990,2011),
-    main="Effects of variable vs. fixed natural mortality")
+print(plot(M.variations,main="Effects of variable natural mortality"))
+print(plot(M.variations,xlim=c(1990,2011),
+    main="Effects of variable vs. fixed natural mortality"))
 
 
 #Comparison of weightings
@@ -115,6 +106,13 @@ barplot(as.matrix(obvs.stack),beside=TRUE,las=3,
    args.legend=list(x="topleft"),
    main="Variable vs fixed natural mortality",
    ylab="Observation variance")
+
+#AICs
+scan.AICs  <- AIC(M.variations)
+plot(scan.AICs,main="Natural Mortality Scenarios",
+   ylab="AIC",xaxt="n",xlab="Model",pch=16)
+axis(1,labels=names(scan.AICs),at=seq(scan.AICs),las=3)
+
 
 
 ### ============================================================================

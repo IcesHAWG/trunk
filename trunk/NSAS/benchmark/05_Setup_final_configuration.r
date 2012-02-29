@@ -26,13 +26,15 @@
 #Use Step04 as the basis for the default settings
 source(file.path("benchmark","04_Setup_refined_data.r"))
 
-#Bind HERAS observation variances
-NSH.ctrl@obs.vars["HERAS",ac(2:8)] <- 301
+#Release f.vars, bind obs.variances
+NSH.ctrl@f.vars["catch",] <-  c(1,1,2,2,3,3,4,4,4)
+NSH.ctrl@obs.vars["catch",] <- c(100,rep(101,5),rep(106,3))
 
-#Bind catch states
-NSH.ctrl@states["catch",ac(3:8)] <- 301
+#Bind HERAS 
+NSH.ctrl@obs.vars["HERAS",ac(1:8)] <- c(101,rep(102,4),rep(106,3))
+NSH.ctrl@catchabilities["HERAS",ac(1:8)] <- c(rep(101,2),rep(103,2),rep(105,4))
 
 #Round off changes
 NSH.ctrl <- update(NSH.ctrl)
-NSH.ctrl@name <- "Step05"
+NSH.ctrl@name <- "Final_cfg"
 

@@ -67,6 +67,7 @@ for(i in 2:7) {
 binding.list[["01,78"]] <- c(100,100,102,103,104,105,106,107,107)
 binding.list[["02,78"]] <- c(100,100,100,103,104,105,106,107,107)
 binding.list[["01,38"]] <- c(100,100,102,103,103,103,103,103,103)
+binding.list[["34,58"]] <- c(100,101,102,103,103,105,105,105,105)
 
 #Convert bindings to ctrl objects
 for(bnd.name in names(binding.list)) {
