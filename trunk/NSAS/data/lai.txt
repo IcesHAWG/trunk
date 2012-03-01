@@ -2,14 +2,14 @@ Year  LAIUnit Area  Fortnight        L<=9
  72   B1      Or/Sh  01-15Sep        1133   
  72   B2      Or/Sh  16-30Sep        4583   
  72   C1      Buchan 01-15Sep          30   
- 72   C2      Buchan 16-30Sep           .   
+ 72   C2      Buchan 16-30Sep           0   
  72   D1      CNS    01-15Sep         165   
  72   D2      CNS    16-30Sep          88   
  72   D3      CNS    01-15Oct         134   
  72   D4      CNS    16-31Oct          22   
  72   E6      SNS    16-31Dec           2   
  72   E7      SNS    01-15Jan          46   
- 72   E8      SNS    16-31Jan           .   
+ 72   E8      SNS    16-31Jan           0   
  73   B1      Or/Sh  01-15Sep        2029   
  73   B2      Or/Sh  16-30Sep         822   
  73   C1      Buchan 01-15Sep           3   
@@ -36,14 +36,14 @@ Year  LAIUnit Area  Fortnight        L<=9
  75   D4      CNS    16-31Oct           6   
  75   E6      SNS    16-31Dec           1   
  75   E7      SNS    01-15Jan           2   
- 75   E8      SNS    16-31Jan           .   
+ 75   E8      SNS    16-31Jan           0   
  76   B1      Or/Sh  01-15Sep         545   
  76   B2      Or/Sh  16-30Sep          81   
- 76   C1      Buchan 01-15Sep           .   
+ 76   C1      Buchan 01-15Sep           0   
  76   C2      Buchan 16-30Sep           1   
  76   D1      CNS    01-15Sep          64   
  76   D2      CNS    16-30Sep         108   
- 76   D3      CNS    01-15Oct           .   
+ 76   D3      CNS    01-15Oct           0   
  76   D4      CNS    16-31Oct          10   
  76   E7      SNS    01-15Jan           3   
  77   B1      Or/Sh  01-15Sep        1133   
@@ -55,7 +55,7 @@ Year  LAIUnit Area  Fortnight        L<=9
  77   D3      CNS    01-15Oct          89   
  77   D4      CNS    16-31Oct           3   
  77   E6      SNS    16-31Dec           1   
- 77   E7      SNS    01-15Jan           .   
+ 77   E7      SNS    01-15Jan           0   
  77   E8      SNS    16-31Jan           .   
  78   B1      Or/Sh  01-15Sep        3047   
  78   B2      Or/Sh  16-30Sep          50   
@@ -95,7 +95,7 @@ Year  LAIUnit Area  Fortnight        L<=9
  81   D1      CNS    01-15Sep         903   
  81   D2      CNS    16-30Sep         235   
  81   D3      CNS    01-15Oct         119   
- 81   D4      CNS    16-31Oct           .   
+ 81   D4      CNS    16-31Oct           0   
  81   E6      SNS    16-31Dec        1456   
  81   E8      SNS    16-31Jan          70   
  82   B1      Or/Sh  01-15Sep        2353   
@@ -321,3 +321,9 @@ Year  LAIUnit Area  Fortnight        L<=9
 110   E6      SNS    16-31Dec        7493   
 110   E7      SNS    01-15Jan       13230   
 110   E8      SNS    16-31Jan        8073   
+111   B2      Or/Sh  16-30Sep        3831
+111   C2      Buchan 16-30Sep        2839
+111   D2      CNS    16-30Sep       17766
+111   E6      SNS    16-31Dec        5461
+111   E7      SNS    01-15Jan        6160
+111   E8      SNS    16-31Jan        1215

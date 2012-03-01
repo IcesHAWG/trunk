@@ -65,7 +65,7 @@ areas <- c("OrkShe"="B",Buchan="C",Banks="D",Downs="E")
 samp.unit.names <- unique(LAI.in$LAIUnit)
 
 #Retrospective analysis
-retro.yrs <- 1  #Set to null to switch off retro
+retro.yrs <- 1:2  #Set to null to switch off retro
 
 #Working dirs
 wkdir <- file.path(".","ADMBwkdir")
@@ -79,7 +79,7 @@ pdf(file.path(output.dir,"SCAI_outputs.pdf"),width=200/25.4,height=200/25.4,poin
 ### ==========================================================================
 #Filter "dot" years and zero years - this is not the ideal approach, but is probably
 #the best that we can do at the moment.
-LAI.dat <- subset(LAI.in,LAI.in$L..9!="." | LAI.in$L..9=="0")
+LAI.dat <- subset(LAI.in,!(LAI.in$L..9=="." | LAI.in$L..9=="0"))
 
 #Prepare
 LAI.dat$year <- LAI.dat$Year+1900
@@ -166,36 +166,6 @@ fit.SCAI <- function(area.code,dat) {
 fit <- lapply(as.list(areas),fit.SCAI,LAI.dat)
 
 ### ==========================================================================
-### Analysis of residuals
-### ==========================================================================
-#Test residuals for randomness
-cat("\nTests for normally distributed residuals by sampling unit\n")
-for(a in names(areas)) {
-  d <- split(fit[[a]]$obs$resid,fit[[a]]$obs$LAIUnit)
-  fit.mean  <- 0
-  fit.sd  <- exp(subset(fit[[a]]$res,name=="logSdObsErr")$value)
-#  print(ks.test(re.diffs)$p.value)
-  sapply(d, function(x) {
-    cat(sprintf("Area = %s, \tKS Test p.value = %5.3f, \tSW Test p.value = %5.3f\n",a,
-      ks.test(x,"pnorm",mean=fit.mean,sd=fit.sd)$p.value,shapiro.test(x)$p.value))
-  })
-}
-
-#Test random effects for Normal distribution
-cat("\nKolmogorov-Smirnoff test for Normally Distributed Steps\n")
-for(a in names(areas)) {
-  re.diffs  <- diff(fit[[a]]$fit$value)
-  fit.mean  <- subset(fit[[a]]$res,name=="mulogSCAI")$value
-  fit.sd  <- exp(subset(fit[[a]]$res,name=="logSdSCAI")$value)
-#  print(ks.test(re.diffs)$p.value)
-  cat(sprintf("KS Test, area = %s, p.value = %5.3f\n",a,
-      ks.test(re.diffs,"pnorm",mean=fit.mean,sd=fit.sd)$p.value))
-}
-
-#Likelihoods for each component
-print(sapply(fit,function(d) d$jnll))
-
-### ==========================================================================
 ### Retrospective analysis
 ### ==========================================================================
 #Strip results of a fit down to bare basis for use in retro
@@ -215,7 +185,7 @@ base.res$retro <- 0   #Indicates that it is the base
 #Now perform retros
 retro.res <- list()
 for(i in retro.yrs) {
-  retro.dat <- LAI.dat[seq(1,nrow(LAI.dat)-i),]
+  retro.dat <- subset(LAI.dat,year <= max(year)-i)
   retro.fit <- lapply(as.list(areas),fit.SCAI,retro.dat)
   retro.res[[i]] <- strip.results(retro.fit)
   retro.res[[i]]$retro <- i
@@ -228,19 +198,15 @@ retro.res <- do.call(rbind,c(list(base.res),retro.res))
 ### ==========================================================================
 xlims <- range(pretty(LAI.dat$year))
 n.areas <- length(areas)
+area.names <- names(areas)
 
 #First plot available data
 yrs <- as.numeric(rownames(LAI.tbl))
 image(seq(colnames(LAI.tbl)),yrs,is.na(t(LAI.tbl)),
-    col=c("black","grey90"),xaxt="n",xlab="Survey",ylab="",las=1)
+    col=c("black","grey90"),xaxt="n",xlab="Survey",ylab="",las=1,main="Available IHLS LAI data")
 axis(1,at=seq(colnames(LAI.tbl)),labels=colnames(LAI.tbl),las=3)
 abline(v=c(2.5,4.5,8.5),lwd=4,col="red")
 box()
-
-#Plot comparison of SNS1 vs SNS3 to show systematic biases
-plot(LAI.tbl[,"E6"],LAI.tbl[,"E8"],log="xy",pch=19,xlab="Survey E6",ylab="Survey E8")
-abline(a=0,b=1,lwd=2)
-
 
 ### ==========================================================================
 ### Model Fit diagnostic plots
@@ -392,20 +358,18 @@ abline(v= cumsum(table(factor(props$component,levels=unique(props$component)))[-
 #SCAIs plotted on one figure
 par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 SCAIs <- sapply(fit,function(d) d$fit$SCAI)
-SCAIs <- data.frame(Year=yrs,Total=rowSums(SCAIs),SCAIs)
-dat.to.plot <- SCAIs[,-c(1:2)]
-for(colour in c(T,F)) {    #Two versions - colour & B&W
-  plot(NA,NA,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
-    xlab="Year",ylab="SCAI",main="SCAI indices for each component")
-  if(colour) {
-    matlines(SCAIs$Year,dat.to.plot,lwd=2,lty=1)
-    legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),bg="white")
+SCAIs <- data.frame(Year=yrs,SCAIs,Total=rowSums(SCAIs))
+for(plot.total in c(T,F)) {    #Two versions - with and without total
+  if(plot.total) {
+    dat.to.plot <- SCAIs[,-c(1)]
   } else {
-    matlines(SCAIs$Year,dat.to.plot,lty=c(1,1,3,1),col=1,type="l",lwd=2)
-    matpoints(SCAIs$Year,dat.to.plot,col=1,pch=c(21,NA,NA,4),bg="white",cex=1)
-    legend("topleft",col=1,lty=c(1,1,3,1),pch=c(21,NA,NA,4),pt.bg="white",
-        legend=names(areas),bg="white",horiz=FALSE,xpd=NA,lwd=2,pt.cex=1)
+    dat.to.plot <- SCAIs[,area.names]
   }
+  plot(NA,NA,xlim=xlims,ylim=range(pretty(c(0,unlist(dat.to.plot)))),yaxs="i",
+    xlab="Year",ylab="SCAI",main="SCAI indices")
+  plot.lwds <- c(rep(2,4),4)
+  matlines(SCAIs$Year,dat.to.plot,col=1:5,lwd=plot.lwds,lty=1)
+  legend("topleft",col=1:5,lty=1,legend=colnames(dat.to.plot),bg="white",lwd=plot.lwds)
 }
 
 #Retrospective analysis - individual values
@@ -431,7 +395,7 @@ par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 for(colour in c(T,F)) {
   plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fraction",
     main="Proportion of North Sea stock by component")
-  area.plot.dat <- t(apply(SCAIs[,-c(1,2)],1,function(x) 1-cumsum(c(0,x))/sum(x)))
+  area.plot.dat <- t(apply(SCAIs[,area.names],1,function(x) 1-cumsum(c(0,x))/sum(x)))
   cols <- if(colour) {cols<- 1:4} else {cols <- c("grey80","grey60","grey40","grey20")}
   for(i in 1:length(areas)) {
     x.to.plot <- c(SCAIs$Year,rev(SCAIs$Year))
@@ -442,11 +406,11 @@ for(colour in c(T,F)) {
 }
 
 #Proportion of total by each area - line plot
-dat.to.plot <- SCAIs[,-c(1:2)]
+dat.to.plot <- SCAIs[,area.names]
 plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fraction",
   main="Proportion of North Sea stock by component")
 matlines(SCAIs$Year,dat.to.plot/rowSums(dat.to.plot),lwd=2,lty=1)
-legend("topright",bg="white",legend=colnames(dat.to.plot),lwd=2,lty=1,col=1:6)
+legend("topleft",bg="white",legend=colnames(dat.to.plot),lwd=2,lty=1,col=1:6)
 
 #Retrospective analysis - by proportion
 retro.fracs <- apply(retro.mat,c(1,3),function(x) x/sum(x))
