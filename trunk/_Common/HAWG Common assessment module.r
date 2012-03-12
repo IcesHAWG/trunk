@@ -36,6 +36,14 @@
 cat(gsub("$","","HAWG GENERIC STOCK ASSESSMENT MODULE\n$Revision$\n$Date$\n\n",fixed=TRUE))
 flush.console()
 
+#Add in other functions
+source(file.path("..","_Common","HAWG Retro func.r"))
+source(file.path("..","_Common","Stacked Area plot.r"))
+source(file.path("..","_Common","WriteIcaSum.r"))
+source(file.path("..","_Common","writeStandardOutput.r"))
+source(file.path("..","_Common","Taylor_diagram.r"))
+
+
 ### ======================================================================================================
 ### Summary Plots
 ### ======================================================================================================
@@ -551,12 +559,6 @@ if(compareVersion(paste(version$major,version$minor,sep="."),required.version)!=
  stop(paste("ERROR: Current R version is",paste(version$major,version$minor,sep="."),"The HAWG repository currently only supports R",required.version))
 }
 
-#Add in other functions
-source(file.path("..","_Common","HAWG Retro func.r"))
-source(file.path("..","_Common","Stacked Area plot.r"))
-source(file.path("..","_Common","WriteIcaSum.r"))
-source(file.path("..","_Common","writeStandardOutput.r"))
-source(file.path("..","_Common","Taylor_diagram.r"))
 
 #Set penality function so that we don't get any scientific notation
 options("warn.FPU"=FALSE)
