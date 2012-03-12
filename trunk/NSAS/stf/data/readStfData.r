@@ -7,10 +7,7 @@ OOF   <- read.csv(paste("./data/over_underfishing",DtY,".csv",sep=""),header=T);
 #- Partial Ns per fleet to partial Fs
 #-------------------------------------------------------------------------------
 Ns            <- read.csv(paste("./data/partial_ns",ac(an(ImY)-1),".csv",sep=""),header=T)
-FA            <- Ns[,paste("A",DtY,sep="")]/apply(Ns,1,sum) * NSH@harvest[,DtY]
-FB            <- Ns[,paste("B",DtY,sep="")]/apply(Ns,1,sum) * NSH@harvest[,DtY]
-FC            <- Ns[,paste("C",DtY,sep="")]/apply(Ns,1,sum) * NSH@harvest[,DtY]
-FD            <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum) * NSH@harvest[,DtY]
+Ns[ac(9),]    <- apply(Ns[ac(9:10),],2,sum); Ns <- Ns[ac(1:9),]
 
 #-------------------------------------------------------------------------------
 #- Partial Ws per fleet
@@ -114,3 +111,40 @@ harvestCatch  <-  function(stk.,iYr){
 setMethod('iterQuantile', signature(x='FLQuant'), function(x,probs=c(0.05,0.5,0.95), na.rm=TRUE) {
 	return(apply(x, c(1:5), quantile, na.rm=na.rm,probs=c(0.05,0.5,0.95)))
 })
+
+#-------------------------------------------------------------------------------
+#- Take SAM vcov to generate new realisations
+#-------------------------------------------------------------------------------
+
+monteCarloStock <- function(stck,sam,realisations){
+
+  require(MASS)
+  ctrl              <- sam@control
+
+  #-Create new stock object with nr of realisations in iter slot
+  mcstck            <- propagate(stck,iter=realisations)
+  mcstck            <- window(mcstck,start=range(sam)["minyear"],end=range(sam)["maxyear"])
+  mcstck@stock.n[]  <- NA
+  mcstck@harvest[]  <- NA
+
+  #-Generate new parameter realisations from vcov
+  random.param      <- mvrnorm(realisations,sam@params$value,sam@vcov)
+
+  #-Control settings
+  n.states          <- length(unique(ctrl@states[names(which(ctrl@fleets==0)),]))
+  yrs               <- dims(sam)$minyear:dims(sam)$maxyear
+  ages              <- dims(sam)$age
+
+  #-Extract the state variables
+  u                 <- random.param[,which(colnames(random.param)=="U")]
+  idxNs             <- c(mapply(seq,from=seq(1,ncol(u),ages+n.states),
+                                    to  =seq(1,ncol(u),ages+n.states)+ages-1,
+                                    by  =1))
+  idxFs             <- c(mapply(seq,from=seq(1,ncol(u),ages+n.states)+ages,
+                                    to  =seq(1,ncol(u),ages+n.states)+n.states+ages-1,
+                                    by  =1))
+  mcstck@stock.n[]  <- exp(aperm(array(u[,idxNs],dim=c(realisations,ages,    length(yrs))),perm=c(2,3,1)))
+  mcstck@harvest[]  <- exp(aperm(array(u[,idxFs],dim=c(realisations,n.states,length(yrs))),perm=c(2,3,1)))[ctrl@states[names(which(NSH.ctrl@fleets==0)),],,]
+
+  return(mcstck)}
+
