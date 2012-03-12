@@ -9,33 +9,34 @@
 
 rm(list=ls());
 library(minpack.lm)
-
+require(msm)
 #Read in data
-path <- "N:/Projecten/ICES WG/Haring werkgroep HAWG/2012/Assessment/NSAS/"
+path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
 try(setwd(path))
-source(file.path("../","_Common","HAWG Common assessment module.r"))
 try(setwd("./stf/"))
 
-#-------------------------------------------------------------------------------
-# Temporarily: Create iters for NSH and NSH.ica object
-#-------------------------------------------------------------------------------
-
-NSH     <- propagate(NSH,iter=10)
-#---- END Temporarily ----------------------------------------------------------
-
-
-stk     <- NSH
-stk.ica <- NSH.ica
 
 #-------------------------------------------------------------------------------
 # Setup control file
 #-------------------------------------------------------------------------------
 
-DtY   <- ac(range(stk)["maxyear"]) #Data year
+DtY   <- ac(range(NSH)["maxyear"]) #Data year
 ImY   <- ac(an(DtY)+1) #Intermediate year
 FcY   <- ac(an(DtY)+2) #Forecast year
 CtY   <- ac(an(DtY)+3) #Continuation year
 FuY   <- c(ImY,FcY,CtY)#Future years
+
+#- Source the code to read in the weights at age and numbers at age by fleet, to compute partial F's and partial weights
+source("./data/readStfData.r")
+source("./data/writeSTF.out.r")
+
+#- Generate multi-iters opbject
+stk     <- monteCarloStock(NSH,NSH.sam,realisations=100)
+FA      <- Ns[,paste("A",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
+FB      <- Ns[,paste("B",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
+FC      <- Ns[,paste("C",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
+FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
+
 
 #-------------------------------------------------------------------------------
 # TAC information
@@ -59,9 +60,6 @@ FuY   <- c(ImY,FcY,CtY)#Future years
 #   However, this might be changed by the Danish
 #-------------------------------------------------------------------------------
 
-#- Source the code to read in the weights at age and numbers at age by fleet, to compute partial F's and partial weights
-source("./data/readStfData.r")
-source("./data/writeSTF.out.r")
 
 #2011:
 TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D"),season="all",area=1,iter=1:dims(stk)$iter))
@@ -71,20 +69,22 @@ TACS[,,"B"] <- c(16539*0.668,NA,NA);    TACS.orig[,,"B"]  <- c(16539,NA,NA)
 TACS[,,"C"] <- c(3875,6810,6810);       TACS.orig[,,"C"]  <- c(3875,6810,6810)
 TACS[,,"D"] <- c(1723,1938,1938);       TACS.orig[,,"D"]  <- c(1723,1938,1938)
 
-RECS        <- FLQuants("ImY" =FLQuant(stk.ica@param["Recruitment prediction","Value"],dimnames=list(age="0",year=ImY,unit="unique",season="all",area="unique",iter=1:dims(stk)$iter)),
-                        "FcY" =exp(apply(log(rec(stk)[,ac((range(stk)["maxyear"]-8):(range(stk)["maxyear"]))]),3:6,mean,na.rm=T)),
-                        "CtY" =exp(apply(log(rec(stk)[,ac((range(stk)["maxyear"]-8):(range(stk)["maxyear"]))]),3:6,mean,na.rm=T)))
+  recWeights<- subset(NSH.sam@params,name=="U"); recWeights <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch",]))),]$std.dev)^2
+RECS        <- FLQuants("ImY" =FLQuant(rec(stk)[,ImY],dimnames=list(age="0",year=ImY,unit="unique",season="all",area="unique",iter=1:dims(stk)$iter)),
+                        "FcY" =exp(apply(log(rec(stk)[,ac((an(DtY)-8):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:10]),na.rm=T)),
+                        "CtY" =exp(apply(log(rec(stk)[,ac((an(DtY)-8):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:10]),na.rm=T)))
 
 FS          <- list("A"=FA,"B"=FB,"C"=FC,"D"=FD)
 WS          <- list("A"=WA,"B"=WB,"C"=WC,"D"=WD)
 
-yrs1        <- list("m","m.spwn","harvest.spwn","stock.wt")
+yrs1        <- list("m.spwn","harvest.spwn","stock.wt")
 yrs3        <- list("mat")
+yrs5        <- list("m")
 
 dsc         <- "North Sea Herring"
 nam         <- "NSH"
 dms         <- dimnames(stk@m)
-dms$year    <- c(rev(rev(dms$year)[1:3]),ImY,FcY,CtY)
+dms$year    <- c(rev(rev(dms$year)[2:4]),ImY,FcY,CtY)
 dms$unit    <- c("A","B","C","D")
 
 f01         <- ac(0:1)
@@ -99,13 +99,19 @@ mp.options  <- c("i") #i=increase in B fleet is allowed, fro=B fleet takes fbar 
 
 stf         <- FLStock(name=nam,desc=dsc,m=FLQuant(NA,dimnames=dms))
 for(i in dms$unit)
-  stf[,,i]  <- window(NSH,start=an(dms$year)[1],end=rev(an(dms$year))[1])
+  stf[,,i]  <- window(stk,start=an(dms$year)[1],end=rev(an(dms$year))[1])
 units(stf)  <- units(stk)
 # Fill slots that are the same for all fleets
-for(i in c(unlist(yrs1),unlist(yrs3))){
+for(i in c(unlist(yrs1),unlist(yrs3),unlist(yrs5))){
   if(i %in% unlist(yrs1)){ for(j in dms$unit){ slot(stf,i)[,FuY,j] <- slot(stk,i)[,DtY]}}
   if(i %in% unlist(yrs3)){ for(j in dms$unit){ slot(stf,i)[,FuY,j] <- yearMeans(slot(stk,i)[,ac((an(DtY)-2):an(DtY))])}}
+  if(i %in% unlist(yrs5)){ for(j in dms$unit){ slot(stf,i)[,FuY,j] <- yearMeans(slot(stk,i)[,ac((an(DtY)-4):an(DtY))])}}
 }
+# Random draw of maturity
+mats <- t(mapply(rtnorm,n=dims(stk)$iter,mean=c(apply(NSH@mat[ac(2:4),],1,mean)),sd=c(apply(NSH@mat[ac(2:4),],1,sd)),lower=0,upper=1))
+for(i in dms$unit)
+  stf@mat[ac(2:4),FuY,i] <- mats
+
 # Fill slots that are unique for the fleets
 for(i in dms$unit){
   stf@harvest[,FuY,i]     <- FS[[i]]
@@ -121,7 +127,6 @@ stf@discards.wt[]         <- 0
 # Intermediate year
 #===============================================================================
 
-for(i in dms$unit)    stf@stock.n[,ImY,i]     <- stk.ica@survivors
 stf@harvest[,ImY]         <- fleet.harvest(stk=stf,iYr=ImY,TACS=TACS[,ImY])
 for(i in dms$unit){
   stf@catch.n[,ImY,i]     <- stf@stock.n[,ImY,i]*(1-exp(-unitSums(stf@harvest[,ImY])-stf@m[,ImY,i]))*(stf@harvest[,ImY,i]/(unitSums(stf@harvest[,ImY])+stf@m[,ImY,i]))
