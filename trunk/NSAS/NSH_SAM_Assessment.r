@@ -30,7 +30,7 @@ try(setwd(path))
 ### ======================================================================================================
 output.dir          <-  file.path(".","results")                #Output directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  10                                      #Number of years for which to run the retrospective
+n.retro.years       <-  5                                       #Number of years for which to run the retrospective
 
 
 ### ============================================================================
@@ -53,7 +53,7 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
   NSH.sam.ass <- NSH + NSH.sam
 
   #Perform retrospective
-  NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,10)
+  NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,n.retro.years)
 
   # Save results
   save(NSH,NSH.tun,NSH.ctrl,NSH.sam,NSH.retro,file=file.path(output.dir,paste(name(NSH),".RData",sep="")))
