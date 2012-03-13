@@ -21,7 +21,7 @@ rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Final Assessment\n=====================\n")
-
+path <- "~/HAWG/trunk/NSAS/"
 path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
 try(setwd(path))
 
