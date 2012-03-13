@@ -74,6 +74,8 @@ NSH@stock.wt[,3:dim(NSH@stock.wt)[2]] <- (NSH@stock.wt[,3:(dim(NSH@stock.wt)[2]-
                                           NSH@stock.wt[,2:(dim(NSH@stock.wt)[2]-1)] +
                                           NSH@stock.wt[,1:(dim(NSH@stock.wt)[2]-2)]) / 3
 
+#We don't believe the closure catch data, so put it to NA
+NSH@catch.n[,ac(1978:1979)]           <- NA
 
 ### ============================================================================
 ### Prepare Natural Mortality estimates 
