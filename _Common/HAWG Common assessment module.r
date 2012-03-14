@@ -37,7 +37,6 @@ cat(gsub("$","","HAWG GENERIC STOCK ASSESSMENT MODULE\n$Revision$\n$Date$\n\n",f
 flush.console()
 
 #Add in other functions
-source(file.path("..","_Common","HAWG Retro func.r"))
 source(file.path("..","_Common","Stacked Area plot.r"))
 source(file.path("..","_Common","WriteIcaSum.r"))
 source(file.path("..","_Common","writeStandardOutput.r"))
@@ -546,6 +545,8 @@ check.versions <-  function(lib,ver,required.date="missing"){
   do.call(require,list(package=lib))
   invisible(NULL)
 }
+#get R version:
+# If you're running with R2.8.1
 check.versions("FLCore","2.2",ISOdatetime(2009,05,19,19,23,00))
 check.versions("FLAssess","1.99-102",ISOdatetime(2009,03,23,08,18,00))
 check.versions("FLICA","1.4-12")
@@ -558,7 +559,10 @@ required.version <- "2.8.1"
 if(compareVersion(paste(version$major,version$minor,sep="."),required.version)!=0) {
  stop(paste("ERROR: Current R version is",paste(version$major,version$minor,sep="."),"The HAWG repository currently only supports R",required.version))
 }
-
+#if you're not (and above or equal to R2.13.x)
+#then you're fine          (require(FLSAM))
+#Elsewhere, it should fail
+source(file.path("..","_Common","HAWG Retro func.r"))
 
 #Set penality function so that we don't get any scientific notation
 options("warn.FPU"=FALSE)
