@@ -41,7 +41,7 @@ library(FLSAM);
 source(file.path("retroResidual.r"))
 
 #Load the output data of the assessment
-res <- try(load(file=file.path(output.dir,"North Sea Herring.RData")))
+res <- try(load(file=file.path(output.dir,"North Sea Herring.RData")),silent=TRUE)
 if(class(res)=="try-error") stop("Run the assessment first before you can run the retrospective")
 
 #Perform retrospective
