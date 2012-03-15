@@ -191,10 +191,10 @@ old.opt           <- options("width","scipen")
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(NSH,output.file=output.base)
+#writeFLStock(NSH,output.file=output.base)
 
 #And for incorporation into the standard graphs
-writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.sum"),type="ICAsum")
+#writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.sum"),type="ICAsum")
 #The YPR curves based on the same values as the projection - therefore use WBSS.proj
 #writeStandardOutput(NSH,NSH.sr,NSH.retro,recImY=NSH.ica@survivors[1,1],nyrs.=3,output.base,Blim=0.8e6,Bpa=1.3e6,Flim=NULL,Fpa=0.25,Bmsy=NULL,Fmsy=NULL)
 
