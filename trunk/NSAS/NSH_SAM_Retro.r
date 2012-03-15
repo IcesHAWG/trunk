@@ -56,8 +56,9 @@ pdf(file.path(output.dir,paste(name(NSH),"retro.pdf",sep="")))
 #Plot retro
 plot(NSH.retro)
 
-print(retroResiduals(NSH.retro,"HERAS",1990:2011))
-print(retroResiduals(NSH.retro,"catch",1990:2011))
+print(retroResiduals(   NSH.retro,"HERAS",1990:2011))
+print(retroResiduals(   NSH.retro,"catch",1990:2011))
+print(retroSelectivity( NSH.retro,2003:2011))
 
 dev.off()
 
