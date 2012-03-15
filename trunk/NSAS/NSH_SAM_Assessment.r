@@ -40,7 +40,7 @@ n.retro.years       <-  5                                       #Number of years
 library(FLSAM); library(FLEDA)
 source(file.path("setupAssessmentObjects.r"))
 source(file.path("setupControlObject.r"))
-source(file.path("..","_Common","HAWG Common assessment module.r"))
+source(file.path("..","_Common","HAWG_Common_module.r"))
 
 ### ============================================================================
 ### Run the assessment
@@ -48,66 +48,64 @@ source(file.path("..","_Common","HAWG Common assessment module.r"))
 
   #Perform assessment
   NSH.sam <- FLSAM(NSH,NSH.tun,NSH.ctrl)
+  name(NSH.sam) <- "North Sea Herring"
 
   #Update stock object
-  NSH.sam.ass <- NSH + NSH.sam
-
-  #Perform retrospective
-  NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,n.retro.years)
+  NSH     <- NSH + NSH.sam
 
   # Save results
-  save(NSH,NSH.tun,NSH.ctrl,NSH.sam,NSH.retro,file=file.path(output.dir,paste(name(NSH),".RData",sep="")))
+  save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,paste(name(NSH),".RData",sep="")))
 
 ### ============================================================================
 ### Plots
 ### ============================================================================
 #Setup plots
-pdf(file.path(resdir,paste(respref,".pdf",sep="")))
+pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))
 
   ### ============================================================================
   ### Input data
   ### ============================================================================
 
   # Plot the mature and immature part of the stock
-  mat.immat.ratio(NSH)
-
-  # Plot the cpue for each survey against each other to see if they get through the same signals
-  cpue.survey(NSH.tun,"index")
+  print(mat.immat.ratio(NSH))
   
+  # Plot the overlay of tuning series
+  print(overlayTimeseries(lapply(NSH.tun,index),nyrs=10,ages=0:1))
+  
+  # Plot the overlay by year and age
+  print(surveyTimeseries(NSH.tun))
+
   #Plot survey index versus each other
     tmp.tun <- NSH.tun; dmns <- dimnames(tmp.tun[["IBTS0"]]@index); tmp.tun[["IBTS0"]] <- FLIndex(FLQuant(NA,dimnames=list(age=1,year=ac(an(dmns$year)+1),unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter)))
     tmp.tun[["IBTS0"]]@index <- FLQuant(NSH.tun[["IBTS0"]]@index@.Data,dimnames=list(age=1,year=ac(an(dmns$year)+1),unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter))
-  plot(tmp.tun,type="pairwise")
+  #plot(tmp.tun,type="pairwise")
   plot(NSH.tun[["HERAS"]],type="internal")
 
   # Plot the proportion of catch and weight in numbers and weight to see if the catch is representative for the stock build-up
-  print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@stock.n)),groups="age",main="Proportion of Stock numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
   print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.n)),groups="age",main="Proportion of Catch numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
   print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@stock.wt)),groups="age",main="Proportion of Stock weight at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
   print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@catch.wt)),groups="age",main="Proportion of Catch weight at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
-  # Plot the harvest pattern at age as a proportion over time
-  print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@harvest)),groups="age",main="Proportion of harvest pressure at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-
   # Plot the proportion of catch in numbers in the indices to see if the indices are having specific yearclass trends
-  print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[[3]]@index)),groups="age",main="Proportion of IBTS index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
-  print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[[4]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+  print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH.tun[["HERAS"]]@index)),groups="age",main="Proportion of Acoustic index at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
   # Plot the proportion of natural mortality
   print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@m)),groups="age",main="Proportion of natural at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
-  # Create a co-plot of the tuning indices, and see if there is correlation between age groups in the survey (there should be)
-  cor.tun(NSH.tun)
-  
   # Plot the time series of weight in the stock and catch in the stock
-  timeseries(window(NSH,1975,2010),slot="stock.wt")
-  timeseries(window(NSH,1975,2010),slot="catch.wt")
-  timeseries(window(NSH,2000,2010),slot="harvest")
-  timeseries(window(NSH,1990,2010),slot="mat")
-  timeseries(window(NSH,1990,2010),slot="m")
+  timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="stock.wt")
+  timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="catch.wt")
+  timeseries(window(NSH,2000,range(NSH)["maxyear"]),slot="harvest")
+  timeseries(window(NSH,1990,range(NSH)["maxyear"]),slot="mat")
+  timeseries(window(NSH,1990,range(NSH)["maxyear"]),slot="m")
+
+  # Plot the time series of the surveys
+  timeseries(NSH.tun[["SCAI"]],slot="index")
+  timeseries(NSH.tun[["IBTS-Q1"]],slot="index")
+  timeseries(NSH.tun[["IBTS0"]],slot="index")
 
   #Time series of west by cohort
-  west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,2010)))
+  west.by.cohort      <- as.data.frame(FLCohort(window(NSH@stock.wt,1980,range(NSH)["maxyear"])))
   west.by.cohort      <- subset(west.by.cohort,!is.na(west.by.cohort$data))
   west.by.cohort$year <- west.by.cohort$age + west.by.cohort$cohort
   west.cohort.plot    <- xyplot(data~year,data=west.by.cohort,
@@ -126,10 +124,13 @@ pdf(file.path(resdir,paste(respref,".pdf",sep="")))
   ### ============================================================================
   ### Model fit
   ### ============================================================================
-  NSH.sam@name <- "North Sea Herring"
 
   #Survey fits
   residual.diagnostics(NSH.sam)
+
+  # Plot the harvest pattern at age as a proportion over time & the stock.n as proportion over time
+  print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@harvest)),groups="age",main="Proportion of harvest pressure at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
+  print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@stock.n)),groups="age",main="Proportion of Stock numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
   #Plot result
   print(plot(NSH.sam))
@@ -179,8 +180,6 @@ pdf(file.path(resdir,paste(respref,".pdf",sep="")))
   #Plot otholith
     #plot.otolith(NSH.sam,n=100000)
     
-  #Plot retro
-  plot(NSH.retro)
 
 
 ### ======================================================================================================
