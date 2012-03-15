@@ -97,12 +97,15 @@ NSHM2@m[,yrs][] <- as.matrix(M2)
 
 #- Apply 5 year running average
 extryrs <- dimnames(NSHM2@m)$year[which(!dimnames(NSHM2@m)$year %in% yrs)]
+extryrsfw <- extryrs[which(extryrs > max(an(yrs)))]
+extryrsbw <- extryrs[which(extryrs <= max(an(yrs)))]
 ages    <- dimnames(NSHM2@m)$age
 extrags <- names(which(apply(M2,1,function(x){all(is.na(x))==T})==T))
 yrAver  <- 5
 for(iYr in as.numeric(rev(extryrs))){
   for(iAge in ages[!ages%in%extrags]){
-    NSHM2@m[ac(iAge),ac(iYr)] <- yearMeans(NSHM2@m[ac(iAge),ac((iYr+1):(iYr+yrAver)),],na.rm=T)
+    if(iYr %in% extryrsbw) NSHM2@m[ac(iAge),ac(iYr)] <- yearMeans(NSHM2@m[ac(iAge),ac((iYr+1):(iYr+yrAver)),],na.rm=T)
+    if(iYr %in% extryrsfw) NSHM2@m[ac(iAge),ac(iYr)] <- yearMeans(NSHM2@m[ac(iAge),ac((iYr-1):(iYr-yrAver)),],na.rm=T)
   }
 }
 for(iAge in extrags)
