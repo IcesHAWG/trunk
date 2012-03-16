@@ -54,7 +54,7 @@ save(NSH.retro,file=file.path(output.dir,paste(name(NSH),"retro.RData",sep="")))
 pdf(file.path(output.dir,paste(name(NSH),"retro.pdf",sep="")))
 
 #Plot retro
-plot(NSH.retro)
+plot(NSH.retro,futureYrs=F)
 
 print(retroResiduals(   NSH.retro,"HERAS",1990:2011))
 print(retroResiduals(   NSH.retro,"catch",1990:2011))

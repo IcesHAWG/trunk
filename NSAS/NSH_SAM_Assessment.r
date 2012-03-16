@@ -97,7 +97,7 @@ pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))
   timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="catch.wt")
   timeseries(window(NSH,2000,range(NSH)["maxyear"]),slot="harvest")
   timeseries(window(NSH,1990,range(NSH)["maxyear"]),slot="mat")
-  timeseries(window(NSH,1990,range(NSH)["maxyear"]),slot="m")
+  timeseries(window(NSH,1990,range(NSH)["maxyear"]),slot="m",ylim=c(0,1.2))
 
   # Plot the time series of the surveys
   timeseries(NSH.tun[["SCAI"]],slot="index")
