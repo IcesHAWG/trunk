@@ -499,7 +499,7 @@ writeFLStock(WBSS.proj,file.path(output.dir,"hawg_her-3a22.ypr"),type="YPR")
 
 WBSS.sr <- fmle(as.FLSR(transform(WBSS,stock.n=WBSS@stock.n/100000),model="bevholt"));
 WBSS.sr@params <- WBSS.sr@params*100000          
-WBSS@stock.n["0",as.character(TaY)] <- gm.recs
+###WBSS@stock.n["0",as.character(TaY)] <- gm.recs
 writeStandardOutput(WBSS,WBSS.sr,WBSS.retro,nyrs.=3,output.base,Blim=NULL,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25,recImY=0) 
 
 ### ======================================================================================================
