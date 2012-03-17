@@ -138,8 +138,12 @@ do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
     stcks   <- do.call(FLStocks,lapply(icas,function(ica) {ica + trim(stck, year=dims(ica@stock.n)$minyear:dims(ica@stock.n)$maxyear)}))
 
     # Remove the recruitment value in the last data year as it gets estimated wrong in ICA, replace it later with a GM estimate
-    stcks[[9]]@stock.n[1,ac(2011)] <- NA
-    stcks[[9]]@stock.n[1,ac(2011)] <- exp(mean(log(rec(stck[,ac(1989:2010)])),na.rm=T))
+#    stcks[[9]]@stock.n[1,ac(2011)] <- NA
+#    stcks[[9]]@stock.n[1,ac(2011)] <- exp(mean(log(rec(stck[,ac(1989:2010)])),na.rm=T))
+#
+    stcks <- lapply(stcks,function(x){ x@stock.n[1,ac(range(x)["maxyear"])] <-
+                                          exp(mean(log(rec(x[,ac(1989:(range(x)["maxyear"]-1))])),na.rm=T));
+                          return(x)})
     #Now call the retro plotting functions
     retro.plots(stcks,icas,ctrl)
 
