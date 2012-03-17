@@ -210,7 +210,7 @@ options("width"=80,"scipen"=1000)
 
 
 #Now write the file
-ica.out.file <- ica.out(WoS,WoS.tun,WoS.ica,format="TABLE 5.6.2.%i HERRING in VIa (N).")
+ica.out.file <- ica.out(WoS,WoS.tun,WoS.ica,format="TABLE 5.6.%i HERRING in VIa (N).")
 write(ica.out.file,file=paste(output.base,"ica.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
