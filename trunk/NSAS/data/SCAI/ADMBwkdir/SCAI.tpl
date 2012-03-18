@@ -73,6 +73,7 @@ PARAMETER_SECTION
   //Parameters to return
   sdreport_vector props(1,n_surv)                 //proportions of the component spawning biomass covered by each sampling unit
   sdreport_vector logSCAI_hat(1,n_obs)            //SCAIs estimated from observations
+  sdreport_vector logobs_hat(1,n_obs)            //Observations estimated from modelled SCAIs
 
   //Other
   objective_function_value jnll;
@@ -110,10 +111,13 @@ PROCEDURE_SECTION
           surv=obs(i,2);
           yr=obs(i,3);
           logSCAI_hat(i)=log(obs(i,1)/props(surv));
-          jnll+=0.5*(log(2.0*M_PI*var) +square(logSCAI(yr)-logSCAI_hat(i))/var);
+          logobs_hat(i)=logSCAI(yr)+log(props(surv));
+          jnll+=0.5*(log(2.0*M_PI*var) +square(log(obs(i,1))-logobs_hat(i))/var);
 
   }
 
 
 TOP_OF_MAIN_SECTION
   gradient_structure::set_MAX_NVAR_OFFSET(3000);
+  gradient_structure::set_NUM_DEPENDENT_VARIABLES(3000);
+  
