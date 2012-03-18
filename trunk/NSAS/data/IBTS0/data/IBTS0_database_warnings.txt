@@ -1,0 +1,49 @@
+
+Data issues of IBTS0 database
+
+-----------------------------------------------------------------------------------------------------------------------
+
+This section contains information regarding completeness and known issues with the data in the IBTS0 database.
+The information below has been gathered from Herring Assessment Working Group reports and through 
+scrutinising the data. The issues are listed by year. 
+
+------------------------------------------------------------------------------------------------------------------------
+
+Specific problems by year:
+
+1977	No length measurements for Scottish records
+
+1978	No length measurements for Swedish records
+
+1979 – 1982	No known data issues.
+
+1983	The north-western part of the North Sea was not sampled by IKMT hauls in 1983. 
+	The 1983 survey data may therefore underestimate the overall distribution in this year.
+
+1984 – 1991	No known data issues.
+
+1992	Most countries in the IYFS deployed the recommended Methot Isaacs-Kidd (MIK) trawl instead of 
+	the traditional IKMT. The MIK has a fixed opening and a sampling efficiency close to 100 % 
+	(P. Munk, pers. com). This allowed for absolute estimate of abundance to be made from this 
+	point forward.
+
+1993 – 2001	No known data issues.
+
+2002	Data was not available in 12 standard rectangles because of low gear catchability in the Dutch 
+	part of the IBTS. The Dutch data was not used in index calculation and excluded from data base. 
+	French data missing entirely.
+
+2003 – 2009	No known data issues.
+
+2010	The Dutch 2010 sampling was not included in the index calculation due to outstanding low catches 
+	and uncertainties about gear catchability and calibration. The Dutch data is also not included 
+	in the database.
+
+2011	Due to research vessel problems, the Swedish sampling in the Skagerrak-Kattegat area (IIIa) was 
+	not carried out this year and the index values were consequently calculated without information 
+	from IIIa. Also beware of this if looking at distribution of larvae that this means no sampling 
+	was carried out in IIIa.
+
+2012	Due to mechanical problems the Norwegian part of the survey was delayed two weeks.
+
+
