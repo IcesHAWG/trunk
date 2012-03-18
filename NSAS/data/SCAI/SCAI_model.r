@@ -143,13 +143,17 @@ fit.SCAI <- function(area.code,dat) {
     logSCAI$lb    <- exp(logSCAI$value-1.96*logSCAI$std.dev)
     logSCAI$ub    <- exp(logSCAI$value+1.96*logSCAI$std.dev)
 
+    #Setup obs_hat and resid values
+    logobs_hat <- subset(res,res$name=="logobs_hat")
+    obs$obs_hat <- exp(logobs_hat$value)
+    obs$resid <- log(obs$LAI)-log(obs$obs_hat)       #Observation (LAI) - modelled value (obs_hat)
+
     #Setup SCAI_hat values
     logSCAI_hat <- subset(res,res$name=="logSCAI_hat")
     obs$SCAI_hat <- exp(logSCAI_hat$value)
     obs$SCAI_hat.ub <- exp(logSCAI_hat$value+logSCAI_hat$std.dev*1.96)
     obs$SCAI_hat.lb <- exp(logSCAI_hat$value-logSCAI_hat$std.dev*1.96)
     obs$SCAI  <- logSCAI[as.character(obs$year),c("SCAI","lb","ub")]
-    obs$resid <- log(obs$SCAI_hat)-log(obs$SCAI$SCAI)       #Observation (SCAI_hat) - model (SCAI$SCAI)
 
     res2 <- readLines(file.path(wkdir,"scai.par"),n=1)
     jnll.line <- strsplit(res2,"  ")
@@ -284,13 +288,13 @@ resid.rng <- sapply(fit,function(a) range(a$obs$resid))
 resid.lims <- range(pretty(c(resid.rng,-resid.rng)))
 lapply(names(fit),function(a) {
    d <- fit[[a]]
-   plot(d$obs$LAI,d$obs$resid,xlab="",ylab="",pch=pchs[as.numeric(d$obs$LAIUnit)],log="x",ylim=resid.lims)
+   plot(d$obs$obs_hat,d$obs$resid,xlab="",ylab="",pch=pchs[as.numeric(d$obs$LAIUnit)],log="x",ylim=resid.lims)
    abline(h=0)
    title(main=sprintf("%s",a),line=-1)
    legend("bottomright",col="black",pch=pchs[1:nlevels(d$obs$LAIUnit)],legend=levels(d$obs$LAIUnit),bg="white",horiz=TRUE)
 })
-title(xlab="Observed LAI",ylab="Residual",outer=TRUE,xpd=NA,line=0)
-title(main="Residuals vs Observed LAI",outer=TRUE,line=1)
+title(xlab="Fitted LAI",ylab="Residual",outer=TRUE,xpd=NA,line=0)
+title(main="Tukey-Anscombe Plot",outer=TRUE,line=1)
 
 ### ==========================================================================
 ### Model parameters
