@@ -111,12 +111,12 @@ ISH.ctrl@logN.vars        <- c(1,rep(2,7))
 # ctrl@power.law.exps
 
 #Catchability models
-ISH.ctrl@catchabilities["AC(VIIaN)",ac(1:8)]    <- c(rep(1,8))
+ISH.ctrl@catchabilities["AC(VIIaN)",ac(1:8)]    <- c(1:3,rep(4,5))
 #ISH.ctrl@catchabilities["NINEL",ac(1:8)]  <- c(rep(NA,8)) #values NA by default if not defined
 
 #Observation model parameters
 ISH.ctrl@obs.vars["catch",ac(1:8)]     <- c(1,2,3,3,4,4,4,4)
-ISH.ctrl@obs.vars["AC(VIIaN)",ac(1:8)]  <- c(rep(5,8)) #1-8
+ISH.ctrl@obs.vars["AC(VIIaN)",ac(1:8)]  <- c(5,6,6,7,7,8,8,8) #1-8
 
 # # Stock recruitment model code (0=RW, 1=Ricker, 2=BH, ... more in time
 ISH.ctrl@srr <- as.integer(0)
