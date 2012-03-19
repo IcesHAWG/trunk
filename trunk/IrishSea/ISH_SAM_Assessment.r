@@ -126,7 +126,7 @@ ISH.ctrl@srr <- as.integer(0)
 ### ============================================================================
 #Run assessment
 ISH.sam <- FLSAM(ISH,ISH.tun,ISH.ctrl)
-name(ISH.sam) <- "Irish Sea Herring no coupling in survey catchability or var obs"
+name(ISH.sam) <- "Irish Sea Herring"
 #Update stock object
 ISH     <- ISH + ISH.sam
 
