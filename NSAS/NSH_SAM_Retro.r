@@ -52,6 +52,7 @@ save(NSH.retro,file=file.path(output.dir,paste(name(NSH),"retro.RData",sep="")))
 
 #Setup plots
 pdf(file.path(output.dir,paste(name(NSH),"retro.pdf",sep="")))
+png(file.path(output.dir,"figuresRetro - %02d.png"),units = "px", height=800,width=672, bg = "white")
 
 #Plot retro
 plot(NSH.retro,futureYrs=F)

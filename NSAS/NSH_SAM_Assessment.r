@@ -61,16 +61,25 @@ source(file.path("..","_Common","HAWG_Common_module.r"))
 ### ============================================================================
 #Setup plots
 pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))
-
+png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=672, bg = "white")
   ### ============================================================================
   ### Input data
   ### ============================================================================
 
-  # Plot the mature and immature part of the stock
-  print(mat.immat.ratio(NSH))
-  
+  #-Read in the TACs
+  TACs          <- read.csv(file.path(".","data","historic data","TAC-historic.csv"))
+  TAC.plot.dat  <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(rowSums(TACs[,c("Agreed_A","Bycatch_B")],na.rm=T),each=2))
+  catch         <- as.data.frame(NSH@catch[,ac(TACs$year)]/1e3)
+  plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(c(catch$year,TAC.plot.dat$year)),ylim=range(c(0,TAC.plot.dat$TAC,catch$data)),cex.lab=1.2,cex.axis=1.1,font=2)
+  rect(catch$year-0.5,0,catch$year+0.5,catch$data,col="grey")
+  lines(TAC.plot.dat,lwd=3)
+  legend("topright",legend=c("Catch","TAC"),lwd=c(1,5),lty=c(NA,1),pch=c(22,NA),col="black",pt.bg="grey",pt.cex=c(2),box.lty=0)
+  box()
+  title(main=paste(NSH@name,"Catch and TAC"))
+
   # Plot the overlay of tuning series
   print(overlayTimeseries(lapply(NSH.tun,index),nyrs=10,ages=0:1))
+  print(overlayTimeseries(FLQuants(IBTS0=NSH.tun[["IBTS0"]]@index,IBTSQ1=NSH.tun[["IBTS-Q1"]]@index),nyrs=20,ages=0:1))
   
   # Plot the overlay by year and age
   print(surveyTimeseries(NSH.tun))
@@ -178,8 +187,24 @@ pdf(file.path(output.dir,paste(name(NSH.sam),".pdf",sep="")))
   cor.plot(NSH.sam)
 
   #Plot otholith
-    #plot.otolith(NSH.sam,n=100000)
+  #plot.otolith(NSH.sam,n=10000) #Warning, this takes very long!
     
+  ### ============================================================================
+  ### Management
+  ### ============================================================================
+
+  #A plot on the agreed management plan with the estimated Fbar in 2010
+  plot(x=c(0,0.8,1.5,2.5),y=c(0.1,0.1,0.25,0.25),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tonnes",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
+  abline(v=0.8,col="red",lwd=2,lty=2)
+  abline(v=1.3,col="blue",lwd=2,lty=2)
+  abline(v=1.5,col="darkgreen",lwd=2,lty=2)
+  text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
+  text(1.3,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
+  text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
+
+  points(y=fbar(NSH[,ac(2002:2011)]), x=(ssb(NSH[,ac(2002:2011)])/1e6),pch=19)
+  lines(y=fbar(NSH[,ac(2002:2011)]),  x=(ssb(NSH[,ac(2002:2011)])/1e6))
+  text(y=fbar(NSH[,ac(2002:2011)]),   x=(ssb(NSH[,ac(2002:2011)])/1e6),labels=ac(2002:2011),pos=3,cex=0.7)
 
 
 ### ======================================================================================================
