@@ -106,7 +106,7 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   timeseries(window(NSH,1975,range(NSH)["maxyear"]),slot="catch.wt")
   timeseries(window(NSH,2000,range(NSH)["maxyear"]),slot="harvest")
   timeseries(window(NSH,1990,range(NSH)["maxyear"]),slot="mat")
-  timeseries(window(NSH,1990,range(NSH)["maxyear"]),slot="m",ylim=c(0,1.2))
+  timeseries(window(NSH,1947,range(NSH)["maxyear"]),slot="m")
 
   # Plot the time series of the surveys
   timeseries(NSH.tun[["SCAI"]],slot="index")
