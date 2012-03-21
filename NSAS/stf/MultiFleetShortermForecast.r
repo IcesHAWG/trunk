@@ -8,6 +8,8 @@
 #-------------------------------------------------------------------------------
 
 rm(list=ls());
+library(FLCore)
+library(FLSAM)
 library(minpack.lm)
 require(msm)
 #Read in data
@@ -32,11 +34,11 @@ source("./data/writeSTF.out.r")
 
 #- Generate multi-iters opbject
 stk     <- monteCarloStock(NSH,NSH.sam,realisations=100)
+  save(stk,file="startingValuesSTF.RData")
 FA      <- Ns[,paste("A",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
 FB      <- Ns[,paste("B",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
 FC      <- Ns[,paste("C",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
 FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY]
-
 
 #-------------------------------------------------------------------------------
 # TAC information
@@ -64,15 +66,18 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY
 #2011:
 TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D"),season="all",area=1,iter=1:dims(stk)$iter))
 TACS.orig   <- TACS
-TACS[,,"A"] <- c(200000+15000,NA,NA);   TACS.orig[,,"A"]  <- c(200000,NA,NA)
-TACS[,,"B"] <- c(16539*0.668,NA,NA);    TACS.orig[,,"B"]  <- c(16539,NA,NA)
-TACS[,,"C"] <- c(3875,6810,6810);       TACS.orig[,,"C"]  <- c(3875,6810,6810)
-TACS[,,"D"] <- c(1723,1938,1938);       TACS.orig[,,"D"]  <- c(1723,1938,1938)
+TACS[,,"A"] <- c(405000+ 0.419 * 45000 - 308,NA,NA);     TACS.orig[,,"A"]  <- c(405000,NA,NA)
+TACS[,,"B"] <- c(17900*0.539755,NA,NA); TACS.orig[,,"B"]  <- c(17900,NA,NA)
+TACS[,,"C"] <- c(7570,9634,9634);       TACS.orig[,,"C"]  <- c(7570,9634,9634)
+TACS[,,"D"] <- c(1618,2059,2059);       TACS.orig[,,"D"]  <- c(1618,2059,2059)
 
   recWeights<- subset(NSH.sam@params,name=="U"); recWeights <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch",]))),]$std.dev)^2
-RECS        <- FLQuants("ImY" =FLQuant(rec(stk)[,ImY],dimnames=list(age="0",year=ImY,unit="unique",season="all",area="unique",iter=1:dims(stk)$iter)),
-                        "FcY" =exp(apply(log(rec(stk)[,ac((an(DtY)-8):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:10]),na.rm=T)),
-                        "CtY" =exp(apply(log(rec(stk)[,ac((an(DtY)-8):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:10]),na.rm=T)))
+RECS        <- FLQuants("ImY" =FLQuant(rtlnorm(dims(stk)$iter,mean=log(subset(rec(NSH.sam),year==ImY)$value),sd=c(apply(log(rec(stk)[,ac((an(DtY)-8):DtY)]),1,sd,na.rm=T)),
+                                                upper=c(yearMeans(apply(rec(stk)[,ac((an(DtY)-9):DtY)],2,max,na.rm=T))),
+                                                lower=c(yearMeans(apply(rec(stk)[,ac((an(DtY)-9):DtY)],2,min,na.rm=T)))),
+                                       dimnames=list(age="0",year=ImY,unit="unique",season="all",area="unique",iter=1:dims(stk)$iter)),
+                        "FcY" =exp(apply(log(rec(stk)[,ac((an(DtY)-9):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:11]),na.rm=T)),
+                        "CtY" =exp(apply(log(rec(stk)[,ac((an(DtY)-9):DtY)]),3:6,weighted.mean,w=1/rev(rev(recWeights)[2:11]),na.rm=T)))
 
 FS          <- list("A"=FA,"B"=FB,"C"=FC,"D"=FD)
 WS          <- list("A"=WA,"B"=WB,"C"=WC,"D"=WD)
@@ -90,7 +95,7 @@ dms$unit    <- c("A","B","C","D")
 f01         <- ac(0:1)
 f26         <- ac(2:6)
 
-stf.options <- c("mp","-15%","+15%","nf","tacro") #mp=according to management plan, +/-% = TAC change, nf=no fishing, bpa=reach BPA in CtY or if ssb > bpa fish at fpa,
+stf.options <- c("mp","-15%","+15%","nf","tacro","fmsy") #mp=according to management plan, +/-% = TAC change, nf=no fishing, bpa=reach BPA in CtY or if ssb > bpa fish at fpa,
                                                         # tacro=same catch as last year
 mp.options  <- c("i") #i=increase in B fleet is allowed, fro=B fleet takes fbar as year before
 #===============================================================================
@@ -107,10 +112,18 @@ for(i in c(unlist(yrs1),unlist(yrs3),unlist(yrs5))){
   if(i %in% unlist(yrs3)){ for(j in dms$unit){ slot(stf,i)[,FuY,j] <- yearMeans(slot(stk,i)[,ac((an(DtY)-2):an(DtY))])}}
   if(i %in% unlist(yrs5)){ for(j in dms$unit){ slot(stf,i)[,FuY,j] <- yearMeans(slot(stk,i)[,ac((an(DtY)-4):an(DtY))])}}
 }
-# Random draw of maturity
-mats <- t(mapply(rtnorm,n=dims(stk)$iter,mean=c(apply(NSH@mat[ac(2:4),],1,mean)),sd=c(apply(NSH@mat[ac(2:4),],1,sd)),lower=0,upper=1))
-for(i in dms$unit)
-  stf@mat[ac(2:4),FuY,i] <- mats
+# sample from observed maturity & stock weights at the same time, as they are correlated
+mats <- sample(x=1984:(an(DtY)-2),size=dims(stk)$iter,replace=T)
+for(i in dms$unit){
+  for(iTer in 1:dims(stf)$iter){
+      yr                            <- mats[iTer]
+      yrs                           <- ac(an(yr):(an(yr)+2))
+    #if(yr >= (an(DtY)-1)){yrs <- ac(an(DtY):(an(DtY)-2))} else {yrs <- ac(an(yr):(an(yr)+2))}
+    iter(stf@mat[ac(2:3),FuY,i],iTer)      <- NSH@mat[ac(2:3),ac(yrs)]
+    iter(stf@stock.wt[ac(2:3),FuY,i],iTer) <- NSH@stock.wt[ac(2:3),ac(yrs)]
+  }
+}
+    
 
 # Fill slots that are unique for the fleets
 for(i in dms$unit){
@@ -309,18 +322,17 @@ if("tacro" %in% stf.options){
   stf.table["tacro",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
 }
 
-### Bpa in continuation year but obeying the management plan targets ###
-if("bpa" %in% stf.options){
+if("fmsy" %in% stf.options){
    #reset harvest for all fleets
   stf@harvest[,FcY] <- stf@harvest[,ImY]
-  TACS[,FcY]        <- TACSmp[,FcY]
+  TACS[,FcY,"A" ]   <- TACS.orig[,ImY,"A"]
   stf@harvest[,FcY] <- fleet.harvest(stf,FcY,TACS)
 
-  res <- matrix(NA,nrow=dims(stf[,,c("A","B")])$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n[,,c("A","B")])$unit,dimnames(stf@stock.n)$iter))
-  for(iTer in 1:dims(stf)$iter)
-    res[,iTer]                  <- optim(par=rep(2,dims(stf[,,c("A","B")])$unit),find.Bpa,stk=iter(stf[,c(FcY,CtY)],iTer),rec=iter(RECS$CtY,iTer),bpa=1.3e6,fpa=0.25,
-                                         f01=f01,f26=f26,method = c("L-BFGS-B"),lower=0,upper=5)$par
-  stf@harvest[,CtY,c("A","B")]  <- sweep(stf@harvest[,FcY,c("A","B")],c(3,6),res,"*")
+  res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
+  for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),find.F,stk=iter(stf[,FcY],iTer),f.=0.3,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
+
+  stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
     stf@catch.n[,FcY,i]         <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
     stf@catch[,FcY,i]           <- computeCatch(stf[,FcY,i])
@@ -331,20 +343,17 @@ if("bpa" %in% stf.options){
   for(i in dms$unit) stf@stock.n[1,CtY,i]                     <- RECS$CtY
   for(i in dms$unit) stf@stock.n[2:(dims(stf)$age-1),CtY,i]   <- (stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac(range(stf)["min"]:(range(stf)["max"]-2)),]
   for(i in dms$unit) stf@stock.n[dims(stf)$age,CtY,i]         <- apply((stf@stock.n[,FcY,1]*exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,1]))[ac((range(stf)["max"]-1):range(stf)["max"]),],2:6,sum,na.rm=T)
-  ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,CtY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
+  ssb.CtY                                                     <- quantSums(stf@stock.n[,CtY,1] * stf@stock.wt[,CtY,1]*stf@mat[,CtY,1]*exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,CtY,1]-stf@m[,CtY,1]*stf@m.spwn[,CtY,1])) #assume same harvest as in FcY
 
-  stf.table["bpa","Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
-  stf.table["bpa",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,FcY,c("B","C","D")])),c(2:6,1))
-  stf.table["bpa","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
-  stf.table["bpa","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
-  stf.table["bpa",grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
-  stf.table["bpa",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
+  stf.table["fmsy","Fbar 2-6 A",]                                  <- iterQuantile(quantMeans(stf@harvest[f26,FcY,"A"]))
+  stf.table["fmsy",grep("Fbar 0-1 ",dimnames(stf.table)$values),]  <- aperm(iterQuantile(quantMeans(stf@harvest[f01,FcY,c("B","C","D")])),c(2:6,1))
+  stf.table["fmsy","Fbar 2-6",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f26,FcY,])))
+  stf.table["fmsy","Fbar 0-1",]                                    <- iterQuantile(quantMeans(unitSums(stf@harvest[f01,FcY,])))
+  stf.table["fmsy",grep("Catch ",dimnames(stf.table)$values),]     <- aperm(iterQuantile(harvestCatch(stf,FcY)),c(2:6,1))
+  stf.table["fmsy",grep("SSB",dimnames(stf.table)$values)[1],]     <- iterQuantile(quantSums(stf@stock.n[,FcY,1] * stf@stock.wt[,FcY,1] *
                                                                       exp(-unitSums(stf@harvest[,FcY])*stf@harvest.spwn[,FcY,1]-stf@m[,FcY,1] *
                                                                       stf@m.spwn[,FcY,1]) * stf@mat[,FcY,1]))
-  stf.table["bpa",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
-}
-if("fmsy" %in% stf.options){
-  stf.table["fmsy",] <- stf.table["bpa",]
+  stf.table["fmsy",grep("SSB",dimnames(stf.table)$values)[2],]     <- iterQuantile(ssb.CtY)
 }
 
 
@@ -356,10 +365,11 @@ for(i in c("catch","catch.n","stock.n","harvest")){
 
 options("width"=80,"scipen"=1000)
 stf.out.file <- stf.out(stf,RECS,format="TABLE 2.7.%i NORTH SEA HERRING.")
-write(stf.out.file,file=paste(output.base,"stf.out",sep="."))
+write(stf.out.file,file=paste("./","stf.out",sep="."))
 
 #- Write the stf.table to file
-write.table(stf.table,file=paste(output.base,"stf.table",sep="."),append=F,col.names=T,row.names=T)
+write.table(stf.table[,,2],file=paste("stf.table","deterministic"),append=F,col.names=T,row.names=T)
+for(i in dimnames(stf.table)$stats) write.table(stf.table[,,i],file=paste("stf.table",i),append=F,col.names=T,row.names=T)
 
 #- Save the output to an RData file
-save.image(file=paste(output.base,"ShortTermForecast Workspace.RData"))
+save.image(file="ShortTermForecast Workspace.RData")

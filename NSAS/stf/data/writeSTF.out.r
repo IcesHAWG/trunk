@@ -35,7 +35,7 @@ stf.out   <-  function(FLStock,Recruitment,format="TABLE %i.") {
   
   
   #FLR and R Package Information
-  descrips <- list(packageDescription("FLICA"),packageDescription("FLAssess"),packageDescription("FLCore"))
+  descrips <- list(packageDescription("FLSAM"),packageDescription("FLAssess"),packageDescription("FLCore"))
   descrips <- lapply(descrips, function(b) {
     rbind(paste("Package  :",b$Package),
           paste("Version  :",b$Version),
