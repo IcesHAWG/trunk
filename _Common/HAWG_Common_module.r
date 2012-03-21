@@ -23,6 +23,7 @@ flush.console()
 ### ======================================================================================================
 
 source(file.path("..","_Common","writeStandardOutput.r"))
+source(file.path("..","_Common","WriteIcaSum.r"))
 an <- function(x){ return(as.numeric(x))}
 
 ### ======================================================================================================
@@ -45,9 +46,9 @@ mat.immat.ratio <- function(stk,...){
 
 
 # Plot time series of any slot in an FLR object (with class FLQuant) (added 18-03-2010 by NTH)
-timeseries <- function(stck.,slot.){
+timeseries <- function(stck.,slot.,...){
                 assign("stck.",stck.,envir=.GlobalEnv);assign("slot.",slot.,envir=.GlobalEnv);
-                print(xyplot(data~year,data=slot(stck.,slot.),
+                print(xyplot(data~year,data=slot(stck.,slot.),...,
                 groups=age,
                 auto.key=list(space="right",points=FALSE,lines=TRUE,type="b"),
                 type="b",
@@ -118,7 +119,7 @@ overlayTimeseries <- function(x,nyrs,ages){
 
                       stk <- orderBy(~age+qname+track,data=stk)
                       xyplot(data ~ track,data=stk,groups=qname,type="l",
-                             prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},xlab="Cohort",ylab="Standardized residuals",
+                             prepanel=function(...) {list(ylim=range(pretty(c(0,list(...)$y))))},xlab="Cohort",ylab="Standardized timeseries",
                              auto.key=list(space="right",points=FALSE,lines=TRUE,type="l"),
                              panel = panel.superpose,
                              panel.groups = function(...) {
