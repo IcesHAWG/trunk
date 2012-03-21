@@ -245,6 +245,7 @@ colnames(stockSummaryTable) <-
                        "Landings (tonnes)","Yield / SSB (ratio)","Mean F ages 2-6"),each=3),c("Mean","Low","High")),"Mean F ages 0-1","SoP (%)")
 stockSummaryTable[nrow(stockSummaryTable),] <- NA
 stockSummaryTable[nrow(stockSummaryTable),"Spawing biomass (tonnes) Mean"] <- 2271364
+stockSummaryTable[nrow(stockSummaryTable),2:4] <- c(rec(NSH.sam)$value[nrow(rec(NSH.sam))],rec(NSH.sam)$lbnd[nrow(rec(NSH.sam))],rec(NSH.sam)$ubnd[nrow(rec(NSH.sam))])
 write.csv(stockSummaryTable,file=file.path(output.dir,"stockSummaryTable.csv"))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 ### ============================================================================
