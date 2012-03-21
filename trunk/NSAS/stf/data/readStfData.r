@@ -7,16 +7,43 @@ OOF   <- read.csv(paste("./data/over_underfishing",DtY,".csv",sep=""),header=T);
 #- Partial Ns per fleet to partial Fs
 #-------------------------------------------------------------------------------
 Ns            <- read.csv(paste("./data/partial_ns",ac(an(ImY)-1),".csv",sep=""),header=T)
+Ns1           <- read.csv(paste("./data/partial_ns",ac(an(ImY)-2),".csv",sep=""),header=T)
+Ns2           <- read.csv(paste("./data/partial_ns",ac(an(ImY)-3),".csv",sep=""),header=T)
+Nstot         <- cbind(Ns2,Ns1,Ns)
+#-Apply plusgroup
 Ns[ac(9),]    <- apply(Ns[ac(9:10),],2,sum); Ns <- Ns[ac(1:9),]
 
 #-------------------------------------------------------------------------------
 #- Partial Ws per fleet
 #-------------------------------------------------------------------------------
 Ws            <- read.csv(paste("./data/partial_ws",ac(an(ImY)-1),".csv",sep=""),header=T)
-WA            <- apply(Ws[,paste("A",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
-WB            <- apply(Ws[,paste("B",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
-WC            <- apply(Ws[,paste("C",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
-WD            <- apply(Ws[,paste("D",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
+#WA            <- apply(Ws[,paste("A",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
+#WB            <- apply(Ws[,paste("B",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
+#WC            <- apply(Ws[,paste("C",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
+#WD            <- apply(Ws[,paste("D",ac((an(DtY)-2):DtY),sep="")],1,mean,na.rm=T)
+#
+WA            <- apply(Ws[,paste("A",ac((an(DtY)-2):DtY),sep="")] * Nstot[,paste("A",ac((an(DtY)-2):DtY),sep="")],1,sum,na.rm=T) / apply(Nstot[,paste("A",ac((an(DtY)-2):DtY),sep="")],1,sum,na.rm=T)
+WA[9]         <- sum(Ws[9:10,paste("A",ac((an(DtY)-2):DtY),sep="")] * Nstot[9:10,paste("A",ac((an(DtY)-2):DtY),sep="")],na.rm=T) / sum(Nstot[9:10,paste("A",ac((an(DtY)-2):DtY),sep="")],na.rm=T)
+WA            <- WA[1:9]; WA[is.na(WA)] <- 0
+
+WB            <- apply(Ws[,paste("B",ac((an(DtY)-2):DtY),sep="")] * Nstot[,paste("B",ac((an(DtY)-2):DtY),sep="")],1,sum,na.rm=T) / apply(Nstot[,paste("B",ac((an(DtY)-2):DtY),sep="")],1,sum,na.rm=T)
+WB[9]         <- sum(Ws[9:10,paste("B",ac((an(DtY)-2):DtY),sep="")] * Nstot[9:10,paste("B",ac((an(DtY)-2):DtY),sep="")],na.rm=T) / sum(Nstot[9:10,paste("B",ac((an(DtY)-2):DtY),sep="")],na.rm=T)
+WB            <- WB[1:9]; WB[is.na(WB)] <- 0
+
+WC            <- apply(Ws[,paste("C",ac((an(DtY)-2):DtY),sep="")] * Nstot[,paste("C",ac((an(DtY)-2):DtY),sep="")],1,sum,na.rm=T) / apply(Nstot[,paste("C",ac((an(DtY)-2):DtY),sep="")],1,sum,na.rm=T)
+WC[9]         <- sum(Ws[9:10,paste("C",ac((an(DtY)-2):DtY),sep="")] * Nstot[9:10,paste("C",ac((an(DtY)-2):DtY),sep="")],na.rm=T) / sum(Nstot[9:10,paste("C",ac((an(DtY)-2):DtY),sep="")],na.rm=T)
+WC            <- WC[1:9]; WC[is.na(WC)] <- 0
+
+WD            <- apply(Ws[,paste("D",ac((an(DtY)-2):DtY),sep="")] * Nstot[,paste("D",ac((an(DtY)-2):DtY),sep="")],1,sum,na.rm=T) / apply(Nstot[,paste("D",ac((an(DtY)-2):DtY),sep="")],1,sum,na.rm=T)
+WD[9]         <- sum(Ws[9:10,paste("D",ac((an(DtY)-2):DtY),sep="")] * Nstot[9:10,paste("D",ac((an(DtY)-2):DtY),sep="")],na.rm=T) / sum(Nstot[9:10,paste("D",ac((an(DtY)-2):DtY),sep="")],na.rm=T)
+WD            <- WD[1:9]; WD[is.na(WD)] <- 0
+
+dmns          <- dimnames(NSH@catch.wt)
+WA            <- FLQuant(WA,dimnames=list(age=dmns$age,year="unique",unit="A",season=dmns$season,area=dmns$area,iter=dmns$iter))
+WB            <- FLQuant(WB,dimnames=list(age=dmns$age,year="unique",unit="B",season=dmns$season,area=dmns$area,iter=dmns$iter))
+WC            <- FLQuant(WC,dimnames=list(age=dmns$age,year="unique",unit="C",season=dmns$season,area=dmns$area,iter=dmns$iter))
+WD            <- FLQuant(WD,dimnames=list(age=dmns$age,year="unique",unit="D",season=dmns$season,area=dmns$area,iter=dmns$iter))
+
 
 #-------------------------------------------------------------------------------
 #- Calculate the harvest by fleet given a TAC for a stock
@@ -97,6 +124,18 @@ find.Bpa <- function(mult,stk.=stk,rec.=rec,bpa.=bpa,fpa.=fpa,f26.=f26,f01.=f01)
               return(ifelse(fbar26>0.25|fbar01>0.05,(fbar26-fpa.)^2+(fbar01-0.05)^2,(bpa.-ssb)^2))}
 
 #-------------------------------------------------------------------------------
+#- Fmsy: calculate A TAC under a given Fmsy value for the combination of the fleets
+#-------------------------------------------------------------------------------
+find.F <- function(mult,stk.=stk,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS){
+                    stk.@harvest        <- sweep(stk.@harvest,3,mult,"*")
+                    stkZ                <- unitSums(stk.@harvest) + stk.@m[,,1]
+                    resA                <- sqrt(c(f. - quantMeans(unitSums(stk.@harvest[f26.,])))^2)*100
+                    resBCD              <- sqrt(c((TACS. - c(apply(sweep(stk.@stock.n * stk.@catch.wt * sweep(stk.@harvest,c(1:2,4:6),stkZ,"/"),c(1:2,4:6),(1-exp(-stkZ)),"*"),3:6,sum,na.rm=T)))^2))[2:4]
+                    res                 <- c(resA,resBCD)
+                 return(res)}
+
+
+#-------------------------------------------------------------------------------
 #- Calculate the catch by fleet
 #-------------------------------------------------------------------------------
 harvestCatch  <-  function(stk.,iYr){
@@ -148,3 +187,20 @@ monteCarloStock <- function(stck,sam,realisations){
 
   return(mcstck)}
 
+#-------------------------------------------------------------------------------
+#- Function to draw truncated lognormally distributed random values
+#-------------------------------------------------------------------------------
+
+rtlnorm <- function (n, mean = 0, sd = 1, lower = -Inf, upper = Inf)
+{
+   ret <- numeric()
+   if (length(n) > 1)
+       n <- length(n)
+   while (length(ret) < n) {
+       y <- rlnorm(n - length(ret), mean, sd)
+       y <- y[y >= lower & y <= upper]
+       ret <- c(ret, y)
+   }
+   stopifnot(length(ret) == n)
+   ret
+}
