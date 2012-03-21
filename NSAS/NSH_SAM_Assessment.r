@@ -51,7 +51,8 @@ source(file.path("..","_Common","HAWG_Common_module.r"))
   name(NSH.sam) <- "North Sea Herring"
 
   #Update stock object
-  NSH     <- NSH + NSH.sam
+  NSH       <- NSH + NSH.sam
+  NSH@stock <- computeStock(NSH)
 
   # Save results
   save(NSH,NSH.tun,NSH.ctrl,NSH.sam,file=file.path(output.dir,paste(name(NSH),".RData",sep="")))
@@ -206,6 +207,13 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   lines(y=fbar(NSH[,ac(2002:2011)]),  x=(ssb(NSH[,ac(2002:2011)])/1e6))
   text(y=fbar(NSH[,ac(2002:2011)]),   x=(ssb(NSH[,ac(2002:2011)])/1e6),labels=ac(2002:2011),pos=3,cex=0.7)
 
+### ======================================================================================================
+### Reference points
+### ======================================================================================================
+library(FLBRP)
+ref. <- brp(FLBRP(NSH,fbar=seq(0,1,length.out=101),nyears=3))
+print(refpts(ref.))
+
 
 ### ======================================================================================================
 ### Document Assessment
@@ -213,16 +221,32 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
 log.msg("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
 old.opt           <- options("width","scipen")
+options("width"=80,"scipen"=1000)
+
+sam.out.file      <- FLSAM.out(NSH,NSH.tun,NSH.sam,format="TABLE 2.6.3.%i North Sea Herring.")
+write(sam.out.file,file=paste(output.base,"sam.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
-#writeFLStock(NSH,output.file=output.base)
+writeFLStock(NSH,output.file=file.path(output.dir))
+writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
 
-#And for incorporation into the standard graphs
-#writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.sum"),type="ICAsum")
-#The YPR curves based on the same values as the projection - therefore use WBSS.proj
-#writeStandardOutput(NSH,NSH.sr,NSH.retro,recImY=NSH.ica@survivors[1,1],nyrs.=3,output.base,Blim=0.8e6,Bpa=1.3e6,Flim=NULL,Fpa=0.25,Bmsy=NULL,Fmsy=NULL)
-
+stockSummaryTable <- cbind(rec(NSH.sam)$year,
+                           rec(NSH.sam)$value,      rec(NSH.sam)$lbnd,    rec(NSH.sam)$ubnd,
+                           tsb(NSH.sam)$value,      tsb(NSH.sam)$lbnd,    tsb(NSH.sam)$ubnd,
+                           ssb(NSH.sam)$value,      ssb(NSH.sam)$lbnd,    ssb(NSH.sam)$ubnd,
+                           catch(NSH.sam)$value,    catch(NSH.sam)$lbnd,  catch(NSH.sam)$ubnd,
+                           catch(NSH.sam)$value / ssb(NSH.sam)$value, catch(NSH.sam)$lbnd / ssb(NSH.sam)$lbnd, catch(NSH.sam)$ubnd / ssb(NSH.sam)$ubnd,
+                           fbar(NSH.sam)$value,     fbar(NSH.sam)$lbnd,   fbar(NSH.sam)$ubnd,
+                           c(quantMeans(harvest(NSH.sam)[ac(0:1),])),
+                           c(sop(NSH),NA))
+colnames(stockSummaryTable) <-
+                     c("Year",paste(rep(c("Recruits Age 0 (Thousands)","Total biomass (tonnes)","Spawing biomass (tonnes)",
+                       "Landings (tonnes)","Yield / SSB (ratio)","Mean F ages 2-6"),each=3),c("Mean","Low","High")),"Mean F ages 0-1","SoP (%)")
+stockSummaryTable[nrow(stockSummaryTable),] <- NA
+stockSummaryTable[nrow(stockSummaryTable),"Spawing biomass (tonnes) Mean"] <- 2271364
+write.csv(stockSummaryTable,file=file.path(output.dir,"stockSummaryTable.csv"))
+options("width"=old.opt$width,"scipen"=old.opt$scipen)
 ### ============================================================================
 ### Finish
 ### ============================================================================
