@@ -59,7 +59,7 @@ ISH                                   <- setPlusGroup(ISH,ISH@range["max"])
 
 #Replace zero or missign values in catch.wt and stock.wt
 #which(is.na(ISH@stock.wt)==T,arr.ind=T) #check for NA data
-ISH@stock.wt[8,49] <- 0.213
+ISH@stock.wt[8,49] <- (ISH@stock.wt[8,48]+ISH@stock.wt[8,50])/2
 #which(ISH@stock.wt==0,arr.ind=T) #generate array of values=0
 ISH@stock.wt[7,4] <- (ISH@stock.wt[7,3]+ISH@stock.wt[7,5])/2 #manual replacement avg if 0 
 ISH@stock.wt[8,6:9] <- c(0.264,0.275,0.264,0.27) #otherwise replace with values in input files
@@ -68,12 +68,12 @@ ISH@stock.wt[8,6:9] <- c(0.264,0.275,0.264,0.27) #otherwise replace with values 
 ISH@catch.wt[7,4] <- (ISH@catch.wt[7,3]+ISH@catch.wt[7,5])/2
 ISH@catch.wt[6,7] <- 0.243
 ISH@catch.wt[7,7:8] <- c(0.227,0.234)
-ISH@catch.wt[1:8,49] <- c(0.068,0.107,0.133,0.155,0.165,0.182,0.194,0.212)
+ISH@catch.wt[1:8,49] <- c((ISH@catch.wt[1:8,48]+ISH@catch.wt[1:8,50])/2)
 #which(ISH@catch.wt==0,arr.ind=T) #generate array of values=0
 ISH@catch.wt[8,6:9] <- c(0.264,0.275,0.264,0.270)
 
 #which(is.na(ISH@landings.wt)==T,arr.ind=T) #check for NA data
-ISH@landings.wt[8,49] <- 0.212
+ISH@landings.wt[8,49] <- (ISH@landings.wt[8,48]+ISH@landings.wt[8,50])/2
 #which(ISH@landings.wt==0,arr.ind=T) 
 ISH@landings.wt[7,4] <- (ISH@landings.wt[7,3]+ISH@landings.wt[7,5])/2 
 ISH@landings.wt[8,6:9] <- c(0.264,0.275,0.264,0.27) 
@@ -299,6 +299,25 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 ### ============================================================================
 dev.off()
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
+
+
+### ============================================================================
+### Short term forecast
+### ============================================================================
+### ============================================================================
+### Input data
+###=============================================================================
+
+
+#survivors
+dmns                <- dims(ISH@stock.n)
+gm.recruitmentEstimate <- exp(mean(log(ISH@stock.n[1,as.character(1995:(ISH@range['maxyear']-2)),,,,])))
+survivors           <- FLQuant(c(gm.recruitmentEstimate,stock.n(ISH)[,ac(ISH@range['maxyear'])] * exp(-harvest(ISH[,ac(ISH@range['maxyear'])])-m(ISH[,ac(2011)]))),
+                               dimnames=list(ages=dmns$min:(dmns$max+1),year=ISH@range['maxyear']+1,unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter))
+
+## plusgroup
+survivors[ac(dmns$max),ac(ISH@range['maxyear']+1)] <- quantSums(survivors[ac(dmns$max:(dmns$max+1)),ac(ISH@range['maxyear']+1)])
+survivors           <- survivors[ac(dmns$min:dmns$max),]
 
 
 #Update
