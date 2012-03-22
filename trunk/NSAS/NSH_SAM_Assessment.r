@@ -214,6 +214,13 @@ library(FLBRP)
 ref. <- brp(FLBRP(NSH,fbar=seq(0,1,length.out=101),nyears=3))
 print(refpts(ref.))
 
+NSH.SRR <- FLSR(
+	rec = rec(NSH)[,ac((range(NSH)["minyear"]+1): range(NSH)["maxyear"])],
+	ssb = ssb(NSH)[,ac((range(NSH)["minyear"])  :(range(NSH)["maxyear"]-1))],
+	model='segreg')
+
+plot(NSH.SRR)
+
 
 ### ======================================================================================================
 ### Document Assessment
