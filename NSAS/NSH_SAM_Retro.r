@@ -46,6 +46,9 @@ if(class(res)=="try-error") stop("Run the assessment first before you can run th
 
 #Perform retrospective
 NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,n.retro.years)
+for(i in ac(2006:2011))
+  NSH.retro[[i]]@name <- i
+
 
 # Save results
 save(NSH.retro,file=file.path(output.dir,paste(name(NSH),"retro.RData",sep="")))

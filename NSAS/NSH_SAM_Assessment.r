@@ -218,9 +218,15 @@ NSH.SRR <- FLSR(
 	rec = rec(NSH)[,ac((range(NSH)["minyear"]+1): range(NSH)["maxyear"])],
 	ssb = ssb(NSH)[,ac((range(NSH)["minyear"])  :(range(NSH)["maxyear"]-1))],
 	model='segreg')
-
+NSH.SRR <- fmle(NSH.SRR)
 plot(NSH.SRR)
 
+newData <- predict(NSH.SRR,ssb=FLQuant(seq(0,max(ssb(NSH)),length.out=200)))
+yrange  <- range(pretty(c(0,range(rec(NSH)))))/1e6; xrange <- range(pretty(c(0,range(ssb(NSH)))))/1e6
+plot(y=newData/1e6,x=seq(0,max(ssb(NSH)),length.out=200)/1e6,type="l",lwd=2,
+     xlab="SSB (million tonnes)",ylab="Recruitment (billions)",xlim=xrange,ylim=yrange,
+     las=1,cex.lab=1.3,cex.axis=1.1,xaxs="i",yaxs="i")
+points(y=rec(NSH)/1e6,x=ssb(NSH)/1e6)
 
 ### ======================================================================================================
 ### Document Assessment
