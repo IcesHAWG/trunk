@@ -23,7 +23,7 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Final Assessment\n=====================\n")
 path <- "~/HAWG/trunk/NSAS/"
-path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
+path <- "D:/Sascha/Projects/HAWG/HAWGrepository/NSAS/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -60,9 +60,9 @@ png(file.path(output.dir,"figuresRetro - %02d.png"),units = "px", height=800,wid
 #Plot retro
 plot(NSH.retro,futureYrs=F)
 
-print(retroResiduals(   NSH.retro,"HERAS",1990:2011))
-print(retroResiduals(   NSH.retro,"catch",1990:2011))
-print(retroSelectivity( NSH.retro,2003:2011))
+print(retroResiduals(   NSH.retro,"HERAS",1990:2012))
+print(retroResiduals(   NSH.retro,"catch",1990:2012))
+print(retroSelectivity( NSH.retro,2003:2012))
 
 dev.off()
 
