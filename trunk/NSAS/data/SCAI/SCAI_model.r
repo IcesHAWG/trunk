@@ -32,7 +32,7 @@
 # Notes:
 #   This work is described in more detail in the publication
 #   Payne, M. R. 2010. Mind the gaps: a state-space model for analysing the dynamics
-#   of North Sea herring spawning components. – ICES Journal of Marine Science, 67: 1939–1947.
+#   of North Sea herring spawning components. ? ICES Journal of Marine Science, 67: 1939?1947.
 #
 # ----------------------------------------------------------------------------
 # "THE BEER-WARE LICENSE" (Revision 42):
