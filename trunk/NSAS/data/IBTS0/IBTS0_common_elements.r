@@ -106,6 +106,15 @@ read.IBTS0 <- function(src=src.file) {
    dat$no.per.m2 <- as.numeric(dat$no.per.m2)
    dat$area     <- as.numeric(dat$area)
    dat <- merge(dat,MIK.areas,all=FALSE,by="MIK.area",sort=FALSE)
+   dat$POSIX <- as.POSIXct(strptime(dat$Datetime, "%d/%m/%y %H:%M") )
+
+   #Calculate the median length
+   len.bins <- 7:60
+   length.cols <- paste("X",len.bins,sep="")
+   dat$median.length <- apply(dat[,length.cols],1,function(x) {
+             x[is.na(x)] <- 0
+             median(rep(len.bins,times=x)) 
+           })
   
    log.msg("OK.\n")
    

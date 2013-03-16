@@ -23,7 +23,7 @@ log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Final Assessment\n=====================\n")
 path <- "~/HAWG/trunk/NSAS/"
 path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
-try(setwd(path))
+try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
 ### Define parameters for use in the assessment code here
@@ -37,7 +37,9 @@ n.retro.years       <-  5                                       #Number of years
 ### Setup assessment
 ### ============================================================================
 #Import externals
-library(FLSAM); library(FLEDA)
+library(FLSAM); library(FLEDA);library(FLBRP);library(doBy)
+
+
 source(file.path("setupAssessmentObjects.r"))
 source(file.path("setupControlObject.r"))
 source(file.path("..","_Common","HAWG_Common_module.r"))
@@ -189,7 +191,64 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
 
   #Plot otholith
   #plot.otolith(NSH.sam,n=10000) #Warning, this takes very long!
-    
+
+  ### ============================================================================
+  ### Various dervied plots
+  ### ============================================================================
+  #Extract data
+  xcols <- c("data","cohort")
+  SCAI.df <- as.data.frame(NSH.tun[["SCAI"]]@index) 
+  SCAI.df$cohort <- SCAI.df$year
+  MIK.df <- as.data.frame(NSH.tun[["IBTS0"]]@index) 
+  MIK.df$cohort <- MIK.df$year - 1
+  surv.dat <- merge(SCAI.df[,xcols],MIK.df[,xcols],by="cohort",
+                  suffixes=c(".SCAI",".MIK"),all=TRUE)
+  n.spawners <- NSH@stock.n * NSH@mat * 
+                   exp(-(NSH@harvest*NSH@harvest.spwn + NSH@m*NSH@m.spwn))
+  spawners.ts <- as.data.frame(quantSums(n.spawners))
+  spawners.ts$cohort <- spawners.ts$year
+  spawners.ts$ssb <- as.data.frame(ssb(NSH))$data
+  recs.ts  <- as.data.frame(stock.n(NSH.sam)["0",])
+  recs.ts$cohort <- recs.ts$year -1
+  ass.dat <- merge(spawners.ts[,c(xcols,"ssb")],recs.ts[,xcols],by="cohort",
+                  suffixes=c(".spwn",".rec"),all=TRUE)
+  plt.dat <- merge(ass.dat,surv.dat,all=TRUE,by="cohort") 
+  plt.dat$surv.ratio <- plt.dat$data.MIK / plt.dat$data.SCAI
+  plt.dat$rps <- plt.dat$data.rec/plt.dat$data.spwn
+  plt.dat$yr <- sprintf("%02i",plt.dat$cohort%%100)
+
+  #Time series of recruits-per-spawner
+  plot(plt.dat$cohort,plt.dat$rps,log="y",type="n",
+    xlab="Spawning Year",ylab="Recruits per spawner")
+  rug(plt.dat$cohort[plt.dat$ssb > 800000],col="black",lwd=2)
+  rug(plt.dat$cohort[plt.dat$ssb > 800000],col="black",side=3,lwd=2)
+  points(plt.dat$cohort,plt.dat$rps,pch=16)
+  lines(smooth.spline(plt.dat$cohort[-1],plt.dat$rps[-1],penalty=1.4),
+    col="red",lwd=2)
+  
+  #SRR plot
+  plot(plt.dat$ssb/1e6,plt.dat$data.rec/1e6,pch=1,
+    xlab="Spawning Stock Biomass (Mt)",ylab="Recruits (10⁹ individuals)") 
+  points(plt.dat$ssb/1e6,plt.dat$data.rec/1e6,
+    pch=ifelse(plt.dat$cohort>2001,16,NA),col="red") 
+
+  #IBTSO / SCAI time series
+  plot(plt.dat$cohort,plt.dat$surv,log="y",pch=16,
+     xlim=range(pretty(plt.dat$cohort[!is.na(plt.dat$surv.ratio)],na.rm=TRUE)),
+     xlab="Spawning Year",ylab="Larval Survival (IBTS0/SCAI)")
+
+  #Comparison SCAI vs SSB
+  plot(plt.dat$ssb,plt.dat$data.SCAI,log="xy",
+    xlab="Spawning stock biomass (Mt)",ylab="SCAI",pch=16)
+  yr.idxs <- plt.dat$cohort > 2008 
+  mdl <- lm(log(data.SCAI) ~log(ssb),plt.dat)
+  mdl.dat <- cbind(log.SCAI=predict(mdl),mdl$model)
+  mdl.dat <- mdl.dat[order(mdl.dat[,"log(ssb)"]),]
+  lines(exp(mdl.dat[,"log(ssb)"]),exp(mdl.dat$log.SCAI))
+  text(plt.dat$ssb[yr.idxs],plt.dat$data.SCAI[yr.idxs],
+     plt.dat$yr[yr.idxs],pos=4) 
+  points(plt.dat$ssb[yr.idxs],plt.dat$data.SCAI[yr.idxs],pch=16,col="red")  
+  
   ### ============================================================================
   ### Management
   ### ============================================================================
@@ -210,7 +269,6 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
 ### ======================================================================================================
 ### Reference points
 ### ======================================================================================================
-library(FLBRP)
 ref. <- brp(FLBRP(NSH,fbar=seq(0,1,length.out=101),nyears=3))
 print(refpts(ref.))
 
