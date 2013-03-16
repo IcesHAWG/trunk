@@ -188,7 +188,7 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   cor.plot(NSH.sam)
 
   #Plot otholith
-  #plot.otolith(NSH.sam,n=10000) #Warning, this takes very long!
+  #otolith(NSH.sam,year=2012,n=10000) #Warning, this takes very long!
     
   ### ============================================================================
   ### Management
@@ -203,9 +203,9 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   text(1.3,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
   text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
 
-  points(y=fbar(NSH[,ac(2002:2011)]), x=(ssb(NSH[,ac(2002:2011)])/1e6),pch=19)
-  lines(y=fbar(NSH[,ac(2002:2011)]),  x=(ssb(NSH[,ac(2002:2011)])/1e6))
-  text(y=fbar(NSH[,ac(2002:2011)]),   x=(ssb(NSH[,ac(2002:2011)])/1e6),labels=ac(2002:2011),pos=3,cex=0.7)
+  points(y=fbar(NSH[,ac(2002:2012)]), x=(ssb(NSH[,ac(2002:2012)])/1e6),pch=19)
+  lines(y=fbar(NSH[,ac(2002:2012)]),  x=(ssb(NSH[,ac(2002:2012)])/1e6))
+  text(y=fbar(NSH[,ac(2002:2012)]),   x=(ssb(NSH[,ac(2002:2012)])/1e6),labels=ac(2002:2012),pos=3,cex=0.7)
 
 ### ======================================================================================================
 ### Reference points
