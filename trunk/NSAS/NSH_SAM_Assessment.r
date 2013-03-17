@@ -30,7 +30,7 @@ try(setwd(path))
 ### ======================================================================================================
 output.dir          <-  file.path(".","results")                #Output directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  5                                       #Number of years for which to run the retrospective
+n.retro.years       <-  10                                       #Number of years for which to run the retrospective
 
 
 ### ============================================================================
@@ -143,7 +143,7 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   print(stacked.area.plot(data~year| unit, as.data.frame(pay(NSH@stock.n)),groups="age",main="Proportion of Stock numbers at age",ylim=c(-0.01,1.01),xlab="years",col=gray(9:0/9)))
 
   #Plot result
-  print(plot(NSH.sam))
+  print(plot(NSH.sam,futureYrs=F))
 
   #Plot uncertainties as a function of time
   CV.yrs <- ssb(NSH.sam)$year
@@ -188,7 +188,7 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   cor.plot(NSH.sam)
 
   #Plot otholith
-  #otolith(NSH.sam,year=2012,n=10000) #Warning, this takes very long!
+  #otolith(NSH.sam,year=2012,n=1e6) #Warning, this takes very long!
     
   ### ============================================================================
   ### Management
