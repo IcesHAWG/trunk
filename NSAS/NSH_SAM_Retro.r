@@ -23,7 +23,7 @@ options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {cat(string);}
 log.msg("\nNSH Final Assessment\n=====================\n")
 path <- "~/HAWG/trunk/NSAS/"
-path <- "D:/Sascha/Projects/HAWG/HAWGrepository/NSAS/"
+path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
 try(setwd(path),silent=TRUE)
 
 ### ======================================================================================================
@@ -31,7 +31,7 @@ try(setwd(path),silent=TRUE)
 ### ======================================================================================================
 output.dir          <-  file.path(".","results")                #Output directory
 output.base         <-  file.path(output.dir,"NSH Assessment")  #Output base filename, including directory. Other output filenames are built by appending onto this one
-n.retro.years       <-  5                                       #Number of years for which to run the retrospective
+n.retro.years       <-  10                                       #Number of years for which to run the retrospective
 
 ### ============================================================================
 ### Setup assessment
@@ -45,10 +45,7 @@ res <- try(load(file=file.path(output.dir,"North Sea Herring.RData")),silent=TRU
 if(class(res)=="try-error") stop("Run the assessment first before you can run the retrospective")
 
 #Perform retrospective
-NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,n.retro.years)
-for(i in ac(2006:2011))
-  NSH.retro[[i]]@name <- i
-
+NSH.retro <- retro(NSH,NSH.tun,NSH.ctrl,n.retro.years,base.assess=NSH.sam)
 
 # Save results
 save(NSH.retro,file=file.path(output.dir,paste(name(NSH),"retro.RData",sep="")))
@@ -60,9 +57,9 @@ png(file.path(output.dir,"figuresRetro - %02d.png"),units = "px", height=800,wid
 #Plot retro
 plot(NSH.retro,futureYrs=F)
 
-print(retroResiduals(   NSH.retro,"HERAS",1990:2012))
-print(retroResiduals(   NSH.retro,"catch",1990:2012))
-print(retroSelectivity( NSH.retro,2003:2012))
+print(retroResiduals(   NSH.retro,"HERAS",1990:(range(NSH)["maxyear"])))
+print(retroResiduals(   NSH.retro,"catch",1990:(range(NSH)["maxyear"])))
+print(retroSelectivity( NSH.retro,2003:(range(NSH)["maxyear"])))
 
 dev.off()
 
