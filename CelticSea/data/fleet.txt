@@ -1,7 +1,7 @@
 Celtic Sea   and   Division  VIIj herring
 101
 FLT02: Celtic  revised   acoustic
-2002  2011
+2002  2012
 1   1   1   1
 2   5
 1   185200   150600   29700   6600
@@ -14,3 +14,4 @@ FLT02: Celtic  revised   acoustic
 1   112000     210000    57000     125000
 1   549000     156000    193000    65000
 1   479000     299000    47000     71000
+1   856000     615000    330000    49000
