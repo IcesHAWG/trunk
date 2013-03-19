@@ -1,6 +1,6 @@
 Proportion of F before Spawning
 1 7
-1961 2011
+1961 2012
 1 8
 3
    0.9
