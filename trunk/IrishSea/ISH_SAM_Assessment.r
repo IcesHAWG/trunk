@@ -20,6 +20,11 @@
 # Notes: Have fun running this assessment!
 #
 ################################################################################
+
+#FL packages need to be under same R version, so to do that might have to reload versions developed under 2.13
+#rm(list=ls())
+#install.packages(pkgs="FLCore",repos="http://flr-project.org/R") #do same for pkgs="FLEDA",FLash,FLBRP,FLAssess
+
 rm(list=ls()); graphics.off(); start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 log.msg     <-  function(string) {cat(string);}
@@ -32,7 +37,7 @@ packageDescription("FLSAM") #check version of FLSAM used
 ### ============================================================================
 ### Misc
 ### ============================================================================
-my.path<-file.path("C:","Users","PJSchon","Documents","AESD","Irish Sea herring","HAWG2012","SAM")
+my.path<-file.path("C:","Users","PJSchon","Documents","AESD","Irish Sea herring","HAWG2013","SAM")
 output.dir              <- file.path(my.path,"results")
 data.source         <- file.path(my.path,"data")    #Data source, not code or package source!!!
 
@@ -146,6 +151,7 @@ save(ISH,ISH.tun,ISH.ctrl,ISH.sam,file=file.path(output.dir,paste(name(ISH.sam),
 source(file.path(my.path,"_Common","HAWG_Common_module.r"))
 # Need to have following list of r files in same folder: "Stacked Area plot.r", "WriteIcaSum.r",
 #"writeStandardOutput.r","Taylor_diagram.r"
+# Also need to load package(doBy) and (reShape)
 
 #Setup plots
 pdf(file.path(output.dir,paste(name(ISH.sam),".pdf",sep="")))
@@ -268,7 +274,7 @@ print(xyplot(sel ~ age|sprintf("%i's",floor((year+2)/5)*5),sel.pat,
 cor.plot(ISH.sam)
 
 #Plot otholith
-#plot.otolith(NSH.sam,n=100000)
+otolith(ISH.sam,year = 2012,n=100000)
 
 ###accessing the numbers...viewing it
 slotNames(ISH.sam) # list slot names
@@ -282,24 +288,40 @@ ISH.sam@params
 log.msg     <-  function(string) {cat(string);}
 log.msg("\nISH Final Assessment\n=====================\n")
 log.msg("GENERATING DOCUMENTATION...\n")
+## ======================================================================================================
+### Document Assessment
+### ======================================================================================================
+source(file.path(my.path,"_Common","FLSAM.out.r"))
+#output.dir          <-  file.path(".","results")                #Output directory
+log.msg("GENERATING DOCUMENTATION...\n")
 #Document the run with alternative table numbering and a reduced width
 old.opt           <- options("width","scipen")
+options("width"=80,"scipen"=1000)
+
+sam.out.file      <- FLSAM.out(ISH,ISH.tun,ISH.sam,format="TABLE 7.6.3.%i Irish Sea Herring.")
+write(sam.out.file,file=file.path(output.dir,"ISH_sam.out",sep=".")) #or could create output.base
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
-#writeFLStock(NSH,output.file=output.base)
+#writeFLStock(ISH,output.file=file.path(output.dir))
+writeFLStock(ISH,file.path(output.dir,"hawg_her-nirs.ypr"),type="YPR")
 
-#And for incorporation into the standard graphs
-#writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.sum"),type="ICAsum")
-#The YPR curves based on the same values as the projection - therefore use WBSS.proj
-#writeStandardOutput(NSH,NSH.sr,NSH.retro,recImY=NSH.ica@survivors[1,1],nyrs.=3,output.base,Blim=0.8e6,Bpa=1.3e6,Flim=NULL,Fpa=0.25,Bmsy=NULL,Fmsy=NULL)
-
-### ============================================================================
-### Finish
-### ============================================================================
-dev.off()
-log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
-
+stockSummaryTable <- cbind(rec(ISH.sam)$year,
+                           rec(ISH.sam)$value,      rec(ISH.sam)$lbnd,    rec(ISH.sam)$ubnd,
+                           tsb(ISH.sam)$value,      tsb(ISH.sam)$lbnd,    tsb(ISH.sam)$ubnd,
+                           ssb(ISH.sam)$value,      ssb(ISH.sam)$lbnd,    ssb(ISH.sam)$ubnd,
+                           catch(ISH.sam)$value,    catch(ISH.sam)$lbnd,  catch(ISH.sam)$ubnd,
+                           catch(ISH.sam)$value / ssb(ISH.sam)$value, catch(ISH.sam)$lbnd / ssb(ISH.sam)$lbnd, catch(ISH.sam)$ubnd / ssb(ISH.sam)$ubnd,
+                           fbar(ISH.sam)$value,     fbar(ISH.sam)$lbnd,   fbar(ISH.sam)$ubnd,
+                           c(sop(ISH)))
+colnames(stockSummaryTable) <-
+  c("Year",paste(rep(c("Recruits Age 0 (Thousands)","Total biomass (tonnes)","Spawing biomass (tonnes)",
+                       "Landings (tonnes)","Yield / SSB (ratio)","Mean F ages 4-6"),each=3),c("Mean","Low","High")),"SoP (%)")
+sst2013 <- c(2013,144514,21861) #rec = first value, SSB is the second value for intermediate year 
+stockSummaryTable <- rbind(stockSummaryTable,NA)
+stockSummaryTable[nrow(stockSummaryTable),c(1,2,8)] <- sst2013
+write.csv(stockSummaryTable,file=file.path(output.dir,"stockSummaryTable.csv"))
+options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
 ### ============================================================================
 ### Short term forecast
@@ -311,8 +333,8 @@ log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),
 
 #survivors
 dmns                <- dims(ISH@stock.n)
-gm.recruitmentEstimate <- exp(mean(log(ISH@stock.n[1,as.character(1995:(ISH@range['maxyear']-2)),,,,])))
-survivors           <- FLQuant(c(gm.recruitmentEstimate,stock.n(ISH)[,ac(ISH@range['maxyear'])] * exp(-harvest(ISH[,ac(ISH@range['maxyear'])])-m(ISH[,ac(2011)]))),
+gm.recruitmentEstimate <- exp(mean(log(ISH@stock.n[1,as.character(1996:(ISH@range['maxyear']-2)),,,,])))
+survivors           <- FLQuant(c(gm.recruitmentEstimate,stock.n(ISH)[,ac(ISH@range['maxyear'])] * exp(-harvest(ISH[,ac(ISH@range['maxyear'])])-m(ISH[,ac(2012)]))),
                                dimnames=list(ages=dmns$min:(dmns$max+1),year=ISH@range['maxyear']+1,unit=dmns$unit,season=dmns$season,area=dmns$area,iter=dmns$iter))
 
 ## plusgroup
@@ -332,3 +354,6 @@ survivors           <- survivors[ac(dmns$min:dmns$max),]
 #packageDescription("FLSAM")
 
 #save(stck,ctrl,tun,file="IrishSH.RData") # as I changed the wd then it saves the files to that directory
+
+#write parameters to create sen file
+write.csv(ISH.sam@params,file=file.path(output.dir,"ISHsam parameters.csv"))
