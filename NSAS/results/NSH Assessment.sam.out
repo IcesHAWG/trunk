@@ -762,6 +762,7 @@ srr            : 0
 cor.F          : FALSE
 nohess         : FALSE
 timeout        : 3600
+sam.binary     : character()
 
 
 TABLE 2.6.3.11 North Sea Herring. FLR, R SOFTWARE VERSIONS
