@@ -236,13 +236,39 @@ log.msg("GENERATING DOCUMENTATION...\n")
 old.opt           <- options("width","scipen")
 options("width"=80,"scipen"=1000)
 
+  #2013 fix
+  NSH.sam@control@sam.binary <- "character()"
 sam.out.file      <- FLSAM.out(NSH,NSH.tun,NSH.sam,format="TABLE 2.6.3.%i North Sea Herring.")
 write(sam.out.file,file=paste(output.base,"sam.out",sep="."))
 options("width"=old.opt$width,"scipen"=old.opt$scipen)
 
-#And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(NSH,output.file=file.path(output.dir))
+#And finally, write the results out in the lowestoft VPA format for further analysis
+writeFLStock(NSH,output.file=file.path(output.dir,"NSAS_47d3_"))
 writeFLStock(NSH,file.path(output.dir,"hawg_her-47d3.ypr"),type="YPR")
+writeFLStock(wbss,file.path(output.dir,"hawg_her-IIIa.ypr"),type="YPR")
+#Prepare standard graph table
+NSH.brp <- brp(FLBRP(NSH,sr=NSH.SRR,fbar=seq(0,1,length.out=100),refpts=refpts()))
+# Calculate the spawners in number
+spawners                          <- colSums(NSH.brp@stock.n * sweep(exp(sweep(-sweep(NSH.brp@harvest,c(1,3:6),NSH.brp@harvest.spwn,"*"),
+                                             c(1,3:6),NSH.brp@m*NSH.brp@m.spwn,"-")),c(1,3:6),NSH.brp@mat,"*"))
+# Put all the standard input in a dataframe in columns
+standardGraphTable                <- cbind(NSH.brp@fbar,yield(NSH.brp),ssb(NSH.brp),rec(NSH.brp),yield(NSH.brp)/rec(NSH.brp),
+                                           ssb(NSH.brp)/rec(NSH.brp),spawners,landings(NSH.brp))
+standardGraphTable                <- data.frame(standardGraphTable)
+colnames(standardGraphTable)      <- c("Fbar","Yield","SSB","Recruits","Yield.Recruit","SSB.Recruit","Spawners","Landings")
+# Round some values
+standardGraphTable$Fbar           <- round(an(ac(standardGraphTable$Fbar)),3)
+standardGraphTable$Yield          <- round(an(ac(standardGraphTable$Yield)))
+standardGraphTable$SSB            <- round(an(ac(standardGraphTable$SSB)))
+standardGraphTable$Recruits       <- round(an(ac(standardGraphTable$Recruits)))
+standardGraphTable$Yield.Recruit  <- round(an(ac(standardGraphTable$Yield.Recruit)),4)
+standardGraphTable$SSB.Recruit    <- round(an(ac(standardGraphTable$SSB.Recruit)),3)
+standardGraphTable$Spawners       <- round(an(ac(standardGraphTable$Spawners)))
+standardGraphTable$Landings       <- round(an(ac(standardGraphTable$Landings)))
+standardGraphTable                <- rbind(c(paste("Ages ",range(stck.)["minfbar"],"-",range(stck.)["maxfbar"],sep=""),
+                                           "Tonnes","Tonnes","Number","","","Number","Tonnes"),standardGraphTable)
+# Write the standard graph to file and the reference points as well
+write.table(standardGraphTable,file=file.path(output.dir,"standardGraphTable.csv"),col.names=T,row.names=F,sep=",")
 
 stockSummaryTable <- cbind(rec(NSH.sam)$year,
                            rec(NSH.sam)$value,      rec(NSH.sam)$lbnd,    rec(NSH.sam)$ubnd,
