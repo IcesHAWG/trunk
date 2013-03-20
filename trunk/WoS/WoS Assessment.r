@@ -221,6 +221,11 @@ options("width"=old.opt$width,"scipen"=old.opt$scipen)
 #And finally, write the results out in the lowestoft VPA format for further analysis eg MFDP
 writeFLStock(WoS,output.file=output.base)
  
+#And for incorporation into the standard graphs
+writeFLStock(WoS,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
+writeFLStock(WoS,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
+
+ 
 ### ======================================================================================================
 ### Short Term Forecast
 ### ======================================================================================================
