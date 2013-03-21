@@ -82,7 +82,6 @@ log.msg("PREPARING FLSAM CONTROL OBJECT...\n")
 
 #Create object
 CSH.ctrl <- FLSAM.control(CSH,CSH.tun)
-CSH.ctrl@sam.binary <- file.path("model","sam")
 
 #Bind the observation variances
 CSH.ctrl@obs.vars["catch",] <- c(1,2,2,3,3,3)
