@@ -5,10 +5,10 @@
 # INCLUDING strata 20 which was an extra strata completed in 2011 but not
 # in previous years
 #
-# Updated in February 2012
-# Finalised March 2012, at HAWG
+# Updated in February 2013
+# Finalised March 2013, at HAWG
 #
-# Author: Andrew Campbell
+# Author: Afra Egan
 # Ireland
 #
 # Performs an assessment of Celtic Sea Herring (cs.herring) using the FLICA package.
@@ -56,7 +56,7 @@ data.source         <-  file.path("data")      #Data source, not code or package
 output.dir          <-  file.path("results")       #Output directory
 output.base         <-  file.path(output.dir,"cs.herring Assessment") #Output base filename, including directory. Other output filenames are built by appending onto this one
 #Specify specific years to do the retrospective over
-retro.years         <- c(2003,2005:2011)		#AC 23/02/2012 (no 2004 survey data point)
+retro.years         <- c(2003,2005:2012)		# (no 2004 survey data point)
 
 ### ======================================================================================================
 ### Output setup
@@ -137,23 +137,22 @@ cs.herring@stock=computeStock(cs.herring) # to get TSB in stock slot
 ################################################################################
 ## Change Recruitment to mean value of period 1981 - 2009 (was 1995-2009 for HAWG 2011)
 
-#Rec=exp(mean(log(cs.herring@stock.n[1,as.character(1995:(cs.herring@range['maxyear']-2)),,,,])))
+
 Rec=exp(mean(log(cs.herring@stock.n[1,as.character(1981:(cs.herring@range['maxyear']-2)),,,,])))
 
 # put recruitment into last fishing year
 cs.herring@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
 
-# puts the geomean value into the pop numbers at age 1 in 2011
+# puts the geomean value into the pop numbers at age 1 in 2012
 cs.herring.ica@stock.n['1',(as.character(cs.herring@range['maxyear'])),,,,]=Rec
 
 ##Need to adjust the survivors also
-#gm.recs <- exp(mean(log(rec(trim(cs.herring,year=1995:2009)))))
-gm.recs <- exp(mean(log(rec(trim(cs.herring,year=1981:2009)))))
-stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec=gm.recs)
+gm.recs <- exp(mean(log(rec(trim(cs.herring,year=1981:2010)))))
+stf.ctrl        <- FLSTF.control(nyrs=1,catch.constraint=1000,f.rescale=FALSE,rec=gm.recs)
 cs.herring.stf  <- FLSTF(stock=cs.herring,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
 
 ## Puts value into the survivors slot
-cs.herring.ica@survivors['2',ac(2012)]=  cs.herring.stf@stock.n['2',ac(2012)]
+cs.herring.ica@survivors['2',ac(2013)]=  cs.herring.stf@stock.n['2',ac(2013)]
 
 
 #Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
@@ -198,7 +197,10 @@ cs.retro.stck <- do.call(FLStocks,cs.retro.stck)        #Converts to FLStocks
 retro.plots(cs.retro.stck,cs.retro.icas,cs.herring.ctrl)
 
 
+#####internal consistency survey plot  ##################################################################
 
+cor.tun(cs.herring.tun)
+## nas in the data 2004 missing 
 
 ### ======================================================================================================
 ### Custom plots
@@ -208,7 +210,7 @@ FnPrint("GENERATING CUSTOM PLOTS...\n")
 #Plot of Catch and TAC
 ## TAC years specified
 ## Catch all years
-TACs    <- data.frame(year=1974:2012,TAC=1000*c(32,25,10.8,0,0,6,6,6,8,8,13,13,17,18,18,20,17.5,21,21,21,21,21,21,22,22,21,21,20,11,13,13,13,11,9.4,7.9,5.9,10.15,13.2,21.1))
+TACs    <- data.frame(year=1974:2013,TAC=1000*c(32,25,10.8,0,0,6,6,6,8,8,13,13,17,18,18,20,17.5,21,21,21,21,21,21,22,22,21,21,20,11,13,13,13,11,9.4,7.9,5.9,10.15,13.2,21.1,17.2))
 TAC.plot.dat <- data.frame(year=rep(TACs$year,each=2)+c(-0.5,0.5),TAC=rep(TACs$TAC,each=2))
 catch   <- as.data.frame(cs.herring@catch)
 plot(0,0,pch=NA,xlab="Year",ylab="Catch",xlim=range(pretty(c(catch$year,TACs$year))),ylim=range(pretty(c(0,TACs$TAC,catch$data))))
@@ -239,8 +241,6 @@ writeFLStock(cs.herring,output.file=output.base);
 writeFLStock(cs.herring,file.path(output.dir,"hawg_her-irls.sum"),type="ICAsum");
 writeFLStock(cs.herring,file.path(output.dir,"hawg_her-irls.ypr"),type="YPR")
 
-
-##############################################################################################################
 
 ### ======================================================================================================
 ### Projections
@@ -273,57 +273,62 @@ cs.herring.proj@stock.n[1,as.character(c(ImY,AdY,CtY))] <- gm.recs;
 #AdY.catch <- 13200;
 #numFmsy <- 0.25;
 
-#For 2012
-ImY.catch <- 18236;	#remaining Irish quota for fishing year (= total quota as no fishery so far)
-#ImY.catch <- 21100	#for a test with stock TAC
-#2013 advice year
-AdY.catch <- 21100;
+#For 2013
+ImY.catch <- 19063;	# 2013 total TAC + carry over into 2013
+#AdY.catch <- 17200	# 2013 TAC
+AdY.catch <- 17200;
 numFmsy <- 0.25;
 
 #Setup options
 options.l <- list(#Zero catch
-                  "Catch(2013) = Zero"=
+                  "Catch(2014) = Zero"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity="catch",
                                           val=c(ImY.catch,0,0))),
                   # TAC, -15% 
-                  "Catch(2013) = 2012 TAC -15% (17935 t)"=
+                  "Catch(2014) = 2013 TAC -15% (14620 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,AdY.catch*0.85,1))),
                   #TAC sq
-                  "Catch(2013) = 2012 TAC sq (21100 t)"=
+                  "Catch(2014) = 2013 TAC sq (17200 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,AdY.catch*1,1))),
                   #TAC +15%
-                  "Catch(2013) = 2012 TAC +15% (24265 t)"=
+                  "Catch(2014) = 2013 TAC +15% (19780 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,AdY.catch*1.15,1))),
                   #TAC + 25%
-                  "Catch(2013) = 2012 TAC + 25% (26375 t)"=
+                  "Catch(2014) = 2013 TAC + 25% (21500 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch, AdY.catch*1.25,1))),
                   #TAC +30%                           
-                  "Catch(2013) = 2012 TAC + 30% (27430 t)"=
+                  "Catch(2014) = 2013 TAC + 30% (22360 t)"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","catch","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch, AdY.catch*1.30,1))),                                                                         
+                                          val=c(ImY.catch, AdY.catch*1.30,1))),
+                    #status quo catch                           
+                  "Catch(2014) = 2013 TAC + 10.8% (19063t)"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","catch","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch, AdY.catch*1.1083,1))),                                                                                                
                   #F =0.25	#Fmsy
-                  "Fbar(2013) = 0.25"=
+                  "Fbar(2014) = 0.25"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,numFmsy,1))),
                   #F =0.23	#Proposed LTMP 
-                  "Fbar(2013) = 0.23"=
+                  "Fbar(2014) = 0.23"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
@@ -334,12 +339,18 @@ options.l <- list(#Zero catch
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
                                           val=c(ImY.catch,0.19,1))),
-                  #F=0.15	#Status Quo F
-                  "Fbar(2013) = 0.15"=
+                  #F=0.15	#Status Quo F (UPDATE FIGURE)
+                  "Fbar(2014) = 0.15"=
                     fwdControl(data.frame(year=c(ImY,AdY,CtY),
                                           quantity=c("catch","f","f"),
                                           rel=c(NA,NA,AdY),
-                                          val=c(ImY.catch,0.15,1)))
+                                          val=c(ImY.catch,0.15,1))),
+                                                      
+                  "Fbar(2014) = 0.17"=       #F0.1
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("catch","f","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(ImY.catch,0.17,1)))
 ) #End options list
 
 
