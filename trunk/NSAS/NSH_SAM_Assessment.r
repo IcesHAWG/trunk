@@ -197,10 +197,10 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   #A plot on the agreed management plan with the estimated Fbar in 2010
   plot(x=c(0,0.8,1.5,2.5),y=c(0.1,0.1,0.25,0.25),type="l",ylim=c(0,0.4),lwd=2,xlab="SSB in million tonnes",ylab="Fbar",cex.lab=1.3,main="Management plan North Sea Herring")
   abline(v=0.8,col="red",lwd=2,lty=2)
-  abline(v=1.3,col="blue",lwd=2,lty=2)
+  abline(v=1.0,col="blue",lwd=2,lty=2)
   abline(v=1.5,col="darkgreen",lwd=2,lty=2)
   text(0.8,0,labels=expression(B[lim]),col="red",cex=1.3,pos=2)
-  text(1.3,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
+  text(1.0,0,labels=expression(B[pa]),col="blue",cex=1.3,pos=2)
   text(1.5,0,labels=expression(B[trigger]),col="darkgreen",cex=1.3,pos=4)
 
   points(y=fbar(NSH[,ac(2002:2012)]), x=(ssb(NSH[,ac(2002:2012)])/1e6),pch=19)
