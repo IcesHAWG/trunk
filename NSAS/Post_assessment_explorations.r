@@ -33,8 +33,9 @@ load(file.path(".","results","North Sea Herring.RData"))
 ### ============================================================================
 ### Recruitment exploration
 ### ============================================================================
-pdf(file.path("results","Recruitment_diagnosics.pdf"),
+pdf(file.path("results","Post_assessment_exploration.pdf"),
     pointsize=16)
+par(mar=c(5,4,2,1),mgp=c(2.5,1,0))
 #Load component data
 SCAI.dat <- read.csv("data/SCAI/SCAIoutputs/SCAI_indices.csv")
 SCAI.dat$norSCAI <- rowSums(SCAI.dat[,c("SCAI.OrkShe","SCAI.Buchan","SCAI.Banks")])
@@ -68,15 +69,17 @@ plt.dat$downs.frac <- 1-plt.dat$norSCAI/plt.dat$data.SCAI
 #Time series of recruits-per-spawner
 plot(plt.dat$cohort,plt.dat$rps,log="y",type="n",
      xlab="Spawning Year",ylab="Recruits per spawner")
-rug(plt.dat$cohort[plt.dat$ssb < 800000],col="black",lwd=2)
-rug(plt.dat$cohort[plt.dat$ssb < 800000],col="black",side=3,lwd=2)
+#rug(plt.dat$cohort[plt.dat$ssb < 800000],col="black",lwd=2)
+#rug(plt.dat$cohort[plt.dat$ssb < 800000],col="black",side=3,lwd=2)
 points(plt.dat$cohort,plt.dat$rps,pch=16)
-lines(smooth.spline(plt.dat$cohort[-1],plt.dat$rps[-1],penalty=1.4),
-      col="red",lwd=2)
+#lines(smooth.spline(plt.dat$cohort[-1],plt.dat$rps[-1],penalty=1.4),
+#      col="red",lwd=2)
+text(grconvertX(0,"npc"),grconvertY(0.9,"npc"),"a)",pos=4)
 
 #SRR plot
 plot(plt.dat$ssb/1e6,plt.dat$data.rec/1e6,pch=1,
-     xlab="Spawning Stock Biomass (Mt)",ylab="Recruits (10^9 individuals)",
+     xlab="Spawning Stock Biomass (Mt)",
+     ylab=expression(paste("Recruits (",10^9," individuals)")),
      log="xy") 
 points(plt.dat$ssb/1e6,plt.dat$data.rec/1e6,
        pch=ifelse(plt.dat$cohort>2001,16,NA),col="red") 
@@ -109,6 +112,7 @@ par(oldpar)
 plot(plt.dat$cohort,plt.dat$surv,log="y",pch=16,
      xlim=range(pretty(plt.dat$cohort[!is.na(plt.dat$surv.ratio)],na.rm=TRUE)),
      xlab="Spawning Year",ylab="Larval Survival (IBTS0/SCAI)")
+text(grconvertX(0,"npc"),grconvertY(0.9,"npc"),"b)",pos=4)
 
 #IBTS0 / norSCAI time series
 plot(plt.dat$cohort,plt.dat$norSCAI.surv,log="y",pch=16,
@@ -180,13 +184,19 @@ dev.off()
 ### ============================================================================
 ### Independent recruitment estimation
 ### ============================================================================
-#Setup control
-freeR.ctrl <- NSH.ctrl
-freeR.ctrl@logN.vars[] <- 1
-freeR.ctrl@sam.binary <- "model/freeR"
-
-#Run freeR assessment
-freeR.sam <- FLSAM(NSH,NSH.tun,freeR.ctrl)
+# #Setup control
+# freeR.ctrl <- NSH.ctrl
+# freeR.ctrl@logN.vars[] <- 1
+# freeR.ctrl@sam.binary <- "model/freer"
+# 
+# #Run freeR assessment
+# freeR.sam <- FLSAM(NSH,NSH.tun,freeR.ctrl)
+# 
+# #Plot the two
+# freeR.sams <- FLSAMs("RW rec"=NSH.sam,"Indep. rec"=freeR.sam)
+# rec.ests <- rec(freeR.sams)
+# xyplot(value ~ year,data=rec.ests,groups=name,
+#        type="l",auto.key=TRUE)
 
 ### ============================================================================
 ### Finish
