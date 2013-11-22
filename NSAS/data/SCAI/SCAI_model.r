@@ -53,6 +53,7 @@ ver.datetime   <- "$Date$"
 cat(paste("\n",ver,"\n",sep=""));cat(paste(ver.datetime,"\n\n",sep=""))
 start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
+library(RColorBrewer)
 
 ### ==========================================================================
 ### Parameters
@@ -200,7 +201,7 @@ retro.res <- do.call(rbind,c(list(base.res),retro.res))
 ### ==========================================================================
 ### Plot results
 ### ==========================================================================
-xlims <- range(pretty(LAI.dat$year))
+xlims <- range((LAI.dat$year))
 n.areas <- length(areas)
 area.names <- names(areas)
 
@@ -395,10 +396,9 @@ matplot(SCAIs$Year,log10(dat.to.plot),lwd=2,lty=1,type="b",xlab="Year",ylab="log
 legend("topleft",col=1:6,lty=1,legend=colnames(dat.to.plot),pch=as.character(1:4),bg="white")
 
 #Proportion of total by each area - area plot
-par(mfrow=c(1,1),mar=c(5,4,4,2),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
+par(mfrow=c(1,1),mar=c(5,4,1,1),oma=c(0,0,0,0),mgp=c(3,1,0),las=0)
 for(colour in c(T,F)) {
-  plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fraction",
-    main="Proportion of North Sea stock by component")
+  plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fraction")
   area.plot.dat <- t(apply(SCAIs[,area.names],1,function(x) 1-cumsum(c(0,x))/sum(x)))
   cols <- if(colour) {cols<- 1:4} else {cols <- c("grey80","grey60","grey40","grey20")}
   for(i in 1:length(areas)) {
