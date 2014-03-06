@@ -284,7 +284,7 @@ title(xlab="Theoretical Quantiles",ylab="Sample Quantiles",outer=TRUE,xpd=NA,lin
 title(main="QQ Plots",outer=TRUE,line=1)
 
 
-#Plot residuals vs observations
+#Plot residuals vs fitted valuess
 resid.rng <- sapply(fit,function(a) range(a$obs$resid))
 resid.lims <- range(pretty(c(resid.rng,-resid.rng)))
 lapply(names(fit),function(a) {
@@ -292,7 +292,7 @@ lapply(names(fit),function(a) {
    plot(d$obs$obs_hat,d$obs$resid,xlab="",ylab="",pch=pchs[as.numeric(d$obs$LAIUnit)],log="x",ylim=resid.lims)
    abline(h=0)
    title(main=sprintf("%s",a),line=-1)
-   legend("bottomright",col="black",pch=pchs[1:nlevels(d$obs$LAIUnit)],legend=levels(d$obs$LAIUnit),bg="white",horiz=TRUE)
+   legend("bottomright",col="black",pch=pchs[1:nlevels(d$obs$LAIUnit)],legend=levels(d$obs$LAIUnit),horiz=TRUE)
 })
 title(xlab="Fitted LAI",ylab="Residual",outer=TRUE,xpd=NA,line=0)
 title(main="Tukey-Anscombe Plot",outer=TRUE,line=1)
