@@ -127,7 +127,7 @@ WoS@stock.n[1,ac(2013)] <- exp(mean(log(rec(WoS[,ac(1989:2012)])),na.rm=T))
 ### ======================================================================================================
 #this only needs to be left in for the stock summary plot so run everything 
 #without the line below but then run line below to produce the picture that I want for the stock summary
-#WoS@stock.n[1,ac(2012)] <- NA
+#WoS@stock.n[1,ac(2013)] <- NA
 do.summary.plots(WoS,WoS.ica)
 
 do.retrospective.plots<- function(stck,idxs,ctrl,n.retro.yrs) {
