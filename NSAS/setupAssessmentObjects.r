@@ -130,6 +130,10 @@ NSH.tun[["IBTS-Q1"]] <- trim(NSH.tun[["IBTS-Q1"]],age=dims(NSH.tun[["IBTS-Q1"]]@
 #Note that there is a bug in readFLIndex which means that we have to
 #take such a round-about approach of loading everything, then dropping
 #the first set of indices. Hopefully will be patched in a future release
+#MPA 20140306: We have deprecated the MLAI but continue to store its values in
+#              data/mlai.txt. However, it is now stored in the native format
+#              output from the code, so this line, which assumes VPA formatt, 
+#               doesn't work anymore. Will need to add custom reading functionality
 #MLAI.idx <-  readFLIndices(file.path(data.source,"fleet.txt"),
 #                   file.path(data.source,"mlai.txt"),type="ICA")[-seq(NSH.tun)]
 SCAI.idx <-  readFLIndices(file.path(data.source,"fleet.txt"),
