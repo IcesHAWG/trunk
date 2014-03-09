@@ -15,6 +15,7 @@
 #   - ADMB v 9.0
 #
 # Changes:
+#   r825   - Added output suitable for direct incorporation into Panagea
 #   r667   - Added outputs written to VPA suite
 #   r404   - Added retrospective analysis
 #   V 2.01 - Tweaks to output figures
@@ -444,9 +445,14 @@ if(length(grep("pdf|png|wmf",names(dev.cur())))!=0) dev.off()
 ### ==========================================================================
 ### Write out results
 ### ==========================================================================
-#Write to csv
-write.out <- data.frame(Year=fit[[1]]$fit$year,SCAI=sapply(fit,function(d) d$fit$SCAI),SE=sapply(fit,function(d) d$fit$std.dev))
-write.csv(write.out,file=file.path(output.dir,"SCAI_indices.csv"),row.names=FALSE)
+#Write out to a format suitable for submission to Panagea
+write.out <- lapply(names(fit),function(n) {
+    d<- fit[[n]]
+    data.frame(Component=n,Year=d$fit$year,SCAI=d$fit$SCAI,SE=d$fit$std.dev)
+} )
+write.out <- do.call(rbind,write.out)
+write.csv(write.out,file=file.path(output.dir,"SCAI_indices.csv"),
+          row.names=FALSE,quote=FALSE)
 
 #Write to VPA suite file
 sumscai <- rowSums(sapply(fit,function(d) d$fit$SCAI) )
