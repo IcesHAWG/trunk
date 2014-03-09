@@ -18,13 +18,13 @@
 #
 #  Notes:
 #   - This script contains RMarkdown. Generate HTML with the following commands.
-#           library(knitr);library(markdown)
-#           opts_knit$set(root.dir=getwd(),width=120)
-#           opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
-#                          message=FALSE,error=FALSE,fig.path="mdfigures/")
-#           spin("src/Index_calculation.r")
-#           file.rename("Index_calculation.html","outputs/Index_calculation.html")
-#           file.remove("Index_calculation.md")
+#         library(knitr);library(markdown)
+#         opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="MIKIndex")
+#         opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
+#                        message=FALSE,error=FALSE,fig.path="plots/")
+#         spin("src/Index_calculation.r")
+#         file.rename("Index_calculation.html","outputs/Index_calculation.html")
+#         file.remove("Index_calculation.md")
 #/*##########################################################################*/
 
 # ========================================================================
@@ -39,7 +39,8 @@ start.time <- proc.time()[3]; options(stringsAsFactors=FALSE)
 require(knitr)
 
 #Helper functions, externals and libraries
-log.msg <- function(fmt,...) {cat(sprintf(fmt,...));flush.console();return(invisible(NULL))}
+log.msg <- function(fmt,...) {cat(sprintf(fmt,...));flush.console();
+                              return(invisible(NULL))}
 library(reshape)
 library(sp)
 library(mapdata);library(maptools)
@@ -98,7 +99,7 @@ dat$no.per.m2 <- with(dat,Numberlarvae/volume*depth)
 #Set inclusion/ exclusion criteria
 #  - Exclude if meanlength is too short and in the downs region
 #  - Include if not possible to calculate mean length
-dat$exclude <- !is.na(dat$mean.len) & dat$mean.len<20 & dat$LatDec < 54    #Exclude small downs
+dat$exclude <- !is.na(dat$mean.len) & dat$mean.len<20 & dat$LatDec < 54
 dat.all <- dat
 dat <- subset(dat.all,!dat.all$exclude)
 
@@ -143,12 +144,14 @@ haul.wts <- merge(ss.n,MIKa.n)
 haul.wts$wt <- with(haul.wts,1/hauls.per.ss/ss.per.MIKa*surface.area)
 
 #Now incorporate the weights into the *full* data matrix
-dat.wt <- merge(dat.all,haul.wts[,c("Campaign","area.code","Rectangle","wt")],all=TRUE)
+dat.wt <- merge(dat.all,haul.wts[,c("Campaign","area.code",
+                                    "Rectangle","wt")],all=TRUE)
 dat.wt$index.contrib <- ifelse(dat.wt$exclude,0,dat.wt$no.per.m2*dat.wt$wt)
 
 #And finally calculate the index
 dat.wt$area.code <- factor(dat.wt$area.code,levels=MIK.areas$area.code)
-MIK.wt.index <- tapply(dat.wt$index.contrib,dat.wt[,c("Campaign","area.code")],sum)
+MIK.wt.index <- tapply(dat.wt$index.contrib,
+                       dat.wt[,c("Campaign","area.code")],sum)
 MIK.wt.table <- cbind(MIK.wt.index,index=rowSums(MIK.wt.index))
 print(round(MIK.wt.table,3))
 
@@ -167,12 +170,15 @@ plot(cumsum(sort(dat.wt$index.contrib,decreasing=TRUE))/sum(dat.wt$index.contrib
      ylim=c(0,1),yaxs="i",xaxs="i")
 
 #'###  Spatial distribution of index contributions
+#+"MIKIndex_Index_contributtion"
 coordinates(dat.wt) <- ~ LongDec + LatDec
 proj4string(dat.wt) <- CRS("+proj=longlat")
 NS.poly <- map("worldHires",
-               xlim=range(pretty(dat.wt$LongDec)),ylim=range(pretty(dat.wt$LatDec)),
+               xlim=range(pretty(dat.wt$LongDec)),
+               ylim=range(pretty(dat.wt$LatDec)),
                plot=FALSE,fill=TRUE)
-NS.sp <- map2SpatialPolygons(NS.poly,NS.poly$names,proj4string=CRS("+proj=longlat +datum=WGS84"))
+NS.sp <- map2SpatialPolygons(NS.poly,NS.poly$names,
+                             proj4string=CRS("+proj=longlat +datum=WGS84"))
 sp.theme(set=TRUE)
 spplot(dat.wt,"index.contrib",
        sp.layout=list(list("sp.polygons",NS.sp,fill="lightgrey")),
@@ -183,7 +189,8 @@ spplot(dat.wt,"index.contrib",
           dots$cex <- ifelse(dat.wt$exclude,0.3,1)
           do.call(panel.pointsplot,dots)
        })
-#'Small hollow circles are hauls that have been excluded from the index calculation
+#' Small hollow circles are hauls that have been excluded from the 
+#' index calculation
 
 #/* ========================================================================*/
 #   Complete

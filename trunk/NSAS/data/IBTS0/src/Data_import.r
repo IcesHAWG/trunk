@@ -21,7 +21,7 @@
 #           library(knitr);library(markdown)
 #           opts_knit$set(root.dir=getwd(),width=120)
 #           opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
-#                          message=FALSE,error=FALSE,fig.path="mdfigures/")
+#                          message=FALSE,error=FALSE,fig.path="plots/")
 #           spin("src/Data_import.r")
 #/*##########################################################################*/
 
