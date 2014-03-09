@@ -18,9 +18,9 @@
 #  Notes:
 #   - This script contains RMarkdown. Generate HTML with the following commands.
 #           library(knitr);library(markdown)
-#           opts_knit$set(root.dir=getwd(),width=120)
+#           opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="MIKQA")
 #           opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
-#                          message=FALSE,error=FALSE,fig.path="mdfigures/")
+#                          message=FALSE,error=FALSE,fig.path="plots/")
 #           spin("src//MIK_Quality_assurance.r")
 #           options("markdown.HTML.options"=
 #                     c(markdownHTMLOptions(defaults = TRUE),"toc"))
@@ -28,14 +28,6 @@
 #                     sprintf("outputs/%s_QA.html",basename(rownames(f.details))))
 #           file.remove("MIK_Quality_assurance.md","MIK_Quality_assurance.html")
 #/*##########################################################################*/
-library(knitr);library(markdown)
-opts_knit$set(root.dir=getwd(),width=120)
-opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
-               message=FALSE,error=FALSE,fig.path="mdfigures/")
-options("markdown.HTML.options"=markdownHTMLOptions(defaults = TRUE))
-spin("src/Index_calculation.r")
-file.rename("Index_calculation.html","outputs/Index_calculation.html")
-file.remove("Index_calculation.md")
 
 # ========================================================================
 # Initialise system
