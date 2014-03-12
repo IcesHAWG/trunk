@@ -187,8 +187,24 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   #Plot correlation matrix
   cor.plot(NSH.sam)
 
+  #Bubble plot on catch and HERAS
+  dat <- subset(residuals(NSH.sam),fleet=="catch")
+  xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year Catch",
+  panel=function(...){
+    lst <- list(...)
+    panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=abs(lst$cex))
+  })
+  
+  dat <- subset(residuals(NSH.sam),fleet=="HERAS")
+  xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year Catch",
+  panel=function(...){
+    lst <- list(...)
+    panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=abs(lst$cex))
+  })
+
+
   #Plot otholith
-  #plot.otolith(NSH.sam,n=10000) #Warning, this takes very long!
+  #plot.otolith(NSH.sam,n=1e6) #Warning, this takes very long!
 
   ### ============================================================================
   ### Management
