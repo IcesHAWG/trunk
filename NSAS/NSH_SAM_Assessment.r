@@ -196,7 +196,7 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
   })
   
   dat <- subset(residuals(NSH.sam),fleet=="HERAS")
-  xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year Catch",
+  xyplot(age ~ year,data=dat,cex=dat$std.res,col="black",main="Residuals by year HERAS",
   panel=function(...){
     lst <- list(...)
     panel.xyplot(lst$x,lst$y,pch=ifelse(lst$cex>0,1,19),col="black",cex=abs(lst$cex))
