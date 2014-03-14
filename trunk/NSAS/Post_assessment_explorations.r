@@ -199,6 +199,18 @@ dev.off()
 #        type="l",auto.key=TRUE)
 
 ### ============================================================================
+### Survey catchability trend exploration
+### ============================================================================
+catch <- catchabilities(NSH.retro)
+col  <- rainbow(11)
+print(xyplot(value ~ age | fleet,catch,groups=name,
+          auto.key=list(space="right",points=FALSE,lines=FALSE,type="l",col=col),
+          scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
+          type="l",lwd=2,col=col,
+          subset=fleet %in% c("HERAS"),
+          main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
+
+### ============================================================================
 ### Finish
 ### ============================================================================
 log.msg(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
