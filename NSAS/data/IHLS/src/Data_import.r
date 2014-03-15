@@ -1,52 +1,57 @@
 #/*##########################################################################*/
-#' MIK Data Import
-#' =====================================================================
+#' IHLS Data Import
+#' ==========================================================================
 #'
 #' by Mark R Payne
 #' DTU-Aqua, Charlottenlund, Denmark
 #' mpa@aqua.dtu.dk
 #'
-#' $Rev: 827 $
-#' $Date: 2014-03-09 17:34:07 +0100 (Sun, 09 Mar 2014) $
+#  $Rev$
+#  $Date$
 #'
-#' Imports the MIK data directly from the source csv into
-#' an R data object, which we can run further with
+#' Imports IHLS data from the Excel spreadsheets into R for preparation in
+#' quality assurance checks and modelling
 #
-#  Copyright and license details are provided at the bottom of this script
+#  This work is subject to a Creative Commons "Attribution" "ShareALike" License.
+#  You are largely free to do what you like with it, so long as you "attribute" 
+#  me for my contribution. See the fine print at the end for exact details.
 #
 #  To do:
 #
 #  Notes:
 #   - This script contains RMarkdown. Generate HTML with the following commands.
 #           library(knitr);library(markdown)
-#           opts_knit$set(root.dir=getwd(),width=120)
+#           opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="unnamed")
 #           opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
 #                          message=FALSE,error=FALSE,fig.path="plots/")
-#           spin("src/Data_import.r")
+#           spin("~/Templates//R_template.r")
+#   - To add a table of contents, recompile the .md again
+#           options("markdown.HTML.options"=c(markdownHTMLOptions(TRUE),"toc"))
+#           markdownToHTML("R_template.md","R_template.html")
 #/*##########################################################################*/
 
 # ========================================================================
 # Initialise system
 # ========================================================================
-cat(sprintf("\n%s\n","MIK Data Import"))
+cat(sprintf("\n%s\n","Import IHLS Data"))
 cat(sprintf("Analysis performed %s\n\n",date()))
 
 #Configure markdown style, do house cleaning
-rm(list = ls(all.names=TRUE));  graphics.off()
+rm(list = ls(all.names=TRUE));  graphics.off();
 start.time <- proc.time()[3]; options(stringsAsFactors=FALSE)
-require(knitr)
 
 #Helper functions, externals and libraries
-log.msg <- function(fmt,...) {cat(sprintf(fmt,...));flush.console();return(invisible(NULL))}
+log.msg <- function(fmt,...) {cat(sprintf(fmt,...));
+                              flush.console();return(invisible(NULL))}
+library(knitr)
 library(tools)
-library(sp)
 
-#Start recording from here
+#Start recording output from here
 opts_chunk$set(results="markup")
 
-#/* ========================================================================*/
-#  Identify data file
-#/* ========================================================================*/
+# ========================================================================
+### Get input filenames
+# ========================================================================
 #Identify input data source
 fname <- dir("data",pattern=".*csv$",full.names=TRUE)
 if(length(fname)!=1) {
@@ -57,31 +62,34 @@ if(length(fname)!=1) {
 # File details
 log.msg("Calculating MD5 Checksum...\n")
 f.details <- data.frame(filesize=file.info(fname)$size,
-             "last modification time"=file.info(fname)$mtime,
-             "md5 Checksum"=md5sum(fname))
+                        "last modification time"=file.info(fname)$mtime,
+                        "md5 Checksum"=md5sum(fname))
 
-#/* ========================================================================*/
-#  Load data
-#/* ========================================================================*/
+# ========================================================================
+### Load data
+# ========================================================================
 #Reading the data is a bit tricky, as there are two potential formats - one
-#that is comma separated with "." for a decimal point, and one that is a
-#semi-colon seperated with a comma for a decimal point. The type that is generated
-#is dependent on the Locale of the machine that is used to cover it.
-#We need to identify the format, and then load the data accordingly
-#Read in the first line and count number of dots / periods
+#that is exported from Excel as comma separated with "." for a decimal point,
+#and one that is a semi-colon seperated with a comma for a decimal point. The
+#type that is generated is dependent on the Locale of the machine that is
+# used to convert it. We need to identify the format, and then load the
+# data accordingly
+
+#Read in the first line and count number of semicolons / commas
 hdr <- readLines(fname,n=1)
-n.comma <- nchar(gsub("[^;]","",hdr))
-n.dot <- nchar(gsub("[^,]","",hdr))
+n.semicolon <- nchar(gsub("[^;]","",hdr))
+n.comma <- nchar(gsub("[^,]","",hdr))
 
 #Load data accordingly
 log.msg("Loading data...")
-if(n.dot > n.comma) {
+if(n.semicolon < n.comma) {
   dat <- read.csv(fname,colClasses="character",
                   na.strings=c("NA","")) 
 } else {
   dat <- read.csv2(fname,colClasses="character",
-                  na.strings=c("NA","")) 
+                   na.strings=c("NA","")) 
 }
+
 #Set rownames. We use the rownumbers from the csv, assuming the header to
 #be row 1 and the data starting on row 2 - hopefully these
 #should help find the problem quickly
@@ -102,12 +110,13 @@ dat <- dat[,!mt.col]
 attr(dat,"source.details") <- f.details
 
 #Save data
-save(dat,file="objects/MIK_data_raw.RData")
+save(dat,file="objects/IHLS_data_raw.RData")
 
-#/* ========================================================================*/
-#   Complete
-#/* ========================================================================*/
-#+ echo=FALSE,results='asis'
+
+# ========================================================================
+# Complete
+# ========================================================================
+#+ results='asis'
 #Close files
 if(grepl("pdf|png|wmf",names(dev.cur()))) {dmp <- dev.off()}
 log.msg("\nAnalysis complete in %.1fs at %s.\n",proc.time()[3]-start.time,date())
@@ -123,15 +132,9 @@ log.msg("\nAnalysis complete in %.1fs at %s.\n",proc.time()[3]-start.time,date()
 #'
 #' <small>*This work comes with ABSOLUTELY NO WARRANTY or support.*</small>
 #'
-#' <small>*This work is also subject to the BEER-WARE License. For details, see
+#' <small>*This work should also be considered as BEER-WARE. For details, see
 #' http://en.wikipedia.org/wiki/Beerware*</small>
 #' 
 #' -----------
-#' 
-#' <small> Script version:
-#'$Rev: 827 $ $Date: 2014-03-09 17:34:07 +0100 (Sun, 09 Mar 2014) $ </small>
-#'
-#' -----------
-
-# End
-
+#
+# Fin
