@@ -17,16 +17,17 @@
 #
 #  Notes:
 #   - This script contains RMarkdown. Generate HTML with the following commands.
+#           this.script <- "src//MIK_Quality_assurance.r"
 #           library(knitr);library(markdown)
-#           opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="MIKQA")
+#           opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="unnamed")
 #           opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
 #                          message=FALSE,error=FALSE,fig.path="plots/")
-#           spin("src//MIK_Quality_assurance.r")
-#           options("markdown.HTML.options"=
-#                     c(markdownHTMLOptions(defaults = TRUE),"toc"))
-#           markdownToHTML("MIK_Quality_assurance.md",
-#                     sprintf("outputs/%s_QA.html",basename(rownames(f.details))))
-#           file.remove("MIK_Quality_assurance.md","MIK_Quality_assurance.html")
+#           this.script.HTML <- spin(this.script)
+#           options("markdown.HTML.options"=c(markdownHTMLOptions(TRUE),"toc"))
+#           markdownToHTML(gsub("html$","md",this.script.HTML),
+#                  sprintf("outputs/%s_QA.html",basename(rownames(f.details))))
+#           file.rename(this.script.HTML,file.path("outputs",this.script.HTML))
+#           file.remove(gsub("html$","md",this.script.HTML))
 #/*##########################################################################*/
 
 # ========================================================================

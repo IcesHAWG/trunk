@@ -18,13 +18,14 @@
 #
 #  Notes:
 #   - This script contains RMarkdown. Generate HTML with the following commands.
-#         library(knitr);library(markdown)
-#         opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="MIKIndex")
-#         opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
-#                        message=FALSE,error=FALSE,fig.path="plots/")
-#         spin("src/Index_calculation.r")
-#         file.rename("Index_calculation.html","outputs/Index_calculation.html")
-#         file.remove("Index_calculation.md")
+#           this.script <- "src/Index_calculation.r"
+#           library(knitr);library(markdown)
+#           opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="unnamed")
+#           opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
+#                          message=FALSE,error=FALSE,fig.path="plots/")
+#           this.script.HTML <- spin(this.script)
+#           file.rename(this.script.HTML,file.path("outputs",this.script.HTML))
+#           file.remove(gsub("html$","md",this.script.HTML))
 #/*##########################################################################*/
 
 # ========================================================================
@@ -99,7 +100,7 @@ dat$no.per.m2 <- with(dat,Numberlarvae/volume*depth)
 #Set inclusion/ exclusion criteria
 #  - Exclude if meanlength is too short and in the downs region
 #  - Include if not possible to calculate mean length
-dat$exclude <- !is.na(dat$mean.len) & dat$mean.len<20 & dat$LatDec < 54
+dat$exclude <- with(dat,(!is.na(mean.len) & mean.len<20 & LatDec < 54 ) | LatDec < 51)
 dat.all <- dat
 dat <- subset(dat.all,!dat.all$exclude)
 
@@ -166,8 +167,8 @@ plot(lat ~value, plt.dat,type="b",
 
 #'### Cumulative contribution to the index 
 plot(cumsum(sort(dat.wt$index.contrib,decreasing=TRUE))/sum(dat.wt$index.contrib),
-    xlab="Haul rank",ylab="Cumulative Contribution",
-     ylim=c(0,1),yaxs="i",xaxs="i")
+    xlab="Haul rank (1 is the largest)",ylab="Cumulative Contribution",
+     ylim=c(0,1),xlim=c(0,50),yaxs="i",xaxs="i")
 
 #'###  Spatial distribution of index contributions
 #+"MIKIndex_Index_contributtion"
@@ -191,6 +192,15 @@ spplot(dat.wt,"index.contrib",
        })
 #' Small hollow circles are hauls that have been excluded from the 
 #' index calculation
+
+bubble(dat.wt,"index.contrib",
+       fill=TRUE,col="black",
+       sp.layout=list(list("sp.polygons",NS.sp,fill="lightgrey")),
+       colorkey=TRUE,scales=list(draw=TRUE),
+       maxsize=5,
+       key.entries=c(0,1,2,5,10,20),
+       main="")
+
 
 #/* ========================================================================*/
 #   Complete
