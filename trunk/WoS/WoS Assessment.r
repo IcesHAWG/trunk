@@ -233,8 +233,8 @@ FnPrint("PERFORMING SHORT TERM FORECAST...\n")
 #Make forecast
 #WoS recruitment is based on a geometric mean of 1989-one year prior to the last data year. Updated by one year, each year
 gm.recs                   <- exp(mean(log(rec(trim(WoS,year=1989:2012)))))
-stf.ctrl                  <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=22481,f.rescale=TRUE,rec=gm.recs)
-WoS@catch.n[1,52,,,,]     <- 1     #should the second number here be the number of data years, i.e., 55 for 2012 as last data year
+stf.ctrl                  <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=28067,f.rescale=TRUE,rec=gm.recs)
+WoS@catch.n[1,56,,,,]     <- 1     #should the second number here be the number of data years, i.e., 55 for 2012 as last data year
 WoS.stf                   <- FLSTF(stock=WoS,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
 writeFLStock(WoS.stf,output.file=paste(output.base," WoSaddyr",sep=""))
 ## use the rounder version so report and quality control database have same values
