@@ -70,8 +70,8 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY
 TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D"),season="all",area=1,iter=1:dims(stk)$iter))
 TACS.orig   <- TACS
 #40% from IIIa TAC in IV, as suggested by PRAC in February 2013
-TACS[,,"A"] <- c(478000+ 0.40 * 55000 - 2095,NA,NA);    TACS.orig[,,"A"]  <- c(478000,NA,NA)
-TACS[,,"B"] <- c(14400*0.594301676          ,NA,NA);    TACS.orig[,,"B"]  <- c(14400, NA,NA)
+TACS[,,"A"] <- c(470037+ 0.45 * 46750 - 2095,NA,NA);    TACS.orig[,,"A"]  <- c(470037,NA,NA)
+TACS[,,"B"] <- c(13085*0.56534722           ,NA,NA);    TACS.orig[,,"B"]  <- c(13085, NA,NA)
 TACS[,,"C"] <- c(11753,11242,11242);                    TACS.orig[,,"C"]  <- c(11753,11242,11242)
 TACS[,,"D"] <- c(2537,  2427, 2427);                    TACS.orig[,,"D"]  <- c(2537,  2427, 2427)
 
