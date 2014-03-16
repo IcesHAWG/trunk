@@ -177,7 +177,7 @@ if("mp" %in% stf.options){
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)
-    res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),find.FAB,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
+    res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.FAB,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
   stf@harvest[,FcY]         <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
     stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
