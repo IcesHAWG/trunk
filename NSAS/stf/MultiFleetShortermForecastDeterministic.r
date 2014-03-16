@@ -16,7 +16,7 @@ require(msm)
 path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
 try(setwd(path))
 try(setwd("./stf/"))
-
+try(load(file=file.path(output.dir,"North Sea Herring.RData")),silent=TRUE)
 
 #-------------------------------------------------------------------------------
 # Setup control file
