@@ -227,10 +227,10 @@ writeFLStock(WoS,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
 
  
 ### ======================================================================================================
-### Short Term Forecast
+### Standard Graphs Input
 ### ======================================================================================================
-FnPrint("PERFORMING SHORT TERM FORECAST...\n")
-#Make forecast
+FnPrint("PERFORMING Standard Graphs text...\n")
+
 #WoS recruitment is based on a geometric mean of 1989-one year prior to the last data year. Updated by one year, each year
 gm.recs                   <- exp(mean(log(rec(trim(WoS,year=1989:2012)))))
 stf.ctrl                  <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=28067,f.rescale=TRUE,rec=gm.recs)
@@ -270,14 +270,163 @@ WoS.sr@params <- WoS.sr@params*100000
 
 writeStandardOutput(WoS,WoS.sr,WoS.retro,recImY=gm.recs,nyrs.=3,output.base,Blim=5e4,Bpa=NULL,Flim=NULL,Fpa=NULL,Bmsy=NULL,Fmsy=0.25)
 
-### ======================================================================================================
-### Short Term Forecast data preparation - not used as John has code above
-### ======================================================================================================
-#gm.recs <- exp(mean(log(rec(trim(WoS,year=1989:2006)))))
-#WoS.orig@stock.n["1",ac(2009)] <- gm.recs
-#stf.ctrl        <- FLSTF.control(fbar.min=3,fbar.max=6,fbar.nyrs=1,nyrs=1,catch.constraint=1000,f.rescale=TRUE,rec=gm.recs)
-#WoS.stf  <- FLSTF(stock=WoS.orig,control=stf.ctrl,survivors=NA,quiet=TRUE,sop.correct=FALSE)
 
-# Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-#writeFLStock(WoS.stf,output.file=paste(output.base,"with STF"))
+### ======================================================================================================
+### Projections
+### ======================================================================================================
+FnPrint("CALCULATING PROJECTIONS...\n")
+
+#Define years
+TaY <- dims(WoS)$maxyear   #Terminal assessment year
+ImY <- TaY+1                      #Intermediate Year
+AdY <- TaY+2                      #Advice year
+CtY <- TaY+3                      #Continuation year - not of major concern but used in calculations in places
+tbl.yrs <- as.character(c(ImY,AdY,CtY))   #Years to report in the output table
+
+#-Replace the recruitment value in the last data year with a geometric mean recruitment over the years 1989 to the year prior to the last data year
+rec.years <- (1989:(WoS@range['maxyear']-1));
+
+gm.recs  <- exp(mean(log(rec(WoS)[,as.character(rec.years)])));
+WoS.srr <- list(model="geomean",params=FLPar(gm.recs));
+
+#Expand stock object
+WoS.proj <- stf(WoS,nyears=4,wts.nyears=3,arith.mean=TRUE,na.rm=TRUE);
+WoS.proj@stock.n[,ac(ImY)]  <- WoS.ica@survivors;
+WoS.proj@stock.n[1,as.character(c(ImY,AdY,CtY))] <- gm.recs;
+WoS.proj@stock.n[2,as.character(ImY)] <- WoS.proj@stock.n[1,as.character(TaY)] * exp(-WoS.proj@harvest[1,as.character(TaY)] - WoS.proj@m[1,as.character(TaY)])
+
+#Define some constants 
+
+#For 2013
+ImY.catch <- 28067;
+AdY.catch <- 28067;
+numFmsy <- 0.25;
+basisFImY <- yearMeans(fbar(WoS[,ac((ImY-3):(ImY-1))]))
+
+#Setup options
+options.l <- list(#Zero catch
+                  "Catch(2015) = Zero"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("f","catch","catch"),
+                                          val=c(basisFImY,0,0))),
+                  # TAC, -20% 
+                  "Catch(2015) = 2014 TAC -20%)"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("f","catch","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(basisFImY,AdY.catch*0.8,1))),
+                  #TAC sq
+                  "Catch(2015) = 2014 TAC sq"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("f","catch","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(basisFImY,AdY.catch*1,1))),
+                  #TAC +20%
+                  "Catch(2015) = 2014 TAC +20%"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("f","catch","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(basisFImY,AdY.catch*1.20,1))),
+                  #F =0.25	#Fmsy
+                  "Fbar(2015) = 0.25"=
+                    fwdControl(data.frame(year=c(ImY,AdY,CtY),
+                                          quantity=c("f","f","f"),
+                                          rel=c(NA,NA,AdY),
+                                          val=c(basisFImY,numFmsy,1)))
+
+) #End options list
+
+
+
+#Multi-options table
+#fmult.targs  <- seq(0,2,by=0.1)
+#mult.opts.l <- lapply(as.list(fmult.targs),function(fmult) {
+#                          fwdControl(data.frame(year=c(ImY,AdY,CtY),
+#                                          quantity=c("f","f","f"),
+#                                          rel=c(NA,ImY,AdY),
+#                                          val=c(basisFImY,fmult,1)))
+#                  })
+#names(mult.opts.l) <- sprintf("Fmult(2010) = %4.3f",fmult.targs)
+
+#Calculate options
+WoS.options   <- lapply(options.l,function(ctrl) {fwd(WoS.proj,ctrl=ctrl,sr=WoS.srr)})
+#WoS.mult.opts <- lapply(mult.opts.l,function(ctrl) {fwd(WoS.proj,ctrl=ctrl,sr=WoS.srr)})
+
+
+### ======================================================================================================
+### Write Options Tables
+### ======================================================================================================
+FnPrint("WRITING OPTIONS TABLES...\n")
+
+#Document input settings
+input.tbl.file <-paste(output.base,"options - input.csv",sep=".")
+write.table(NULL,file=input.tbl.file,col.names=FALSE,row.names=FALSE)
+input.tbl.list <- list(N="stock.n",M="m",Mat="mat",PF="harvest.spwn",
+                       PM="m.spwn",SWt="stock.wt",Sel="harvest",CWt="catch.wt")
+for(yr in c(ImY,AdY,CtY)){
+    col.dat <- sapply(input.tbl.list,function(slt) slot(WoS.proj,slt)[,as.character(yr),drop=TRUE])
+    write.table(yr,file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+    write.table(t(c("Age",colnames(col.dat))),file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+    write.table(col.dat,file=input.tbl.file,col.names=FALSE,row.names=TRUE,append=TRUE,sep=",",na="-")
+    write.table("",file=input.tbl.file,col.names=FALSE,row.names=FALSE,append=TRUE,sep=",")
+}
+
+#Detailed options table
+options.file <-paste(output.base,"options - details.csv",sep=".")
+write.table(NULL,file=options.file,col.names=FALSE,row.names=FALSE)
+for(i in 1:length(WoS.options)) {
+    opt <- names(WoS.options)[i]
+    stk <- WoS.options[[opt]]
+    #Now the F and N by age
+    nums.by.age <- stk@stock.n[,tbl.yrs,drop=TRUE]
+    colnames(nums.by.age) <- sprintf("N(%s)",tbl.yrs)
+    f.by.age    <- stk@harvest[,tbl.yrs,drop=TRUE]
+    colnames(f.by.age) <- sprintf("F(%s)",tbl.yrs)
+    age.tbl     <- cbind(Age=rownames(f.by.age),N=nums.by.age,F=f.by.age)
+    #And now the summary tbl
+    sum.tbl     <- cbind(Year=tbl.yrs,SSB=ssb(stk)[,tbl.yrs],
+                        F.bar=fbar(stk)[,tbl.yrs],Yield=computeCatch(stk)[,tbl.yrs])
+    #Now, bind it all together
+    sum.tbl.padding <- matrix("",nrow=nrow(age.tbl)-nrow(sum.tbl),ncol=ncol(sum.tbl))
+    comb.tbl    <- cbind(age.tbl," ",rbind(sum.tbl,sum.tbl.padding))
+    #And write it - hdr first, then the rest
+    write.table(sprintf("%s). %s",letters[i],opt),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(t(colnames(comb.tbl)),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(comb.tbl,options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+    write.table(c(""),options.file,append=TRUE,col.names=FALSE,row.names=FALSE,sep=",")
+}
+
+#Options summary table
+opt.sum.tbl <- function(stcks,fname) {
+    options.sum.tbl <- sapply(as.list(1:length(stcks)),function(i) {
+                          opt <- names(stcks)[i]
+                          stk <- stcks[[opt]]
+                          #Build up the summary
+                          sum.tbl     <- data.frame(Rationale=opt,
+                                          F.ImY=fbar(stk)[,as.character(ImY),drop=TRUE],
+                                          Catch.ImY=computeCatch(stk)[,as.character(ImY),drop=TRUE],
+                                          SSB.ImY=ssb(stk)[,as.character(ImY),drop=TRUE],
+                                          F.AdY=fbar(stk)[,as.character(AdY),drop=TRUE],
+                                          Catch.AdY=computeCatch(stk)[,as.character(AdY),drop=TRUE],
+                                          SSB.AdY=ssb(stk)[,as.character(AdY),drop=TRUE],
+                                          SSB.CtY=ssb(stk)[,as.character(CtY),drop=TRUE])
+                          })
+    options.sum.tbl <- t(options.sum.tbl)
+    colnames(options.sum.tbl) <- c("Rationale",
+                                    sprintf("Fbar (%i)",ImY),sprintf("Catch (%i)",ImY),sprintf("SSB (%i)",ImY),
+                                    sprintf("Fbar (%i)",AdY),sprintf("Catch (%i)",AdY),sprintf("SSB (%i)",AdY),
+                                    sprintf("SSB (%i)",CtY))
+    write.csv(options.sum.tbl,file=fname,row.names=FALSE)
+}
+opt.sum.tbl(stcks=WoS.options,fname=paste(output.base,"options - summary.csv",sep="."))
+
+
+### ======================================================================================================
+### Save workspace and Finish Up
+### ======================================================================================================
+FnPrint("SAVING WORKSPACES...\n")
+save(WoS,WoS.stf,WoS.proj,WoS.tun,WoS.ctrl,file=paste(output.base,"AssessmentForecast.RData"))
+save.image(file=paste(output.base,"AssessmentForecast Workspace.RData"))
+dev.off()
+FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
 
