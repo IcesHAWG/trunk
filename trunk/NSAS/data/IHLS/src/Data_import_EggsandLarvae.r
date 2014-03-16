@@ -9,8 +9,10 @@
 #  $Rev$
 #  $Date$
 #'
-#' Imports IHLS data from the Excel spreadsheets into R for preparation in
-#' quality assurance checks and modelling
+#' Imports IHLS data from the data directory into R for preparation in
+#' quality assurance checks and modelling. The code is intended to work with
+#' two different formats - either the "extended format" from the Eggs and Larvae
+#' database, or the internal format used by Norbert
 #
 #  This work is subject to a Creative Commons "Attribution" "ShareALike" License.
 #  You are largely free to do what you like with it, so long as you "attribute" 
@@ -53,7 +55,7 @@ opts_chunk$set(results="markup")
 ### Get input filenames
 # ========================================================================
 #Identify input data source
-fname <- dir("data",pattern=".*csv$",full.names=TRUE)
+fname <- dir("data/EggsandLarvae/",pattern=".*csv$",full.names=TRUE)
 if(length(fname)!=1) {
   stop("Problem with data source definition. Please ensure that the data directory ",
        "contains one and only one .csv data file")
@@ -68,54 +70,34 @@ f.details <- data.frame(filesize=file.info(fname)$size,
 # ========================================================================
 ### Load data
 # ========================================================================
-#Reading the data is a bit tricky, as there are two potential formats - one
-#that is exported from Excel as comma separated with "." for a decimal point,
-#and one that is a semi-colon seperated with a comma for a decimal point. The
-#type that is generated is dependent on the Locale of the machine that is
-# used to convert it. We need to identify the format, and then load the
-# data accordingly
-
-#Read in the first line and count number of semicolons / commas
-hdr <- readLines(fname,n=1)
-n.semicolon <- nchar(gsub("[^;]","",hdr))
-n.comma <- nchar(gsub("[^,]","",hdr))
-
 #Load data accordingly
 log.msg("Loading data...")
-if(n.semicolon < n.comma) {
-  dat <- read.csv(fname,colClasses="character",
-                  na.strings=c("NA","")) 
-} else {
-  dat <- read.csv2(fname,colClasses="character",
-                   na.strings=c("NA","")) 
-}
+dat <- read.csv(fname,na.strings=c("NA","")) 
 
-#Set rownames. We use the rownumbers from the csv, assuming the header to
-#be row 1 and the data starting on row 2 - hopefully these
-#should help find the problem quickly
-rownames(dat) <- seq(nrow(dat))+1
+#Strip out the haul meta data
+haul.meta <- dat[!duplicated(dat$Haul.Num.),]
+haul.meta <- haul.meta[,-which(colnames(haul.meta) %in% c("Length"))]
 
-#Strip out padding rows, defined here as all elements
-#being NA
-NA.mat <- sapply(dat,is.na)
-n.NAs <- rowSums(NA.mat)
-mt.row <- n.NAs==ncol(NA.mat)
-dat <- subset(dat,!mt.row)
+#Strip out the length distribution
+len.tbl <- dat[,c("Haul.Num.","Length","Num..counted")]
 
-#Strip out padding columns similarly
-mt.col <- colSums(NA.mat)==nrow(NA.mat)
-dat <- dat[,!mt.col]
+# ========================================================================
+### Parse data further
+# ========================================================================
+#Parse date-time
+haul.meta$POSIX <- as.POSIXct(strptime(haul.meta$DateTime,
+                                       "%d/%m/%Y %H:%M:%s",tz="GMT"))
+haul.meta$Year <- as.numeric(format(haul.meta$POSIX,"%Y"))
 
+# ========================================================================
+# Outputs
+# ========================================================================
 #Attach metadata to object
-attr(dat,"source.details") <- f.details
+attr(haul.meta,"source.details") <- f.details
 
 #Save data
-save(dat,file="objects/IHLS_data_raw.RData")
+save(haul.meta,len.tbl,file="objects/IHLS_EaL.RData")
 
-
-# ========================================================================
-# Complete
-# ========================================================================
 #+ results='asis'
 #Close files
 if(grepl("pdf|png|wmf",names(dev.cur()))) {dmp <- dev.off()}
