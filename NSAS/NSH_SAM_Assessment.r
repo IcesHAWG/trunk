@@ -204,7 +204,7 @@ png(file.path(output.dir,"figures - %02d.png"),units = "px", height=800,width=67
 
 
   #Plot otholith
-  #plot.otolith(NSH.sam,n=1e6) #Warning, this takes very long!
+  #otolith(NSH.sam,n=1e6) #Warning, this takes very long!
 
   ### ============================================================================
   ### Management
