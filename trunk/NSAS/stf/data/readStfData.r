@@ -106,6 +106,46 @@ find.FAB      <- function(mult,stk.=stk,f01.=f01,f26.=f26,mp.options.=mp.options
                       }
                     return(ret)}                    
 
+#-------------------------------------------------------------------------------
+#- Management plan: calculate A and B TAC
+#-------------------------------------------------------------------------------
+find.newFAB   <- function(mult,stk.=stk,f01.=f01,f26.=f26,mp.options.=mp.options,TACS.=TACS){
+                    stk.@harvest[,,1]  <- stk.@harvest[,,1]*mult[1]
+                    stk.@harvest[,,3]  <- stk.@harvest[,,3]*mult[3] #there is a TAC constraint for this fleet
+                    stk.@harvest[,,4]  <- stk.@harvest[,,4]*mult[4] #there is a TAC constraint for this fleet
+                    if(mp.options. == "i"){ stk.@harvest[,,2]  <- stk.@harvest[,,2]*mult[2]}
+                    if(mp.options. == "fro"){ stk.@harvest[,,2] <- stk.@harvest[,,2]}
+                    bigF              <- apply(stk.@harvest,1,sum)
+                    ssb               <- sum(stk.@stock.n[,,1]*stk.@stock.wt[,,1]*exp(-bigF*stk.@harvest.spwn[,,1]-stk.@m[,,1]*stk.@m.spwn[,,1])*stk.@mat[,,1])
+                    if(mp.options. == "i"){
+                      if(ssb < 0.8e6){
+                        resA <- 0.1
+                        resB <- 0.04
+                      }
+                      if(ssb >= 0.8e6 & ssb <= 1.5e6){
+                        resA <- 0.16/0.7*((ssb-0.8e6)/1e6)+0.1
+                        resB <- 0.05
+                      }
+                      if(ssb > 1.5e6){
+                        resA <- 0.26
+                        resB <- 0.05
+                      }
+                      catchC    <- sum(stk.@stock.n[,,"C"]*(1-exp(-unitSums(stk.@harvest)-stk.@m[,,"C"]))*(stk.@harvest[,,"C"]/(unitSums(stk.@harvest)+stk.@m[,,"C"]))*stk.@catch.wt[,,"C"])
+                      catchD    <- sum(stk.@stock.n[,,"D"]*(1-exp(-unitSums(stk.@harvest)-stk.@m[,,"D"]))*(stk.@harvest[,,"D"]/(unitSums(stk.@harvest)+stk.@m[,,"D"]))*stk.@catch.wt[,,"D"])
+                      fbarB <- mean(bigF[f01.,])
+                      fbarA <- mean(bigF[f26.,])
+                      ret   <- c(sqrt(c((fbarA-resA)^2,(fbarB-resB)^2,(catchC - c(TACS.)[3])^2,(catchD - c(TACS.)[4])^2)))
+                    } else {
+                        if(ssb < 0.8e6) resA <- 0.1
+                        if(ssb >= 0.8e6 & ssb <= 1.5e6) resA <- 0.15/0.7*((ssb-0.8e6)/1e6)+0.1
+                        if(ssb > 1.5e6) resA <- 0.25
+                        fbarA <- mean(bigF[f26.,])
+                        catchC    <- sum(stk.@stock.n[,,"C"]*(1-exp(-unitSums(stk.@harvest)-stk.@m[,,"C"]))*(stk.@harvest[,,"C"]/(unitSums(stk.@harvest)+stk.@m[,,"C"]))*stk.@catch.wt[,,"C"])
+                        catchD    <- sum(stk.@stock.n[,,"D"]*(1-exp(-unitSums(stk.@harvest)-stk.@m[,,"D"]))*(stk.@harvest[,,"D"]/(unitSums(stk.@harvest)+stk.@m[,,"D"]))*stk.@catch.wt[,,"D"])
+                        ret   <- c(sqrt(c((fbarA-resA)^2,0,(catchC - c(TACS.)[3])^2,(catchD - c(TACS.)[4])^2)))
+                      }
+                    return(ret)}
+
 
 #-------------------------------------------------------------------------------
 #- Bpa: calculate A and B TAC
