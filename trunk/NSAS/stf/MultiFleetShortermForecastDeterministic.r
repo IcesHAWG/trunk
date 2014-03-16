@@ -14,10 +14,12 @@ library(minpack.lm)
 require(msm)
 #Read in data
 path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
+try(setwd(path),silent=TRUE)
+output.dir <- file.path(".","results") 
+load(file=file.path(output.dir,"North Sea Herring.RData"))
 try(setwd(path))
 try(setwd("./stf/"))
-try(load(file=file.path(output.dir,"North Sea Herring.RData")),silent=TRUE)
-
+      
 #-------------------------------------------------------------------------------
 # Setup control file
 #-------------------------------------------------------------------------------
