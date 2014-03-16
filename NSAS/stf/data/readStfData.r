@@ -53,7 +53,7 @@ fleet.harvest <- function(stk,iYr,TACS){
                     #- prepare for iterations
                     nIter                           <- dims(TACS)$iter
                     res                             <- matrix(NA,ncol=nIter,nrow=nUnits,dimnames=list(units=dimnames(stk@stock.n)$unit,iter=1:nIter))
-                    for(iTer in 1:nIter) res[,iTer] <- nls.lm(par=rep(1,nUnits),rescaleF,stk=iter(stk,iTer),iYr=iYr,TACS=c(iter(TACS,iTer)),nls.lm.control(ftol = (.Machine$double.eps)),jac=NULL)$par
+                    for(iTer in 1:nIter) res[,iTer] <- nls.lm(par=rep(1,nUnits),lower=NULL, upper=NULL,rescaleF,stk=iter(stk,iTer),iYr=iYr,TACS=c(iter(TACS,iTer)),nls.lm.control(ftol = (.Machine$double.eps)),jac=NULL)$par
                     stk@harvest[,iYr]               <- sweep(stk@harvest[,iYr],c(3,6),res,"*")
                  return(stk@harvest[,iYr])}
 
