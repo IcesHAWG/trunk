@@ -14,12 +14,10 @@ library(minpack.lm)
 require(msm)
 #Read in data
 path <- "D:/Repository/HAWG/HAWGrepository/NSAS/"
-try(setwd(path),silent=TRUE)
-output.dir <- file.path(".","results") 
-load(file=file.path(output.dir,"North Sea Herring.RData"))
 try(setwd(path))
 try(setwd("./stf/"))
-      
+
+
 #-------------------------------------------------------------------------------
 # Setup control file
 #-------------------------------------------------------------------------------
@@ -74,8 +72,8 @@ TACS.orig   <- TACS
 #40% from IIIa TAC in IV, as suggested by PRAC in February 2013
 TACS[,,"A"] <- c(470037+ 0.45 * 46750 - 452,NA,NA);     TACS.orig[,,"A"]  <- c(470037,NA,NA)
 TACS[,,"B"] <- c(13085*0.56534722           ,NA,NA);    TACS.orig[,,"B"]  <- c(13085, NA,NA)
-TACS[,,"C"] <- c(9777,11375,11375);                     TACS.orig[,,"C"]  <- c(9777,11375,11375)
-TACS[,,"D"] <- c(2493, 2900, 2900);                     TACS.orig[,,"D"]  <- c(2493, 2900, 2900)
+TACS[,,"C"] <- c(9777,12600,12600);                     TACS.orig[,,"C"]  <- c(9777,12600,12600)
+TACS[,,"D"] <- c(2493, 3212, 3212);                     TACS.orig[,,"D"]  <- c(2493, 3212, 3212)
 
   recWeights<- subset(NSH.sam@params,name=="U"); recWeights <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch",]))),]$std.dev)^2
 #RECS        <- FLQuants("ImY" =FLQuant(subset(rec(NSH.sam),year==ImY)$value,dimnames=list(age="0",year=ImY,unit="unique",season="all",area="unique",iter=1:dims(stk)$iter)),
@@ -180,7 +178,7 @@ if("mp" %in% stf.options){
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)
-    res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.FAB,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
+    res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),find.FAB,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
   stf@harvest[,FcY]         <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
     stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
@@ -331,7 +329,7 @@ if("fmsy" %in% stf.options){
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)      #stk.=stk,rec.=rec,f.=fmsy,f26.=f26,f01.=f01,TACS.=TACS
-    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.F,stk=iter(stf[,FcY],iTer),f.=0.27,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
+    res[,iTer]                  <- nls.lm(par=rep(1,dims(stf)$unit),find.F,stk=iter(stf[,FcY],iTer),f.=0.27,f26=f26,f01=f01,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
 
   stf@harvest[,FcY]             <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
@@ -364,7 +362,7 @@ if("newmp" %in% stf.options){
 
   res <- matrix(NA,nrow=dims(stf)$unit,ncol=dims(stf)$iter,dimnames=list(dimnames(stf@stock.n)$unit,dimnames(stf@stock.n)$iter))
   for(iTer in 1:dims(stf)$iter)
-    res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),lower=NULL, upper=NULL,find.newFAB,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
+    res[,iTer]              <- nls.lm(par=rep(1,dims(stf)$unit),find.newFAB,stk=iter(stf[,FcY],iTer),f01=f01,f26=f26,mp.options=mp.options,TACS=iter(TACS[,FcY],iTer),jac=NULL)$par
   stf@harvest[,FcY]         <- sweep(stf@harvest[,FcY],c(3,6),res,"*")
   for(i in dms$unit){
     stf@catch.n[,FcY,i]     <- stf@stock.n[,FcY,i]*(1-exp(-unitSums(stf@harvest[,FcY])-stf@m[,FcY,i]))*(stf@harvest[,FcY,i]/(unitSums(stf@harvest[,FcY])+stf@m[,FcY,i]))
