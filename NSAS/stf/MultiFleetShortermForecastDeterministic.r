@@ -72,10 +72,10 @@ FD      <- Ns[,paste("D",DtY,sep="")]/apply(Ns,1,sum,na.rm=T) * stk@harvest[,DtY
 TACS        <- FLQuant(NA,dimnames=list(age="all",year=FuY,unit=c("A","B","C","D"),season="all",area=1,iter=1:dims(stk)$iter))
 TACS.orig   <- TACS
 #40% from IIIa TAC in IV, as suggested by PRAC in February 2013
-TACS[,,"A"] <- c(470037+ 0.45 * 46750 - 2000,NA,NA);    TACS.orig[,,"A"]  <- c(470037,NA,NA)
+TACS[,,"A"] <- c(470037+ 0.45 * 46750 - 452,NA,NA);     TACS.orig[,,"A"]  <- c(470037,NA,NA)
 TACS[,,"B"] <- c(13085*0.56534722           ,NA,NA);    TACS.orig[,,"B"]  <- c(13085, NA,NA)
-TACS[,,"C"] <- c(9421,11382,11382);                     TACS.orig[,,"C"]  <- c(9421,11382,11382)
-TACS[,,"D"] <- c(2493, 3011, 3011);                     TACS.orig[,,"D"]  <- c(3011, 3011, 3011)
+TACS[,,"C"] <- c(9777,11375,11375);                     TACS.orig[,,"C"]  <- c(9777,11375,11375)
+TACS[,,"D"] <- c(2493, 2900, 2900);                     TACS.orig[,,"D"]  <- c(2493, 2900, 2900)
 
   recWeights<- subset(NSH.sam@params,name=="U"); recWeights <- (recWeights[seq(1,nrow(recWeights),dims(NSH.sam)$age+length(unique(NSH.sam@control@states["catch",]))),]$std.dev)^2
 #RECS        <- FLQuants("ImY" =FLQuant(subset(rec(NSH.sam),year==ImY)$value,dimnames=list(age="0",year=ImY,unit="unique",season="all",area="unique",iter=1:dims(stk)$iter)),
@@ -137,6 +137,9 @@ stf@discards.wt[]         <- 0
 
 for(i in dms$unit)
   stf@stock.n[,ImY,i]     <- stk.sam@stock.n[,ImY]
+#-Fix in 2014
+for(i in dms$unit)
+  stf@stock.n[1,ImY,i]    <- RECS[[1]]
 
 stf@harvest[,ImY]         <- fleet.harvest(stk=stf,iYr=ImY,TACS=TACS[,ImY])
 for(i in dms$unit){
