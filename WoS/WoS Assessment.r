@@ -234,9 +234,9 @@ FnPrint("PERFORMING Standard Graphs text...\n")
 #WoS recruitment is based on a geometric mean of 1989-one year prior to the last data year. Updated by one year, each year
 gm.recs                   <- exp(mean(log(rec(trim(WoS,year=1989:2012)))))
 stf.ctrl                  <- FLSTF.control(nyrs=1,fbar.nyrs=1,fbar.min=3,fbar.max=6,catch.constraint=28067,f.rescale=TRUE,rec=gm.recs)
-WoS@catch.n[1,56,,,,]     <- 1     #should the second number here be the number of data years, i.e., 55 for 2012 as last data year
-WoS.stf                   <- FLSTF(stock=WoS,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
-writeFLStock(WoS.stf,output.file=paste(output.base," WoSaddyr",sep=""))
+WoS@catch.n[1,57,,,,]     <- 1     #should the second number here be the number of data years, i.e., 55 for 2012 as last data year
+#WoS.stf                   <- FLSTF(stock=WoS,control=stf.ctrl,quiet=TRUE,sop.correct=FALSE)
+#writeFLStock(WoS.stf,output.file=paste(output.base," WoSaddyr",sep=""))
 ## use the rounder version so report and quality control database have same values
 writeFLStock(WoS,file.path(output.dir,"hawg_her-vian.sum"),type="ICAsum")
 # project one year in order to get a single year holding means for YPR output
@@ -244,7 +244,7 @@ WoS.proj                  <- stf(WoS,nyears=1,wts.nyears=3,fbar.nyears=1,arith.m
 writeFLStock(WoS.proj,file.path(output.dir,"hawg_her-vian.ypr"),type="YPR")
 
 # Write the stf results out in the lowestoft VPA format for further analysis eg MFDP
-writeFLStock(WoS.stf,output.file=paste(output.base,"with STF"))
+#writeFLStock(WoS.stf,output.file=paste(output.base,"with STF"))
 
 ### ======================================================================================================
 ### Save workspace and Finish Up
@@ -425,7 +425,7 @@ opt.sum.tbl(stcks=WoS.options,fname=paste(output.base,"options - summary.csv",se
 ### Save workspace and Finish Up
 ### ======================================================================================================
 FnPrint("SAVING WORKSPACES...\n")
-save(WoS,WoS.stf,WoS.proj,WoS.tun,WoS.ctrl,file=paste(output.base,"AssessmentForecast.RData"))
+save(WoS,WoS.proj,WoS.tun,WoS.ctrl,file=paste(output.base,"AssessmentForecast.RData"))
 save.image(file=paste(output.base,"AssessmentForecast Workspace.RData"))
 dev.off()
 FnPrint(paste("COMPLETE IN",sprintf("%0.1f",round(proc.time()[3]-start.time,1)),"s.\n\n"))
