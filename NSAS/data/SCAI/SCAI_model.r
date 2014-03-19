@@ -402,7 +402,9 @@ for(colour in c(T,F)) {
   plot(0,0,type="n",xlim=xlims,ylim=c(0,1),yaxs="i",xaxs="i",xlab="Year",ylab="Fraction")
   area.plot.dat <- t(apply(SCAIs[,area.names],1,function(x) 1-cumsum(c(0,x))/sum(x)))
   cols <- if(colour) {
-    cols<- brewer.pal(4,"Set3")} else {cols <- c("grey80","grey60","grey40","grey20")}
+    cols<- rev(brewer.pal(4,"PuOr"))} else {
+    cols <- brewer.pal(4,"Set3")}
+      #cols <- c("grey80","grey60","grey40","grey20")}
   for(i in 1:length(areas)) {
     x.to.plot <- c(SCAIs$Year,rev(SCAIs$Year))
     y.to.plot <- c(area.plot.dat[,i],rev(area.plot.dat[,i+1]))
