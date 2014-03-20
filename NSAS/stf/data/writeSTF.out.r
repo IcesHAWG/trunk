@@ -29,7 +29,7 @@ stf.out   <-  function(FLStock,Recruitment,format="TABLE %i.") {
                             c(paste("Recruitment in ",range(FLStock)["maxyear"],sep="")))
   for(i in 1:nrow(output.structure)){
     opt <- c(opt, paste(sprintf(format,counter),output.structure[i,1]),"")
-    opt <- c(opt, round(RECS[[i+1]]),"","")
+    opt <- c(opt, round(c(RECS[[i+1]])),"","")
     counter <- counter +1
   }
   
