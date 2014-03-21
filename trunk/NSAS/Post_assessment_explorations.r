@@ -36,9 +36,12 @@ load(file.path(".","results","North Sea Herring.RData"))
 pdf(file.path("results","Post_assessment_exploration.pdf"),
     pointsize=16)
 par(mar=c(5,4,2,1),mgp=c(2.5,1,0))
+
 #Load component data
 SCAI.dat <- read.csv("data/SCAI/SCAIoutputs/SCAI_indices.csv")
-SCAI.dat$norSCAI <- rowSums(SCAI.dat[,c("SCAI.OrkShe","SCAI.Buchan","SCAI.Banks")])
+norSCAI.dat <- subset(SCAI.dat,Component%in%c("OrkShe","Buchan","Banks"))
+norSCAI <- melt(tapply(norSCAI.dat$SCAI,norSCAI.dat$Year,sum))
+colnames(norSCAI) <- c("Year","norSCAI")
 
 #Extract data
 xcols <- c("data","cohort")
@@ -61,19 +64,23 @@ plt.dat <- merge(ass.dat,surv.dat,all=TRUE,by="cohort")
 plt.dat$surv.ratio <- plt.dat$data.MIK / plt.dat$data.SCAI
 plt.dat$rps <- plt.dat$data.rec/plt.dat$data.spwn
 plt.dat$yr <- sprintf("%02i",plt.dat$cohort%%100)
-plt.dat <- merge(plt.dat,SCAI.dat[,c("Year","norSCAI")],
-                 by.x="cohort",by.y="Year",all=TRUE)
+plt.dat <- merge(plt.dat,norSCAI,by.x="cohort",by.y="Year",all=TRUE)
 plt.dat$norSCAI.surv <- plt.dat$data.MIK / plt.dat$norSCAI
 plt.dat$downs.frac <- 1-plt.dat$norSCAI/plt.dat$data.SCAI
 
 #Time series of recruits-per-spawner
 plot(plt.dat$cohort,plt.dat$rps,log="y",type="n",
      xlab="Spawning Year",ylab="Recruits per spawner")
-#rug(plt.dat$cohort[plt.dat$ssb < 800000],col="black",lwd=2)
-#rug(plt.dat$cohort[plt.dat$ssb < 800000],col="black",side=3,lwd=2)
+rug(plt.dat$cohort[plt.dat$ssb < 800000],col="black",lwd=2)
+rug(plt.dat$cohort[plt.dat$ssb < 800000],col="black",side=3,lwd=2)
 points(plt.dat$cohort,plt.dat$rps,pch=16)
-#lines(smooth.spline(plt.dat$cohort[-1],plt.dat$rps[-1],penalty=1.4),
-#      col="red",lwd=2)
+lines(smooth.spline(plt.dat$cohort[-1],plt.dat$rps[-1],penalty=1.4),
+      col="red",lwd=2)
+
+#Time series of recruits-per-spawner - advice sheet version
+plot(plt.dat$cohort,plt.dat$rps,log="y",type="n",
+     xlab="Spawning Year",ylab="Recruits per spawner")
+points(plt.dat$cohort,plt.dat$rps,pch=16)
 text(grconvertX(0,"npc"),grconvertY(0.9,"npc"),"a)",pos=4)
 
 #SRR plot
@@ -84,8 +91,8 @@ plot(plt.dat$ssb/1e6,plt.dat$data.rec/1e6,pch=1,
 points(plt.dat$ssb/1e6,plt.dat$data.rec/1e6,
        pch=ifelse(plt.dat$cohort>2001,16,NA),col="red") 
 points(plt.dat$ssb/1e6,plt.dat$data.rec/1e6,
-       pch=ifelse(plt.dat$cohort==2012,16,NA),col="black") 
-legend("bottomright",c("Post 2001","2012","Other"),
+       pch=ifelse(plt.dat$cohort==2013,16,NA),col="black") 
+legend("bottomright",c("Post 2001","2013","Other"),
        pch=c(16,16,1),col=c("red","black","black"))
 
 #Residuals in IBTS0
@@ -112,6 +119,11 @@ par(oldpar)
 plot(plt.dat$cohort,plt.dat$surv,log="y",pch=16,
      xlim=range(pretty(plt.dat$cohort[!is.na(plt.dat$surv.ratio)],na.rm=TRUE)),
      xlab="Spawning Year",ylab="Larval Survival (IBTS0/SCAI)")
+
+#IBTSO / SCAI time series - advice sheet 
+plot(plt.dat$cohort,plt.dat$surv,log="y",pch=16,
+     xlim=range(pretty(plt.dat$cohort[!is.na(plt.dat$surv.ratio)],na.rm=TRUE)),
+     xlab="Spawning Year",ylab="Larval Survival (IBTS0/SCAI)")
 text(grconvertX(0,"npc"),grconvertY(0.9,"npc"),"b)",pos=4)
 
 #IBTS0 / norSCAI time series
@@ -120,7 +132,6 @@ plot(plt.dat$cohort,plt.dat$norSCAI.surv,log="y",pch=16,
      xlab="Spawning Year",ylab="Northern Component Larval Survival")
 
 dev.off()  
-
 
 ### ============================================================================
 ### Weights at age exploration
@@ -201,15 +212,15 @@ dev.off()
 ### ============================================================================
 ### Survey catchability trend exploration
 ### ============================================================================
-HERAS.q <- catchabilities(NSH.retro)
-col  <- rainbow(11)
-print(xyplot(value ~ age | fleet,HERAS.q,groups=name,
-          auto.key=list(space="right",points=FALSE,lines=FALSE,type="l",col=col),
-          scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
-          type="l",lwd=2,col=col,
-          subset=fleet %in% c("HERAS"),
-          main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
-
+# HERAS.q <- catchabilities(NSH.retro)
+# col  <- rainbow(11)
+# print(xyplot(value ~ age | fleet,HERAS.q,groups=name,
+#           auto.key=list(space="right",points=FALSE,lines=FALSE,type="l",col=col),
+#           scale=list(alternating=FALSE,y=list(relation="free")),as.table=TRUE,
+#           type="l",lwd=2,col=col,
+#           subset=fleet %in% c("HERAS"),
+#           main="Survey catchability parameters",ylab="Catchability",xlab="Age"))
+# 
 ### ============================================================================
 ### Finish
 ### ============================================================================
