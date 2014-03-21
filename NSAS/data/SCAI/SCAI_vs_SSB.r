@@ -43,6 +43,7 @@ start.time <- proc.time()[3]
 options(stringsAsFactors=FALSE)
 
 library(FLSAM)
+library(reshape)
 
 ### ======================================================================================================
 ### Parameters
@@ -61,7 +62,8 @@ pdf(file.path(output.dir,"SCAI_vs_SSB.pdf"),width=297/25.4,
 ### ======================================================================================================
 #Get sumSCAI
 SCAI.cols <- grep("^SCAI",colnames(SCAI.dat))
-sumSCAI   <- data.frame(year=SCAI.dat$Year,sumSCAI=rowSums(SCAI.dat[SCAI.cols]))
+sumSCAI   <- melt(tapply(SCAI.dat$SCAI,SCAI.dat[,"Year"],sum))
+colnames(sumSCAI) <- c("year","sumSCAI")
 
 #Get SSB, remove the most recent estimate
 sam.ssb <- ssb(NSH.sam)
@@ -93,7 +95,6 @@ fit.dat <- transform(fit.dat,SSB=exp(fit),
 fit.dat <- fit.dat[order(fit.dat$sumSCAI),]
 
 #Plot the comparison between SSB and SCAI
-par(mar=c(4,4,1,1))
 plot(dat$sumSCAI,dat$value/1e6,xlab="SCAI",ylab="SSB (Mt)",pch=NA,log="xy")
 polygon(c(fit.dat$sumSCAI,rev(fit.dat$sumSCAI)),
         c(fit.dat$SSB.ub,rev(fit.dat$SSB.lb))/1e6,col="grey")
