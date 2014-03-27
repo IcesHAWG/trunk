@@ -17,18 +17,23 @@
 #
 #  Notes:
 #   - This script contains RMarkdown. Generate HTML with the following commands.
+#           #Configuration----------
 #           this.script <- "src//MIK_Quality_assurance.r"
+#           opts_knit$set(output.suffix="QA_2012_2013.html",
+#                         subset.campaigns=2012:2013)  
+#           #Code follows----------
 #           library(knitr);library(markdown)
 #           opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="unnamed")
 #           opts_chunk$set(echo=FALSE,results="hide",fig.width=10,
 #                          message=FALSE,error=FALSE,fig.path="plots/")
 #           this.script.HTML <- spin(this.script)
 #           options("markdown.HTML.options"=c(markdownHTMLOptions(TRUE),"toc"))
-#           markdownToHTML(gsub("html$","md",this.script.HTML),
-#                  sprintf("outputs/%s_QA.html",basename(rownames(f.details))))
-#           file.rename(this.script.HTML,file.path("outputs",this.script.HTML))
+#           markdownToHTML(gsub("html$","md",this.script.HTML),this.script.HTML)
+#           file.rename(this.script.HTML,sprintf("outputs/%s_%s",
+#                                  basename(rownames(f.details)),
+#                                  opts_knit$get("output.suffix")))
 #           file.remove(gsub("html$","md",this.script.HTML))
-#/*##########################################################################*/
+# /*##########################################################################*/
 
 # ========================================================================
 # Initialise system
@@ -68,7 +73,7 @@ disp.err <- function(test,colnames=NULL,from=dat.raw,n.max=250) {
     print(table(Campaign=d$Campaign))
   } else {
     #Create a DateTime field for convenient formatting
-    print(from[idxs,c("Campaign","Country","Haulnumber",colnames)],
+    print(from[idxs,c("SampleID","Campaign","Country",colnames)],
           row.names=TRUE)
     cat(sprintf("%i rows in total\n",length(idxs)))
   }
@@ -89,18 +94,10 @@ disp.table <- function(...){
 #/* ========================================================================*/
 #'# Introduction
 #'  This work documents the results of quality assurance checks on the the
-#'  MEGS database. The details of the analysed file are as follows:
+#'  MIK database. The details of the analysed file are as follows:
 #/* ========================================================================*/
 #Load data file
 load("objects//MIK_data_raw.RData")
-
-#Some preparations
-dat$Campaign <- factor(dat$Campaign)
-if(nlevels(dat$Campaign)>1) {
-  lat.layout <- c(3,3)
-} else {
-  lat.layout <- c(1,1)
-}
 
 # File details
 f.details <- attr(dat,"source.details")
@@ -110,6 +107,28 @@ print(t(f.details))
 #'Files that have identical contents will have identical md5 checksums, 
 #'irrespective of file name, modification date etc. Files are different even
 #'by a single bit will have different checksums. </small>
+#'
+#' ### Analysis subsetting
+#' For convenience, it is often easier to analyse the data in subsets. The
+#' Campaigns included in this analysis are as follows:
+subset.campaigns <- opts_knit$get("subset.campaigns")
+if(is.null(subset.campaigns)) {
+  log.msg("All data points included")
+} else {
+  print(subset.campaigns)
+  dat <- subset(dat,Campaign %in% subset.campaigns)
+}
+
+#Some further  preparations
+dat$Campaign <- factor(dat$Campaign)
+if(nlevels(dat$Campaign)==1) {
+  lat.layout <- c(1,1)
+} else if(nlevels(dat$Campaign)<18){
+  lat.layout <- c(2,2)
+} else {
+  lat.layout <- c(3,3)
+}
+
 #'
 #' ### Data table size
 #' Number of rows, number of columns
@@ -159,7 +178,7 @@ disp.table(Campaign=dat$Campaign,Country=dat$Country)
 #/* ========================================================================*/
 #First, expect that we have all the column names that we expect to retain
 #as characters
-allowed.char.cols <- c("Campaign","Country","Haulnumber","Rectangle","sel")
+allowed.char.cols <- c("Campaign","Country","SampleID","Haulnumber","Rectangle","sel")
 if(any(!allowed.char.cols %in% colnames(dat))) {
   miss.cols.idxs <- which(!allowed.char.cols %in% colnames(dat))
   miss.cols <- allowed.char.cols[miss.cols.idxs]
@@ -346,6 +365,8 @@ if(length(which(out.of.seq))<50) {
   for(i in which(out.of.seq)) {
     print(seq.dat[seq(i-2,i+2),c("Campaign","Country","Haulnumber","POSIX","diff")]  )
   }
+} else {
+  log.msg("More than 50...\n")
 }
 
 #'#### Check sample time by country
@@ -405,28 +426,37 @@ disp.err(is.na(dat$Hauldepth) & is.na(dat$Waterdepth),
          c("Hauldepth","Waterdepth"))
 
 #'#### Insufficient information to calculate volume filtered
-#'Calculation of the the volume of water filtered requires
-#'the `Flowmeterrevs.`, `Revspermeter` and `Geararea` fields. Failure 
-#'to calculate volume filtered therefore indicattes a problem in 
-#'at least one of these fields.
+#'The volume filtered can be calculated in several ways, and the exact method
+#'to be used is indicated by the 'sel' column. When `sel=="f"`, the calculation
+#'is done from the flowmeter and therefore needs the `Flowmeterrevs.`, 
+#'`Revspermeter` and `Geararea` fields. Failure to calculate volume filtered
+#' when `sel=="f"` therefore indicattes a problem in at least one of these fields.
 dat$volFlowmeter <- dat$Flowmeterrevs./dat$Revspermeter*dat$Geararea
-disp.err(is.na(dat$volFlowmeter),
+disp.err(is.na(dat$volFlowmeter) & dat$sel=="f",
          c("Flowmeterrevs.","Revspermeter","Geararea","sel"))
+
+#'Alternatively, if `sel=="d"`, then the volume filtered is to be calculated
+#'from the haul geometry, requiring `Hauldepth`, `Distance` and `Geararea`)
+dat$volFromGeometry <- sqrt(dat$Hauldepth^2 + dat$Distance^2/4)*2* dat$Geararea
+disp.err(is.na(dat$volFromGeometry) & dat$sel=="d",
+         c("Hauldepth","Distance","Geararea","sel"))
 
 #'#### Distribution of Geararea field values
 #' Check for consistency of entered values.
 disp.table(Campaign=dat$Campaign,Geararea=dat$Geararea)
          
-#'#### Distribution of Revspermeter (Flowmeter calibration) values
+#'#### Distribution of Revspermeter (Flowmeter calibration) values (from valid flowmeters)
 bwplot(Revspermeter ~ Country | Campaign,data=dat,
        scales=list("free"),
+       subset=sel=="f",
        xlab="Country",
        as.table=TRUE,
        layout=lat.layout)
 
-#'#### Distribution of Volume Filtered values (from flowmeters)
+#'#### Distribution of Volume Filtered values (from valid flowmeters)
 bwplot(volFlowmeter ~ Country | Campaign,data=dat,
        scales=list("free"),
+       subset=sel=="f",
        xlab="Country",ylab="Volume filtered from flowmeter (m³)",
        as.table=TRUE,
        layout=lat.layout)
@@ -463,7 +493,7 @@ disp.err(is.na(dat$Distance) | dat$Distance ==0,"Distance")
 #'haul speed is 3 kts.
 dat$haul.speed <- dat$Distance/dat$haul.duration*1.94384449 
 xyplot(haul.speed ~ seq(nrow(dat)) | Campaign,data=dat,groups=Country,
-       scales=list(x=list(relation="free")),
+       scales=list(relation="free"),
        xlab="Row number",ylab="Haul Speed (kts)",
        auto.key=list(space="right"),
        as.table=TRUE,
@@ -473,9 +503,9 @@ xyplot(haul.speed ~ seq(nrow(dat)) | Campaign,data=dat,groups=Country,
          panel.superpose(...)
        })
 
-#'Haul speeds more than 1 kt from the target are suspicious.
-disp.err(abs(dat$haul.speed-3)>1,
-         c("Hauldepth","Waterdepth","haul.duration",
+#'Haul speeds more than 6 kts are deeply suspicious.
+disp.err(dat$haul.speed>6,
+         c("durmin","dursec","haul.duration",
            "Distance","haul.speed"),from=dat)
 
 #'#### Mismatch between volumes estimated from flowmeter and haul geometry
@@ -492,7 +522,6 @@ disp.err(abs(dat$haul.speed-3)>1,
 #'all values should lie. Note the logarithmic scaling on the vertical axis. Note 
 #'also that there should be no effective difference between single and double 
 #'oblique hauls here.
-dat$volFromGeometry <- sqrt(dat$Hauldepth^2 + dat$Distance^2/4)*2* dat$Geararea
 dat$volRatio <- dat$volFlowmeter/dat$volFromGeometry
 xyplot(volRatio ~ seq(nrow(dat)) | Campaign,data=dat,groups=Country,
       subset=sel=="f",
@@ -508,7 +537,7 @@ xyplot(volRatio ~ seq(nrow(dat)) | Campaign,data=dat,groups=Country,
       })
 
 #'Values greater than 2 or less than 0.5 are suspicious. 
-disp.err((dat$volRatio > 2 | dat$volRatio < 0.5) &dat$sel=="f",
+disp.err((dat$volRatio > 2 | dat$volRatio < 0.5) & dat$sel=="f",
          c("sel","volRatio","haul.speed"),from=dat)
 #'For reference, we have also displayed the haul-speed calculated above, 
 #'which should ideally be 3 knts. As both values incorporate the Distance 
@@ -544,11 +573,14 @@ disp.err(dat$sum_len_dist!=0 & dat$Numberlarvae==0,
 #'the larvae reported as `notmeasured` (e.g. due to subsampling, damage). 
 #'The discrepancy between these is reported in the `diff` field. An error 
 #'is reported if this value is non-zero, after rounding.
-d <- dat
-d$diff <- round(d$Numberlarvae - d$sum_len_dist-d$not.measured-d$damaged,1)
-disp.err(d$diff!=0 & d$sum_len_dist!=0 & d$Numberlarvae!=0,
-         c("Numberlarvae","sum_len_dist","not.measured","damaged","diff"),
-         from=d)
+#'
+#' Note that this option has been disabled as the not.measured and damaged
+#' fields are missing from the current version of the DB.
+# d <- dat
+# d$diff <- round(d$Numberlarvae - d$sum_len_dist-d$not.measured-d$damaged,1)
+# disp.err(d$diff!=0 & d$sum_len_dist!=0 & d$Numberlarvae!=0,
+#          c("Numberlarvae","sum_len_dist","not.measured","damaged","diff"),
+#          from=d)
 
 #/* ========================================================================*/
 #   Complete
