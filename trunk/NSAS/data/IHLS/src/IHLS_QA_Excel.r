@@ -351,11 +351,20 @@ xyplot(haul.speed ~ seq(nrow(dat)),data=dat,groups=Nation,
 disp.err(abs(dat$haul.speed-5)>2,
          c("latDec","lonDec","Dura","haul.speed","POSIX"),from=dat)
 
+#'...so lets plot them on a map
+d <- subset(dat.sp, dat$haul.speed-5>2)
+d$Nation <- factor(d$Nation)
+plot(d,pch=as.numeric(d$Nation),col=as.numeric(d$Nation),cex=1)
+map("worldHires",add=TRUE,col="grey",fill=TRUE)
+box()
+legend("bottomright",pch=seq(nlevels(d$Nation)),col=seq(nlevels(d$Nation)),
+       legend=levels(d$Nation),bg="white")
+
 #/* ========================================================================*/
 #'## Larval Details
 #' Details of the larval distribution data
 #/* ========================================================================*/
-#'###Total Caught does not tally with Total Measured
+#'### Total Caught does not tally with Total Measured
 disp.err(dat$TotCaug!=dat$TotMeas,
          c("TotCaug","TotMeas"))
 
@@ -370,7 +379,10 @@ disp.err(dat$diff!=0,
          c("TotCaug","TotMeas","len.sums","diff"),from=dat)
 
 #'### Number per square metre does not tally with rest
-dat$No.per.m2 <- dat$TotCaug/dat$VolFilt*dat$Sam
+#'Note that the calculation of the number per m2 is based on the
+#'bottom depth, and not the sample depth (in contrast to the MIK,
+#'where it is based on sample depth).
+dat$No.per.m2 <- dat$TotCaug/dat$VolFilt*dat$Bot
 xyplot(No.per.m2/TotPerm2 ~ seq(nrow(dat)),data=dat,
        group=Nation,auto.key=list(space="right"))
 

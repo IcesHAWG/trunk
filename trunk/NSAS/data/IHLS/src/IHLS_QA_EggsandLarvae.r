@@ -155,7 +155,7 @@ levelplot(value ~ as.numeric(Year) * Country,data=tbl,
           col.regions=bpy.colors)
 
 #'### Data by Gear
-tbl <- disp.table(Gear=haul.meta$Gear)
+tbl <- disp.table(Gear=haul.meta$Gear.Type)
 barplot(tbl,space=0,las=3,ylab="Number of samples")
 
 # ========================================================================
