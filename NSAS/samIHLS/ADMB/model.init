@@ -1,0 +1,19 @@
+# Auto generated file
+# Datetime : 2014-10-22 16:54:15
+
+#varLogFsta
+ 0.5
+#varLogN
+0.5 
+#varLogObs 
+ 0.5
+#logFpar 
+ 0.3 
+#rec_loga 
+ 1 
+#rec_logb 
+ -12 
+
+
+# Checksums to ensure correct reading of input data 
+ 90210 90210 
