@@ -19,8 +19,8 @@
 #   - This script contains RMarkdown. Generate HTML with the following commands.
 #           #Configuration----------
 #           this.script <- "src//MIK_Quality_assurance.r"
-#           opts_knit$set(output.suffix="QA_2012_2013.html",
-#                         subset.campaigns=2012:2013)  
+#           opts_knit$set(output.suffix="QA_2000_2013.html",
+#                         subset.campaigns=2000:2013)  
 #           #Code follows----------
 #           library(knitr);library(markdown)
 #           opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="unnamed")
@@ -212,6 +212,16 @@ print(parsing.sum)
 dat.raw <- dat
 dat[names(parsed.cols)] <- parsed.cols
 
+#'#### Duplicate Sample IDs
+#' We check that the sample IDs are unqiue.
+id.freqs <- table(dat$SampleID)
+dup.ids <- subset(id.freqs,id.freqs>1)
+if(length(dup.ids)>0) {
+  cat(sprintf("%i duplicated IDs. \n",length(dup.ids)))
+  print(melt(dup.ids))
+} else {
+  cat("No errors detected\n") 
+}
 
 #/* ========================================================================*/
 #'# Spatial integrity of the data
