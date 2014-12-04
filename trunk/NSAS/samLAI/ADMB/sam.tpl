@@ -194,7 +194,7 @@ DATA_SECTION
   !!    dmatrix subData=getSubMat(data,idx1(maxYearResFleet),idx2(maxYearResFleet));
   !!    if(min(column(subData,2))<1.2)break;    
   !!  }
-  !! maxYearResFleet = 68;
+  //!! maxYearResFleet = 68;
 
   init_matrix propMature(1,noYears,minAgeObs,maxAgeObs)
   !! CLONE(propMature)
@@ -334,8 +334,9 @@ DATA_SECTION
   init_number logFparInit;
   init_number rec_logaInit;
   init_number rec_logbInit;
+  init_vector alphaSCBInit(1,maxSCBSurv-noCombs);
   !! }
-
+  
   ivector retro(1,noFleets);
 
   int reducedRun;
@@ -370,7 +371,7 @@ PARAMETER_SECTION
   init_bounded_vector logSdLogFsta(1,noVarF,-3,3); 
   init_bounded_vector logSdLogN(1,noVarLogN,-3,3); 
   init_bounded_vector logSdLogObs(1,noVarObs,-3,3);    // Stores the values of the obs.vars
-  init_bounded_vector alphaSCB(1,maxSCBSurv,0,1)  // Stores the values of the proportion contribution of each survey tot component SSB
+  init_vector alphaSCB(1,maxSCBSurv-noCombs)  // Stores the values of the proportion contribution of each survey tot component SSB
   !! int rec_phase=1; 
   !! if(stockRecruitmentModelCode==0){rec_phase=-1;}
   init_number rec_loga(rec_phase);
@@ -400,8 +401,9 @@ PARAMETER_SECTION
   // sdreport_vector logfbar(1,noYears);
   // sdreport_vector tsb(1,noYears);
   // sdreport_vector logtsb(1,noYears);
-  // sdreport_vector props_norm(1,noComb);
+  // sdreport_vector props_norm(1,noCombs);
   // sdreport_vector alphaSCB_norm(1,maxSCBSurv);
+
   !! cout<<"  ---  Done."<<endl; cout.flush(); 
 PRELIMINARY_CALCS_SECTION
   cout<<"PRELIMINARYSECTION"; cout.flush(); 
@@ -457,24 +459,22 @@ PRELIMINARY_CALCS_SECTION
     rec_logb=-12;
     // do vpa stuff if we later feel like it
     ofstream cpin("sam.pin");  
-    PINTRACE(logFpar); 
-    PINTRACE(logQpow); 
-    PINTRACE(logSdLogFsta); 
-    PINTRACE(logSdLogN); 
-    PINTRACE(logSdLogObs); 
+    PINTRACE(logFpar);
+    PINTRACE(logQpow);
+    PINTRACE(logSdLogFsta);
+    PINTRACE(logSdLogN);
+    PINTRACE(logSdLogObs);
     PINTRACE(rec_loga);
     PINTRACE(rec_logb);
     PINTRACE(rho);
-    PINTRACE(logScale); 
+    PINTRACE(logScale);
     PINTRACE(logScaleSSB);
     PINTRACE(logPowSSB);
-    PINTRACE(logSdSSB);  
+    PINTRACE(logSdSSB);
     PINTRACE(U);
   
     ad_exit(1);
   }
-
-
 
   if(pinini==0){
     cout<<endl<<"using model.init"<<endl;
@@ -484,6 +484,9 @@ PRELIMINARY_CALCS_SECTION
     logFpar=logFparInit;
     rec_loga=rec_logaInit;
     rec_logb=rec_logbInit;
+    for(int i=1;i<= (maxSCBSurv-noCombs); ++i){
+      alphaSCB(i)=alphaSCBInit(i);
+    }
     cout<<endl<<"done using model.init"<<endl;
   }
   if(noQpow>0){ 
@@ -494,7 +497,7 @@ PRELIMINARY_CALCS_SECTION
     cout<<endl<<"reducedRun"<<endl;
     if((pinini==0)&&(fexists("sam.par"))){
       assignInit(logFpar); 
-      assignInit(logQpow); 
+      assignInit(logQpow);
       assignInit(logSdLogFsta); 
       assignInit(logSdLogN); 
       assignInit(logSdLogObs); 
@@ -528,22 +531,44 @@ PRELIMINARY_CALCS_SECTION
       }
     }  
   }
-
-  ofstream chkpin("sam.pinchk");  
+  
+  //initialize the proportions
+  for(int y=1; y<=noYears-1; ++y){
+    for(int c=1; c<=(noCombs-1); ++c){
+      U(y*(stateDim+noCombs-1)-(noCombs-1)+c) = log(0.25);
+    }
+  }
+  
+  //initialize the numbers
+  for(int y=1; y<=noYears-1; ++y){
+    for(int c=minAge; c<=maxAge; ++c){
+      U(y*(stateDim+noCombs-1)- (stateDim+noCombs -1) + c + 1) = log(exp(12.5) * (maxAge-c+1));
+    }
+  }
+  
+  //initialize the fs
+  for(int y=1; y<=noYears-1; ++y){
+    for(int c=1; c<=8; ++c){
+      U(y*(stateDim+noCombs-1)- (maxAge+noCombs -1) + c) = log(0.05);
+    }
+  }
+  
+  ofstream chkpin("sam.pinchk");
   PINCHKTRACE(logFpar); 
-  PINCHKTRACE(logQpow); 
+  PINCHKTRACE(logQpow);
   PINCHKTRACE(logSdLogFsta); 
   PINCHKTRACE(logSdLogN); 
   PINCHKTRACE(logSdLogObs); 
   PINCHKTRACE(rec_loga);
   PINCHKTRACE(rec_logb);
   PINCHKTRACE(rho);
-  PINCHKTRACE(logScale); 
+  PINCHKTRACE(logScale);
   PINCHKTRACE(logScaleSSB);
   PINCHKTRACE(logPowSSB);
   PINCHKTRACE(logSdSSB);  
   PINCHKTRACE(U);
-  cout<<"  ----  Done."<<endl; cout.flush(); 
+  
+  cout<<"  ----  Done."<<endl; cout.flush();
 
 PROCEDURE_SECTION
   time_t currentTime;
@@ -778,26 +803,36 @@ SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dva
   int n2=data.rowmax();
   dvar_vector pred(n1,n2);
 
-  dvar_vector x(1,stateDim*noCombs-1);
+  //dvar_vector x(1,stateDim*noCombs-1);
+  dvar_vector x(1,stateDim+noCombs-1);
   int xn1=u.indexmin();
   int xn2=u.indexmax();
+
+  //cout << " u.indexmin " << xn1 << " u.indexmax " << xn2 << endl << cout.flush();
+  
   for(int i=xn1; i<=xn2; ++i){
     x(i-xn1+1)=u(i);
   }
   
+  //cout << " x initilized " << endl << cout.flush();
+  
   // Get probs per unit into vector
   dvar_vector props(1,noCombs);
-  int counter = 1;
+  int counter = 2;
   for(int i=(xn1+stateDim); i<=xn2; ++i){
     props(counter)=u(i);
     counter += 1;
   }
+  
+  //cout << " props initilized " << endl << cout.flush();
 
   // Get numSurv into vector
   dvar_vector survNum(1,maxSCBSurv);
   for(int i=1; i<=maxSCBSurv; ++i){
     survNum(i)=combSurv(i);
   }
+  
+  //cout << " survNum initilized " << endl << cout.flush();
   
   // Normalize probs and make them amount to 1 (fill 4th parameter)
   dvariable totProp = 0.0;
@@ -809,6 +844,9 @@ SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dva
     props_norm(i) = exp(props(i)) / (1+totProp);
   }
   props_norm(1) = 1 - totProp / (1+totProp);
+  
+  //cout << " props_norm " << props_norm << endl << cout.flush();
+  //cout << " props_norm initilized " << endl << cout.flush();
 
   // Normalize probs_alpha and make them amount to 1
   dvar_vector alphaSCB_norm(1,maxSCBSurv);
@@ -820,13 +858,17 @@ SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dva
       if(value(survNum(k))==value(i)){ idxmax=k;}
     }
     for(int j=(idxmin+1); j<=idxmax; ++j){
-      totProp_alpha += exp(aSCB(j));
+      // Substract i because aSCB is only 7 long but I'm estimating 11 valus
+      totProp_alpha += exp(aSCB(j-i));
     }
     for(int j=(idxmin+1); j<=idxmax; ++j){
-      alphaSCB_norm(j) = exp(aSCB(j)) / (1+totProp_alpha);
+      alphaSCB_norm(j) = exp(aSCB(j-i)) / (1+totProp_alpha);
     }
     alphaSCB_norm(idxmin) = 1 - totProp_alpha / (1+totProp_alpha);
   }
+  //cout << " sum alpha " << sum(alphaSCB_norm) << endl << cout.flush();
+  //cout << " alphaSCB_norm initilized " << endl << cout.flush();
+  //cout << " alphaSCB_norm" << alphaSCB_norm << endl << cout.flush();
   
   dvar_vector Ftot(minAge,maxAge);  
   Ftot.initialize();
@@ -842,6 +884,8 @@ SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dva
       }
     }
   }
+
+  //cout << " Ftot initilized " << endl << cout.flush();
 
   dvar_vector Z(Ftot.indexmin(),Ftot.indexmax());
   Z=Ftot; // missing M here  
@@ -908,6 +952,8 @@ SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dva
                     ssb+=exp(x(aa-minAge+1))*exp(-Ftot(aa)*Fprop(yIdx,aa)-natMor(yIdx,aa)*Mprop(yIdx,aa))*propMature(yIdx,aa)*stockMeanWeight(yIdx,aa);
                   }
                  pred(i) = logScaleSSB + log(ssb) + log(props_norm(value(survNum(a)))) + log(alphaSCB_norm(a));
+                 //cout << logScaleSSB << " " << log(ssb) << " " << log(props_norm(value(survNum(a)))) << " "  << log(alphaSCB_norm(a)) << endl; cout.flush();
+                 //cout << " pred(i) " << pred(i) << endl; cout.flush();
                 }
             }
           }
@@ -938,6 +984,11 @@ SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dva
         }
       }
       jnll+=0.5*(log(2.0*M_PI*var)+square(obs(i)-pred(i))/var);
+      //if(fleetTypes(f) == 5){
+      //  cout << " obs(i) " << obs(i) << " pred(i) " << pred(i) << endl << cout.flush();
+      //}
+      //cout << " jnll " << jnll << endl << cout.flush();
+      
       residuals(i,1)=data(i,1);
       residuals(i,2)=f;
       residuals(i,3)=a;
