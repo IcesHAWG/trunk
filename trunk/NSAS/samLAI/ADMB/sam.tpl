@@ -337,6 +337,9 @@ DATA_SECTION
   init_vector alphaSCBInit(1,maxSCBSurv-noCombs);
   !! }
   
+  int LAI;
+  !! LAI = 0;
+  
   ivector retro(1,noFleets);
 
   int reducedRun;
@@ -371,7 +374,7 @@ PARAMETER_SECTION
   init_bounded_vector logSdLogFsta(1,noVarF,-3,3); 
   init_bounded_vector logSdLogN(1,noVarLogN,-3,3); 
   init_bounded_vector logSdLogObs(1,noVarObs,-3,3);    // Stores the values of the obs.vars
-  init_vector alphaSCB(1,maxSCBSurv-noCombs)  // Stores the values of the proportion contribution of each survey tot component SSB
+  //init_vector alphaSCB(1,maxSCBSurv-noCombs)  // Stores the values of the proportion contribution of each survey tot component SSB
   !! int rec_phase=1; 
   !! if(stockRecruitmentModelCode==0){rec_phase=-1;}
   init_number rec_loga(rec_phase);
@@ -389,8 +392,8 @@ PARAMETER_SECTION
   vector scaledLogObs(1,noObs);
   matrix X(1,noYears,1,stateDim);  
 
-  // random_effects_vector U(1,stateDim*noYears);
-  random_effects_vector U(1,stateDim*noYears+noCombs*noYears-noYears); // Adding 3 proportion parameters per year
+  random_effects_vector U(1,stateDim*noYears);
+  //random_effects_vector U(1,stateDim*noYears+noCombs*noYears-noYears); // Adding 3 proportion parameters per year
 
   objective_function_value jnll;
   
@@ -484,9 +487,9 @@ PRELIMINARY_CALCS_SECTION
     logFpar=logFparInit;
     rec_loga=rec_logaInit;
     rec_logb=rec_logbInit;
-    for(int i=1;i<= (maxSCBSurv-noCombs); ++i){
-      alphaSCB(i)=alphaSCBInit(i);
-    }
+    //for(int i=1;i<= (maxSCBSurv-noCombs); ++i){
+    //  alphaSCB(i)=alphaSCBInit(i);
+    //}
     cout<<endl<<"done using model.init"<<endl;
   }
   if(noQpow>0){ 
@@ -533,25 +536,25 @@ PRELIMINARY_CALCS_SECTION
   }
   
   //initialize the proportions
-  for(int y=1; y<=noYears-1; ++y){
-    for(int c=1; c<=(noCombs-1); ++c){
-      U(y*(stateDim+noCombs-1)-(noCombs-1)+c) = log(0.25);
-    }
-  }
+  //for(int y=1; y<=noYears-1; ++y){
+  //  for(int c=1; c<=(noCombs-1); ++c){
+  //    U(y*(stateDim+noCombs-1)-(noCombs-1)+c) = log(0.25);
+  //  }
+  //}
   
   //initialize the numbers
-  for(int y=1; y<=noYears-1; ++y){
-    for(int c=minAge; c<=maxAge; ++c){
-      U(y*(stateDim+noCombs-1)- (stateDim+noCombs -1) + c + 1) = log(exp(12.5) * (maxAge-c+1));
-    }
-  }
+  //for(int y=1; y<=noYears-1; ++y){
+  //  for(int c=minAge; c<=maxAge; ++c){
+  //    U(y*(stateDim+noCombs-1)- (stateDim+noCombs -1) + c + 1) = log(exp(12.5) * (maxAge-c+1));
+  //  }
+  //}
   
   //initialize the fs
-  for(int y=1; y<=noYears-1; ++y){
-    for(int c=1; c<=8; ++c){
-      U(y*(stateDim+noCombs-1)- (maxAge+noCombs -1) + c) = log(0.05);
-    }
-  }
+  //for(int y=1; y<=noYears-1; ++y){
+  //  for(int c=1; c<=8; ++c){
+  //    U(y*(stateDim+noCombs-1)- (maxAge+noCombs -1) + c) = log(0.05);
+  //  }
+  //}
   
   ofstream chkpin("sam.pinchk");
   PINCHKTRACE(logFpar); 
@@ -635,8 +638,8 @@ PROCEDURE_SECTION
   }
 
   for(int y=1; y<=noYears-1; ++y){
-    //step(y,U((y-1)*stateDim+1,y*stateDim),U(y*stateDim+1,(y+1)*stateDim),logFpar,rec_loga,rec_logb,logSdLogN,logSdLogFsta,rho);
-    step(y,U((y-1)*(stateDim+noCombs-1)+1,y*(stateDim+noCombs-1)-(noCombs-1)),U(y*(stateDim+noCombs-1)+1,(y+1)*(stateDim+noCombs-1)-(noCombs-1)),logFpar,rec_loga,rec_logb,logSdLogN,logSdLogFsta,rho);
+    if(LAI == 0){ step(y,U((y-1)*stateDim+1,y*stateDim),U(y*stateDim+1,(y+1)*stateDim),logFpar,rec_loga,rec_logb,logSdLogN,logSdLogFsta,rho);}
+    if(LAI == 1){ step(y,U((y-1)*(stateDim+noCombs-1)+1,y*(stateDim+noCombs-1)-(noCombs-1)),U(y*(stateDim+noCombs-1)+1,(y+1)*(stateDim+noCombs-1)-(noCombs-1)),logFpar,rec_loga,rec_logb,logSdLogN,logSdLogFsta,rho);}
   }
 
   for(int y=1; y<=noYears; ++y){
@@ -645,12 +648,12 @@ PROCEDURE_SECTION
     dmatrix subData=getSubMat(data,idxlow,idxhigh);     
     dvar_vector subObs=getSubVec(scaledLogObs,idxlow,idxhigh);
     if(noQpow>0){
-      //obs(U((y-1)*stateDim+1,y*stateDim),                      subData,subObs,logFpar,logSdLogObs,logQpow,logScaleSSB,logPowSSB,logSdSSB);
-      obs(U((y-1)*(stateDim+noCombs-1)+1,y*(stateDim+noCombs-1)),subData,subObs,logFpar,logSdLogObs,logQpow,logScaleSSB,logPowSSB,logSdSSB,alphaSCB);
+      if(LAI == 0){ obs(U((y-1)*stateDim+1,y*stateDim),                      subData,subObs,logFpar,logSdLogObs,logQpow,logScaleSSB,logPowSSB,logSdSSB);}
+      //if(LAI == 1){ obs(U((y-1)*(stateDim+noCombs-1)+1,y*(stateDim+noCombs-1)),subData,subObs,logFpar,logSdLogObs,logQpow,logScaleSSB,logPowSSB,logSdSSB,alphaSCB);}
     }else{
       dvar_vector fakeQpow(1,1);
-      //obs(U((y-1)*stateDim+1,y*stateDim),                      subData,subObs,logFpar,logSdLogObs,fakeQpow,logScaleSSB,logPowSSB,logSdSSB);
-      obs(U((y-1)*(stateDim+noCombs-1)+1,y*(stateDim+noCombs-1)),subData,subObs,logFpar,logSdLogObs,fakeQpow,logScaleSSB,logPowSSB,logSdSSB,alphaSCB);
+      if(LAI == 0){ obs(U((y-1)*stateDim+1,y*stateDim),                      subData,subObs,logFpar,logSdLogObs,fakeQpow,logScaleSSB,logPowSSB,logSdSSB);}
+      //if(LAI == 1){ obs(U((y-1)*(stateDim+noCombs-1)+1,y*(stateDim+noCombs-1)),subData,subObs,logFpar,logSdLogObs,fakeQpow,logScaleSSB,logPowSSB,logSdSSB,alphaSCB);}
     }
   }
 
@@ -795,15 +798,14 @@ SEPARABLE_FUNCTION void step(const int y, const dvar_vector& u1,const dvar_vecto
     jnll+=nLogNormal(pred((maxAge-minAge+2),stateDim),x2(maxAge-minAge+2,stateDim),fvar);
   } 
 
-//                                                                                                                                                                                                                                                                            noCombs=nCs maxSCBSurv=maxSCB            combSurv=numSurv           alphaSCB=aSCB
-//SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dvar_vector& obs, const dvar_vector& logFpar, const dvar_vector& logSdLogObs, const dvar_vector& logQpow, const dvariable& logScaleSSB, const dvariable& logPowSSB, const dvariable& logSdSSB)
-SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dvar_vector& obs, const dvar_vector& logFpar, const dvar_vector& logSdLogObs, const dvar_vector& logQpow, const dvariable& logScaleSSB, const dvariable& logPowSSB, const dvariable& logSdSSB, const dvar_vector& aSCB)
+//
+SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dvar_vector& obs, const dvar_vector& logFpar, const dvar_vector& logSdLogObs, const dvar_vector& logQpow, const dvariable& logScaleSSB, const dvariable& logPowSSB, const dvariable& logSdSSB)
+//SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dvar_vector& obs, const dvar_vector& logFpar, const dvar_vector& logSdLogObs, const dvar_vector& logQpow, const dvariable& logScaleSSB, const dvariable& logPowSSB, const dvariable& logSdSSB, const dvar_vector& aSCB)
 
   int n1=data.rowmin();
   int n2=data.rowmax();
   dvar_vector pred(n1,n2);
 
-  //dvar_vector x(1,stateDim*noCombs-1);
   dvar_vector x(1,stateDim+noCombs-1);
   int xn1=u.indexmin();
   int xn2=u.indexmax();
@@ -818,53 +820,62 @@ SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dva
   
   // Get probs per unit into vector
   dvar_vector props(1,noCombs);
-  int counter = 2;
-  for(int i=(xn1+stateDim); i<=xn2; ++i){
-    props(counter)=u(i);
-    counter += 1;
+  if(LAI == 1){
+    int counter = 2;
+    for(int i=(xn1+stateDim); i<=xn2; ++i){
+      props(counter)=u(i);
+      counter += 1;
+    }
   }
-  
+
   //cout << " props initilized " << endl << cout.flush();
 
   // Get numSurv into vector
   dvar_vector survNum(1,maxSCBSurv);
-  for(int i=1; i<=maxSCBSurv; ++i){
-    survNum(i)=combSurv(i);
+  if(LAI == 1){
+    for(int i=1; i<=maxSCBSurv; ++i){
+      survNum(i)=combSurv(i);
+    }
   }
-  
+
   //cout << " survNum initilized " << endl << cout.flush();
-  
+
   // Normalize probs and make them amount to 1 (fill 4th parameter)
   dvariable totProp = 0.0;
   dvar_vector props_norm(1,noCombs);
-  for(int i=2; i<=noCombs; ++i){
-    totProp += exp(props(i));
+  if(LAI == 1){
+    for(int i=2; i<=noCombs; ++i){
+      totProp += exp(props(i));
+    }
+    for(int i=2; i<=noCombs; ++i){
+      props_norm(i) = exp(props(i)) / (1+totProp);
+    }
+    props_norm(1) = 1 - totProp / (1+totProp);
   }
-  for(int i=2; i<=noCombs; ++i){
-    props_norm(i) = exp(props(i)) / (1+totProp);
-  }
-  props_norm(1) = 1 - totProp / (1+totProp);
-  
+
   //cout << " props_norm " << props_norm << endl << cout.flush();
   //cout << " props_norm initilized " << endl << cout.flush();
 
   // Normalize probs_alpha and make them amount to 1
   dvar_vector alphaSCB_norm(1,maxSCBSurv);
-  for(int i=1; i<=noCombs; ++i){
-    dvariable totProp_alpha = 0.0;
-    int idxmin=0; int idxmax=0;
-    for(int k=1; k<=maxSCBSurv; ++k){
-      if(value(survNum(k))==value(i) && idxmin==0){ idxmin=k;}
-      if(value(survNum(k))==value(i)){ idxmax=k;}
+  dvar_vector aSCB;
+  if(LAI == 1){
+    for(int i=1; i<=noCombs; ++i){
+      dvariable totProp_alpha = 0.0;
+      int idxmin=0; int idxmax=0;
+      for(int k=1; k<=maxSCBSurv; ++k){
+        if(value(survNum(k))==value(i) && idxmin==0){ idxmin=k;}
+        if(value(survNum(k))==value(i)){ idxmax=k;}
+      }
+      for(int j=(idxmin+1); j<=idxmax; ++j){
+        // Substract i because aSCB is only 7 long but I'm estimating 11 valus
+        totProp_alpha += exp(aSCB(j-i));
+      }
+      for(int j=(idxmin+1); j<=idxmax; ++j){
+        alphaSCB_norm(j) = exp(aSCB(j-i)) / (1+totProp_alpha);
+      }
+      alphaSCB_norm(idxmin) = 1 - totProp_alpha / (1+totProp_alpha);
     }
-    for(int j=(idxmin+1); j<=idxmax; ++j){
-      // Substract i because aSCB is only 7 long but I'm estimating 11 valus
-      totProp_alpha += exp(aSCB(j-i));
-    }
-    for(int j=(idxmin+1); j<=idxmax; ++j){
-      alphaSCB_norm(j) = exp(aSCB(j-i)) / (1+totProp_alpha);
-    }
-    alphaSCB_norm(idxmin) = 1 - totProp_alpha / (1+totProp_alpha);
   }
   //cout << " sum alpha " << sum(alphaSCB_norm) << endl << cout.flush();
   //cout << " alphaSCB_norm initilized " << endl << cout.flush();
@@ -946,16 +957,19 @@ SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dva
               pred(i)=exp(logPowSSB)*log(ssb)+logScaleSSB;
             } else {
                 if(ft==5){ // LAI indices
-                  dvariable ssb=0.0;
-                  for(int aa=minAge; aa<=maxAge; ++aa){
-                    yIdx=(int)(y-years(1)+1);
-                    ssb+=exp(x(aa-minAge+1))*exp(-Ftot(aa)*Fprop(yIdx,aa)-natMor(yIdx,aa)*Mprop(yIdx,aa))*propMature(yIdx,aa)*stockMeanWeight(yIdx,aa);
+                  //Option to cancel out LAI estimation
+                  if(LAI == 1){
+                    dvariable ssb=0.0;
+                    for(int aa=minAge; aa<=maxAge; ++aa){
+                      yIdx=(int)(y-years(1)+1);
+                      ssb+=exp(x(aa-minAge+1))*exp(-Ftot(aa)*Fprop(yIdx,aa)-natMor(yIdx,aa)*Mprop(yIdx,aa))*propMature(yIdx,aa)*stockMeanWeight(yIdx,aa);
+                    }
+                    pred(i) = logScaleSSB + log(ssb) + log(props_norm(value(survNum(a)))) + log(alphaSCB_norm(a));
+                    //cout << logScaleSSB << " " << log(ssb) << " " << log(props_norm(value(survNum(a)))) << " "  << log(alphaSCB_norm(a)) << endl; cout.flush();
+                    //cout << " pred(i) " << pred(i) << endl; cout.flush();
                   }
-                 pred(i) = logScaleSSB + log(ssb) + log(props_norm(value(survNum(a)))) + log(alphaSCB_norm(a));
-                 //cout << logScaleSSB << " " << log(ssb) << " " << log(props_norm(value(survNum(a)))) << " "  << log(alphaSCB_norm(a)) << endl; cout.flush();
-                 //cout << " pred(i) " << pred(i) << endl; cout.flush();
                 }
-            }
+              }
           }
         } 
       }
@@ -978,12 +992,23 @@ SEPARABLE_FUNCTION void obs(const dvar_vector& u, const dmatrix& data, const dva
         var=exp(2.0*logSdSSB); 
       }else{
         if(fleetTypes(f)==5){
-          var=exp(2.0*logSdLogObs(keyVarObs(f,value(survNum(a))-1)));
+          //Option to cancel out LAI estimation
+          if(LAI == 1){
+            var=exp(2.0*logSdLogObs(keyVarObs(f,value(survNum(a))-1)));
+          }
         }else{
             var=exp(2.0*logSdLogObs(keyVarObs(f,a)));
         }
       }
-      jnll+=0.5*(log(2.0*M_PI*var)+square(obs(i)-pred(i))/var);
+      //Option to cancel out LAI estimation
+      if(LAI == 1){
+        jnll+=0.5*(log(2.0*M_PI*var)+square(obs(i)-pred(i))/var);
+      } else {
+        if(fleetTypes(f)<=4){
+          jnll+=0.5*(log(2.0*M_PI*var)+square(obs(i)-pred(i))/var);
+        }
+      }
+
       //if(fleetTypes(f) == 5){
       //  cout << " obs(i) " << obs(i) << " pred(i) " << pred(i) << endl << cout.flush();
       //}
