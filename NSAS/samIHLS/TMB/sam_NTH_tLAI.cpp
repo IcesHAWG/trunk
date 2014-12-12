@@ -108,17 +108,17 @@ Type objective_function<Type>::operator() ()
       logF(i,j)=U(i+nlogN,j);
 
   // Take proportion states and make sure all 4 proportions scale to 1    
-//  Type totProp;
-//  for(int j=0;j<U.cols();j++){
-//    totProp=0;
-//    for(int i=0;i<(nlogP-1);i++){
-//      totProp += exp(U(i+nlogN+nlogF,j));
-//    }
-//    for(int i=0; i<(nlogP-1);i++){
-//      logP(i+1,j) = log(exp(U(i+nlogN+nlogF,j)) / (1+totProp));
-//    }
-//    logP(0,j) = log(1 - totProp / (1+totProp));
-//  }      
+  Type totProp;
+  for(int j=0;j<U.cols();j++){
+    totProp=0;
+    for(int i=0;i<(nlogP-1);i++){
+      totProp += exp(U(i+nlogN+nlogF,j));
+    }
+    for(int i=0; i<(nlogP-1);i++){
+      logP(i+1,j) = log(exp(U(i+nlogN+nlogF,j)) / (1+totProp));
+    }
+    logP(0,j) = log(1 - totProp / (1+totProp));
+  }    
 
   int timeSteps=logF.dim[1];
   int stateDimF=logF.dim[0];
@@ -259,9 +259,9 @@ Type objective_function<Type>::operator() ()
               //cerr<<"Not implemented yet!!!"<<endl;  
             }else{
               if(ft==5){
-                //predObs=logssb(y) + logScaleSSB(0) + logP(CppAD::Integer(keyVarCouple(a)),y) + varAlphaSCB(a);
+                predObs=logssb(y) + logScaleSSB(0) + logP(CppAD::Integer(keyVarCouple(a)),y) + varAlphaSCB(a);
                 //predObs=logssb(y) + logScaleSSB(0) + logP(CppAD::Integer(keyVarCouple(a)),y) + logAlphaSCB(a);
-                predObs=logssb(y) + logScaleSSB(0) + varAlphaSCB(a);
+                //predObs=logssb(y) + logScaleSSB(0) + varAlphaSCB(a);
               }
             }          
           }
