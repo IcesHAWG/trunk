@@ -1,4 +1,4 @@
-setwd("D:/Repository/HAWG/HAWGrepository/NSAS/samIHLS/TMB/")
+#setwd("D:/Repository/HAWG/HAWGrepository/NSAS/samIHLS/TMB/")
 
 source("NSAS_origDat.r")
 
@@ -30,7 +30,8 @@ parameters$U[] <- Us
 data$nlogF=max(data$keyLogFsta)+1
 data$nlogN=data$maxAge-data$minAge+1
 
-obj <- MakeADFun(data,parameters,random=c("U"),REPORT=1,DLL="sam_NTH")
+obj <- MakeADFun(data,parameters,random=c("U"),REPORT=1,DLL="sam_NTH",
+                 map=list(rec_loga=as.factor(NA),rec_logb=as.factor(NA)))
 lower <- obj$par*0-Inf
 upper <- obj$par*0+Inf
 lower["rho"] <- 0.01
