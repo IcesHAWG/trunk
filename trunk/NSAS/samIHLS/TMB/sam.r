@@ -47,8 +47,8 @@ rep
 source("NSAS_LAIDat_V2.r")
 
 library(TMB)
-compile("sam_NTH_alpha.cpp")
-dyn.load(dynlib("sam_NTH_alpha"))
+compile("sam_NTH_tLAI.cpp")
+dyn.load(dynlib("sam_NTH_tLAI"))
 
 parameters <- list(
   logFpar=c(-0.13092145, 0.02071598, 0.11170518, -8.86860036, -12.78393203),
@@ -64,9 +64,7 @@ parameters <- list(
   logPowSSB=numeric(0),
   logSdSSB=-0.80761185,
   logAlphaSCB=log(c(0.5,0.5,0.25,0.25,0.25,0.33,0.33)),
-  #logAlphaSCB=log(c(0.5,0.5,0.5,0.5,0.25,0.25,0.25,0.25,0.33,0.33,0.33)),
-  #U=matrix(0, nrow=max(data$keyLogFsta)+1 + data$maxAge-data$minAge+1 +3,ncol=data$noYears)
-  U=matrix(0, nrow=max(data$keyLogFsta)+1 + data$maxAge-data$minAge+1,ncol=data$noYears)
+  U=matrix(0, nrow=max(data$keyLogFsta)+1 + data$maxAge-data$minAge+1 +3,ncol=data$noYears)
 )
 Us  <- unlist(read.csv("../Us.csv",header=F))
 Us <- matrix(Us,nrow=17,ncol=68)
