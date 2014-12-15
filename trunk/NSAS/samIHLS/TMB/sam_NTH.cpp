@@ -211,7 +211,7 @@ Type objective_function<Type>::operator() ()
           }
         }else{
           if(ft==3){// SSB survey -- nevermind for now 
-            //predObs=logssb(y) + logScaleSSB(0);
+            predObs=logssb(y) + logScaleSSB(0);
           }else{
             if(ft==4){
               //predObs=exp(logPowSSB(0)) + logssb(y) + logScaleSSB(0);                           
@@ -222,14 +222,12 @@ Type objective_function<Type>::operator() ()
         } 
       }
     }
-    if(ft<=2){
-      if(ft==3){      
-        var=exp(2.0*logSdSSB(0));;
-      }else{
-         var=varLogObs(CppAD::Integer(keyVarObs(f-1,a)));
-      } 
-      ans+=-dnorm(log(obs(i,3)),predObs,sqrt(var),true);
-    }
+    if(ft==3){      
+      var=exp(2.0*logSdSSB(0));;
+    }else{
+       var=varLogObs(CppAD::Integer(keyVarObs(f-1,a)));
+    } 
+    ans+=-dnorm(log(obs(i,3)),predObs,sqrt(var),true);
   }
   // ADREPORT(logN);
   // ADREPORT(logF);
