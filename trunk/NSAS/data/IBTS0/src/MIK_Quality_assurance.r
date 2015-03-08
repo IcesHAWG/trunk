@@ -19,8 +19,8 @@
 #   - This script contains RMarkdown. Generate HTML with the following commands.
 #           #Configuration----------
 #           this.script <- "src//MIK_Quality_assurance.r"
-#           opts_knit$set(output.suffix="QA_2000_2013.html",
-#                         subset.campaigns=2000:2013)  
+#           opts_knit$set(output.suffix="QA.html",
+#                         subset.campaigns=2015)  
 #           #Code follows----------
 #           library(knitr);library(markdown)
 #           opts_knit$set(root.dir=getwd(),width=120,unnamed.chunk.label="unnamed")
@@ -580,17 +580,15 @@ disp.err(dat$sum_len_dist!=0 & dat$Numberlarvae==0,
 #'We check that there is agreement between what has been measured and 
 #'not measured. Ideally, the `Numberlarvae` should equal the sum of the 
 #'larvae reported in the length distribution fields (`sum_len_dist`), plus 
-#'the larvae reported as `notmeasured` (e.g. due to subsampling, damage). 
+#'the larvae reported as `notmeasured` (e.g. due to subsampling) and `damaged`. 
 #'The discrepancy between these is reported in the `diff` field. An error 
 #'is reported if this value is non-zero, after rounding.
 #'
-#' Note that this option has been disabled as the not.measured and damaged
-#' fields are missing from the current version of the DB.
-# d <- dat
-# d$diff <- round(d$Numberlarvae - d$sum_len_dist-d$not.measured-d$damaged,1)
-# disp.err(d$diff!=0 & d$sum_len_dist!=0 & d$Numberlarvae!=0,
-#          c("Numberlarvae","sum_len_dist","not.measured","damaged","diff"),
-#          from=d)
+d <- dat
+d$diff <- round(d$Numberlarvae - d$sum_len_dist-d$not.measured-d$damaged,1)
+disp.err(d$diff!=0 & d$sum_len_dist!=0 & d$Numberlarvae!=0,
+         c("Numberlarvae","sum_len_dist","not.measured","damaged","diff"),
+         from=d)
 
 #/* ========================================================================*/
 #   Complete
