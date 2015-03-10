@@ -1,6 +1,6 @@
 Proportion of F before spawning 3/16/2011   13:12
    1       7
-  1947      2013
+  1947      2014
    0       9
    3
     0.67
