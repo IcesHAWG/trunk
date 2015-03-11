@@ -145,9 +145,9 @@ log.msg("PERFORMING ASSESSMENT...\n")
 ## Run the assessment
 
 ###
-FLR2SAM(MSH,MSH.tun,MSH.ctrl,run.dir="C:/saved_pin/")
+FLR2SAM(MSH,MSH.tun,MSH.ctrl,run.dir="./saved_pin/")
 
-runSAM(MSH.ctrl,run.dir="C:/saved_pin/",use.pin=TRUE)
+runSAM(MSH.ctrl,run.dir="./saved_pin/",use.pin=TRUE)
 
 MSH.sam <- SAM2FLR(MSH.ctrl,run.dir="./saved_pin/")
 
@@ -178,21 +178,21 @@ pdf(paste(output.base,"_MSH_plots.pdf",sep=""))
 
 #Bubble plot of survey residuals
 # Surveys are in the same order as the input file
-res.dat <- subset(residuals(MSH.sam),fleet=="Fleet 2")
+res.dat <- subset(residuals(MSH.sam),fleet=="MS HERAS")
 res.dat$data <- res.dat$std.res
 p <- xyplot(age  ~ year |fleet,res.dat,
        cex=4*abs(res.dat$std.res)/max(abs(res.dat$std.res))+0.1,
        col=ifelse(res.dat$std.res<0,"red","black"),
        pch=16)
 print(p)
-res3.dat <- subset(residuals(MSH.sam),fleet=="Fleet 3")
+res3.dat <- subset(residuals(MSH.sam),fleet=="WoS HERAS")
 res3.dat$data <- res3.dat$std.res
 p <- xyplot(age  ~ year |fleet,res3.dat,
             cex=4*abs(res3.dat$std.res)/max(abs(res3.dat$std.res))+0.1,
             col=ifelse(res3.dat$std.res<0,"red","black"),
             pch=16)
 print(p)
-res2.dat <- subset(residuals(MSH.sam),fleet=="Fleet 4")
+res2.dat <- subset(residuals(MSH.sam),fleet=="IBTS_Q1")
 res2.dat$data <- res2.dat$std.res
 p <- xyplot(age  ~ year |fleet,res2.dat,
             cex=4*abs(res2.dat$std.res)/max(abs(res2.dat$std.res))+0.1,
@@ -200,7 +200,7 @@ p <- xyplot(age  ~ year |fleet,res2.dat,
             pch=16)
 print(p)
 
-res3.dat <- subset(residuals(MSH.sam),fleet=="Fleet 5")
+res3.dat <- subset(residuals(MSH.sam),fleet=="IBTS_Q4")
 res3.dat$data <- res3.dat$std.res
 p <- xyplot(age  ~ year |fleet,res3.dat,
             cex=4*abs(res3.dat$std.res)/max(abs(res3.dat$std.res))+0.1,
@@ -210,7 +210,7 @@ print(p)
 
 
 ## bubble plot of catch residuals
-res.dat <- subset(residuals(MSH.sam),fleet=="Fleet 1")
+res.dat <- subset(residuals(MSH.sam),fleet=="catch")
 res.dat$data <- res.dat$std.res
 p <- xyplot(age  ~ year |fleet,res.dat,
        cex=4*abs(res.dat$std.res)/max(abs(res.dat$std.res))+0.1,
@@ -329,6 +329,7 @@ colnames(stockSummaryTable) <-
                        "Landings (tonnes)","Yield / SSB (ratio)","Mean F ages 3-6"),each=3),c("Mean","Low","High")),"SoP (%)")
 
 
+#write(stockSummaryTable,file.path(output.dir,"stocksummarytable",sep=".")) #or could create output.base
 
 
 
