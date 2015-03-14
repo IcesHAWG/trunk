@@ -15,7 +15,7 @@
 #   - ADMB v 9.0
 #
 # Changes:
-#   r825   - Added output suitable for direct incorporation into Panagea
+#   r825   - Added output suitable for direct incorporation into Panagea database
 #   r667   - Added outputs written to VPA suite
 #   r404   - Added retrospective analysis
 #   V 2.01 - Tweaks to output figures
